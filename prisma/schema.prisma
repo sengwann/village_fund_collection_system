@@ -103,12 +103,12 @@ model Village {
 }
 
 model User {
-  id        String   @id @default(cuid())
+  id        String        @id @default(cuid())
   villageId String?
-  village   Village? @relation(fields: [villageId], references: [id], onDelete: Restrict)
-
-  houseId String?
-  house   House?  @relation("HouseMembers", fields: [houseId], references: [id], onDelete: SetNull)
+  village   Village?      @relation(fields: [villageId], references: [id], onDelete: Restrict)
+  settings  UserSettings?
+  houseId   String?
+  house     House?        @relation("HouseMembers", fields: [houseId], references: [id], onDelete: SetNull)
 
   headedHouse House? @relation("HouseHead")
 
@@ -116,9 +116,13 @@ model User {
   membershipStatus MembershipStatus?
 
   name         String
-  email        String? @unique
-  phone        String? @unique
+  email        String?   @unique
+  phone        String?   @unique
   passwordHash String
+  dateOfBirth  DateTime? @db.Date
+
+  kpayAccountName   String?
+  kpayAccountNumber String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -136,6 +140,7 @@ model User {
   @@index([villageId, role])
   @@index([villageId, membershipStatus])
   @@index([villageId, houseId])
+  @@index([villageId, dateOfBirth])
 }
 
 model House {
@@ -242,10 +247,10 @@ model Payment {
   amount        Int
   status        PaymentStatus @default(PENDING)
 
-  kpayTransactionLast10 String? @db.VarChar(10)
-  kpaySenderName        String?
-  kpaySenderAccount     String?
-  kpayReceiverAccount   String?
+  kpayTransactionId   String? @unique @db.VarChar(64)
+  kpaySenderName      String?
+  kpaySenderAccount   String?
+  kpayReceiverAccount String?
 
   rejectionNote String?
   voidReason    String?
@@ -340,4 +345,20 @@ model AuditLog {
   @@index([createdAt])
   @@index([villageId, createdAt])
   @@index([villageId, actionType])
+}
+
+enum LanguagePreference {
+  EN
+  MY
+}
+
+model UserSettings {
+  id        String             @id @default(cuid())
+  userId    String             @unique
+  user      User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  language  LanguagePreference @default(EN)
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+
+  @@index([userId])
 }

@@ -1,0 +1,92 @@
+"use server";
+
+import { redirect } from "next/navigation";
+import { AuditActionType, MembershipStatus } from "@prisma/client";
+import { prisma } from "../../../lib/prisma";
+import { requireHouseholdManagementAccess } from "../lib/household-access";
+import { canChangeHeadOfHouse } from "../lib/membership-rules";
+import { AuditEntityType, createAuditLog } from "../../../lib/audit";
+
+function getFormDataString(formData: FormData, key: string): string {
+  const value = formData.get(key);
+  if (typeof value === "string") {
+    return value;
+  }
+  return "";
+}
+
+export async function changeHeadAction(formData: FormData): Promise<void> {
+  const { user, house } = await requireHouseholdManagementAccess();
+
+  const targetUserId = getFormDataString(formData, "targetUserId");
+  if (!targetUserId) {
+    redirect("/village/household");
+  }
+
+  const target = await prisma.user.findFirst({
+    where: {
+      id: targetUserId,
+      houseId: house.id,
+      villageId: house.villageId,
+    },
+    select: {
+      id: true,
+      membershipStatus: true,
+    },
+  });
+
+  if (!target || !canChangeHeadOfHouse(target, house, user.id)) {
+    redirect("/village/household");
+  }
+
+  try {
+    await prisma.$transaction(async (tx) => {
+      const activeTarget = await tx.user.findFirst({
+        where: {
+          id: target.id,
+          houseId: house.id,
+          villageId: house.villageId,
+          membershipStatus: MembershipStatus.ACTIVE,
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      if (!activeTarget) {
+        throw new Error("INVALID_HEAD_TARGET");
+      }
+
+      const updated = await tx.house.updateMany({
+        where: {
+          id: house.id,
+          headOfHouseId: user.id,
+        },
+        data: {
+          headOfHouseId: activeTarget.id,
+        },
+      });
+
+      if (updated.count !== 1) {
+        throw new Error("INVALID_HEAD_CHANGE");
+      }
+
+      await createAuditLog(tx, {
+        actionType: AuditActionType.STATUS_CHANGE,
+        entityType: AuditEntityType.HOUSE,
+        entityId: house.id,
+        villageId: house.villageId,
+        actorUserId: user.id,
+        metadata: {
+          previousHeadOfHouseId: user.id,
+          newHeadOfHouseId: activeTarget.id,
+          houseId: house.id,
+        },
+      });
+    });
+  } catch {
+    redirect("/village/household");
+  }
+
+  redirect("/village/household");
+}
