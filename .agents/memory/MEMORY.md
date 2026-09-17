@@ -1,1 +1,0 @@
-- [Next.js template tooling](nextjs-template-tooling.md) — Next 16 linting needs the standalone ESLint CLI and compatible TypeScript/ESLint majors.
