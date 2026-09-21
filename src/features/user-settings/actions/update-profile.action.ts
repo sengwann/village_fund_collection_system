@@ -31,37 +31,33 @@ export async function updateProfileAction(
     };
   }
 
-  const { name, email, phone, dateOfBirth } = validation.data; 
+  const { name, email, phone, dateOfBirth } = validation.data;
 
   try {
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { name, email, phone, dateOfBirth }, 
-    });
+    await prisma.$transaction(async (tx) => {
+      await tx.user.update({
+        where: { id: user.id },
+        data: { name, email, phone, dateOfBirth },
+      });
 
-    await createAuditLog(prisma, {
-      actionType: AuditActionType.UPDATE,
-      entityType: AuditEntityType.USER,
-      entityId: user.id,
-      villageId: user.villageId ?? null,
-      actorUserId: user.id,
-      metadata: { name, email, phone }, 
+      await createAuditLog(tx, {
+        actionType: AuditActionType.UPDATE,
+        entityType: AuditEntityType.USER,
+        entityId: user.id,
+        villageId: user.villageId ?? null,
+        actorUserId: user.id,
+        metadata: { name, email, phone },
+      });
     });
   } catch (error) {
     const prismaError = error as { code?: string; meta?: { target?: unknown } };
     if (prismaError.code === "P2002") {
       const targetInfo = JSON.stringify(prismaError.meta?.target ?? "");
       if (targetInfo.includes("email")) {
-        return {
-          success: false,
-          fieldErrors: { email: "This email is already in use." },
-        };
+        return { success: false, fieldErrors: { email: "This email is already in use." } };
       }
       if (targetInfo.includes("phone")) {
-        return {
-          success: false,
-          fieldErrors: { phone: "This phone number is already in use." },
-        };
+        return { success: false, fieldErrors: { phone: "This phone number is already in use." } };
       }
     }
     return {

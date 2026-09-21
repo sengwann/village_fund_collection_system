@@ -30,10 +30,14 @@ export async function updateHouseNumberAction(
       villageId: true,
       houseNumber: true,
       isActive: true,
-      _count: {
-        select: {
-          payments: true,
+      members: {
+        where: {
+          membershipStatus: { in: ["ACTIVE", "PENDING"] },
         },
+        select: { id: true },
+      },
+      _count: {
+        select: { payments: true },
       },
     },
   });
@@ -43,7 +47,7 @@ export async function updateHouseNumberAction(
 
   const rules = canEditHouseNumber({
     isActive: house.isActive,
-    hasActiveOrPendingMembers: false,
+    hasActiveOrPendingMembers: house.members.length > 0,
     hasPayments: house._count.payments > 0,
   });
 
@@ -51,8 +55,10 @@ export async function updateHouseNumberAction(
     return { success: false, formError: rules.reason };
   }
 
-  const rawHouseNumber = formData.get("houseNumber") as string;
-  const validation = validateHouseNumber(rawHouseNumber);
+  const rawHouseNumber = formData.get("houseNumber");
+  const validation = validateHouseNumber(
+    typeof rawHouseNumber === "string" ? rawHouseNumber : "",
+  );
 
   if (!validation.ok) {
     return {
@@ -69,21 +75,23 @@ export async function updateHouseNumberAction(
   }
 
   try {
-    await prisma.house.update({
-      where: { id: houseId },
-      data: { houseNumber },
-    });
+    await prisma.$transaction(async (tx) => {
+      await tx.house.update({
+        where: { id: houseId },
+        data: { houseNumber },
+      });
 
-    await createAuditLog(prisma, {
-      actionType: AuditActionType.UPDATE,
-      entityType: AuditEntityType.HOUSE,
-      entityId: houseId,
-      villageId,
-      actorUserId: user.id,
-      metadata: {
-        houseNumber,
-        previousHouseNumber: house.houseNumber,
-      },
+      await createAuditLog(tx, {
+        actionType: AuditActionType.UPDATE,
+        entityType: AuditEntityType.HOUSE,
+        entityId: houseId,
+        villageId,
+        actorUserId: user.id,
+        metadata: {
+          houseNumber,
+          previousHouseNumber: house.houseNumber,
+        },
+      });
     });
 
     return { success: true };

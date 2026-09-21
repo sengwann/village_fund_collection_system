@@ -11,12 +11,12 @@ import {
 import { AuditEntityType, tryCreateAuditLog } from "../../../lib/audit";
 import type { LoginResult } from "../../../lib/auth/auth.types";
 
+const DUMMY_PASSWORD_HASH =
+  "$2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy";
+
 function getFormDataString(formData: FormData, key: string): string {
   const value = formData.get(key);
-  if (typeof value === "string") {
-    return value;
-  }
-  return "";
+  return typeof value === "string" ? value : "";
 }
 
 export async function loginAction(formData: FormData): Promise<LoginResult> {
@@ -28,10 +28,7 @@ export async function loginAction(formData: FormData): Promise<LoginResult> {
 
   const validation = validateLoginInput(input);
   if (!validation.ok) {
-    return {
-      success: false,
-      error: validation.error,
-    };
+    return { success: false, error: validation.error };
   }
 
   const { identifier, password, redirectTo } = validation.data;
@@ -40,52 +37,32 @@ export async function loginAction(formData: FormData): Promise<LoginResult> {
   const user = await prisma.user.findFirst({
     where:
       identifier.type === "email"
-        ? {
-            email: identifier.value,
-          }
-        : {
-            phone: identifier.value,
-          },
+        ? { email: identifier.value }
+        : { phone: identifier.value },
     select: {
       id: true,
       passwordHash: true,
       role: true,
       villageId: true,
-      village: {
-        select: {
-          status: true,
-        },
-      },
+      village: { select: { status: true } },
     },
   });
 
-  if (!user) {
-    return {
-      success: false,
-      error: genericError,
-    };
-  }
+  const passwordIsValid = await verifyPassword(
+    password,
+    user?.passwordHash ?? DUMMY_PASSWORD_HASH,
+  );
 
-  const passwordIsValid = await verifyPassword(password, user.passwordHash);
-  if (!passwordIsValid) {
-    return {
-      success: false,
-      error: genericError,
-    };
+  if (!user || !passwordIsValid) {
+    return { success: false, error: genericError };
   }
 
   if (user.role !== UserRole.SYSTEM_ADMIN) {
     if (!user.villageId || !user.village) {
-      return {
-        success: false,
-        error: genericError,
-      };
+      return { success: false, error: genericError };
     }
     if (user.village.status !== VillageStatus.ACTIVE) {
-      return {
-        success: false,
-        error: genericError,
-      };
+      return { success: false, error: genericError };
     }
   }
 
@@ -97,10 +74,7 @@ export async function loginAction(formData: FormData): Promise<LoginResult> {
     entityId: user.id,
     villageId: user.villageId ?? null,
     actorUserId: user.id,
-    metadata: {
-      userRole: user.role,
-      villageId: user.villageId,
-    },
+    metadata: { userRole: user.role, villageId: user.villageId },
   });
 
   return {

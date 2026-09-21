@@ -18,9 +18,10 @@ export async function createHouseAction(
   formData: FormData,
 ): Promise<CreateHouseActionResult> {
   const { user, villageId } = await requireChief();
-
-  const rawHouseNumber = formData.get("houseNumber") as string;
-  const validation = validateHouseNumber(rawHouseNumber);
+  const rawHouseNumber = formData.get("houseNumber");
+  const validation = validateHouseNumber(
+    typeof rawHouseNumber === "string" ? rawHouseNumber : "",
+  );
 
   if (!validation.ok) {
     return {
@@ -33,24 +34,21 @@ export async function createHouseAction(
   const { houseNumber } = validation.data;
 
   try {
-    const house = await prisma.house.create({
-      data: {
-        villageId,
-        houseNumber,
-        isActive: true,
-      },
-    });
+    const house = await prisma.$transaction(async (tx) => {
+      const createdHouse = await tx.house.create({
+        data: { villageId, houseNumber, isActive: true },
+      });
 
-    await createAuditLog(prisma, {
-      actionType: AuditActionType.CREATE,
-      entityType: AuditEntityType.HOUSE,
-      entityId: house.id,
-      villageId,
-      actorUserId: user.id,
-      metadata: {
-        houseNumber,
-        isActive: true,
-      },
+      await createAuditLog(tx, {
+        actionType: AuditActionType.CREATE,
+        entityType: AuditEntityType.HOUSE,
+        entityId: createdHouse.id,
+        villageId,
+        actorUserId: user.id,
+        metadata: { houseNumber, isActive: true },
+      });
+
+      return createdHouse;
     });
 
     return { success: true, houseId: house.id };

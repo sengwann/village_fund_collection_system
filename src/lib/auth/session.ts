@@ -13,23 +13,25 @@ import type { SessionUser } from "./auth.types";
 
 function getSessionSecretKey(): Uint8Array {
   const secret = process.env.AUTH_SECRET;
-
-  if (!secret) {
-    throw new Error("AUTH_SECRET is required.");
-  }
-
+  if (!secret) throw new Error("AUTH_SECRET is required.");
   if (secret.length < 32) {
     throw new Error("AUTH_SECRET must be at least 32 characters.");
   }
-
   return new TextEncoder().encode(secret);
 }
 
 export async function createSession(userId: string): Promise<void> {
-  const token = await new SignJWT({})
-    .setProtectedHeader({
-      alg: "HS256",
-    })
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { sessionVersion: true },
+  });
+
+  if (!user) {
+    throw new Error("Cannot create a session for an unknown user.");
+  }
+
+  const token = await new SignJWT({ sessionVersion: user.sessionVersion })
+    .setProtectedHeader({ alg: "HS256" })
     .setSubject(userId)
     .setIssuedAt()
     .setExpirationTime(
@@ -38,7 +40,6 @@ export async function createSession(userId: string): Promise<void> {
     .sign(getSessionSecretKey());
 
   const cookieStore = await cookies();
-
   cookieStore.set(AUTH_COOKIE_NAME, token, {
     httpOnly: true,
     sameSite: "lax",
@@ -48,9 +49,15 @@ export async function createSession(userId: string): Promise<void> {
   });
 }
 
+export async function revokeUserSessions(userId: string): Promise<void> {
+  await prisma.user.update({
+    where: { id: userId },
+    data: { sessionVersion: { increment: 1 } },
+  });
+}
+
 export async function destroySession(): Promise<void> {
   const cookieStore = await cookies();
-
   cookieStore.set(AUTH_COOKIE_NAME, "", {
     httpOnly: true,
     sameSite: "lax",
@@ -60,39 +67,34 @@ export async function destroySession(): Promise<void> {
   });
 }
 
-async function getSessionUserId(): Promise<string | null> {
+async function getSessionIdentity(): Promise<{
+  userId: string;
+  sessionVersion: number;
+} | null> {
   const cookieStore = await cookies();
-
   const token = cookieStore.get(AUTH_COOKIE_NAME)?.value;
-
-  if (!token) {
-    return null;
-  }
+  if (!token) return null;
 
   try {
     const { payload } = await jwtVerify(token, getSessionSecretKey());
-
-    if (!payload.sub) {
+    if (!payload.sub || typeof payload.sessionVersion !== "number") {
       return null;
     }
-
-    return payload.sub;
+    return {
+      userId: payload.sub,
+      sessionVersion: payload.sessionVersion,
+    };
   } catch {
     return null;
   }
 }
 
 export async function getCurrentUser(): Promise<SessionUser | null> {
-  const userId = await getSessionUserId();
-
-  if (!userId) {
-    return null;
-  }
+  const identity = await getSessionIdentity();
+  if (!identity) return null;
 
   const user = await prisma.user.findUnique({
-    where: {
-      id: userId,
-    },
+    where: { id: identity.userId },
     select: {
       id: true,
       name: true,
@@ -100,29 +102,19 @@ export async function getCurrentUser(): Promise<SessionUser | null> {
       villageId: true,
       houseId: true,
       membershipStatus: true,
+      sessionVersion: true,
       dateOfBirth: true,
       email: true,
       phone: true,
-      village: {
-        select: {
-          status: true,
-        },
-      },
+      village: { select: { status: true } },
     },
   });
 
-  if (!user) {
-    return null;
-  }
+  if (!user || user.sessionVersion !== identity.sessionVersion) return null;
 
   if (user.role !== UserRole.SYSTEM_ADMIN) {
-    if (!user.villageId || !user.village) {
-      return null;
-    }
-
-    if (user.village.status !== VillageStatus.ACTIVE) {
-      return null;
-    }
+    if (!user.villageId || !user.village) return null;
+    if (user.village.status !== VillageStatus.ACTIVE) return null;
   }
 
   return {

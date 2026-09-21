@@ -1,7 +1,7 @@
 "use server";
 
 import { redirect, notFound } from "next/navigation";
-import { AuditActionType } from "@prisma/client";
+import { AuditActionType, MembershipStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { requireChief } from "@/lib/authz";
 import { requireSameVillage } from "@/lib/authz/tenant";
@@ -18,6 +18,17 @@ export async function reactivateHouseAction(houseId: string): Promise<void> {
       villageId: true,
       houseNumber: true,
       isActive: true,
+      members: {
+        where: {
+          membershipStatus: {
+            in: [MembershipStatus.ACTIVE, MembershipStatus.PENDING],
+          },
+        },
+        select: { id: true },
+      },
+      _count: {
+        select: { payments: true },
+      },
     },
   });
 
@@ -26,29 +37,31 @@ export async function reactivateHouseAction(houseId: string): Promise<void> {
 
   const rules = canReactivateHouse({
     isActive: house.isActive,
-    hasActiveOrPendingMembers: false,
-    hasPayments: false,
+    hasActiveOrPendingMembers: house.members.length > 0,
+    hasPayments: house._count.payments > 0,
   });
 
   if (!rules.allowed) {
     redirect(`/village/houses/${houseId}`);
   }
 
-  await prisma.house.update({
-    where: { id: houseId },
-    data: { isActive: true },
-  });
+  await prisma.$transaction(async (tx) => {
+    await tx.house.update({
+      where: { id: houseId },
+      data: { isActive: true },
+    });
 
-  await createAuditLog(prisma, {
-    actionType: AuditActionType.STATUS_CHANGE,
-    entityType: AuditEntityType.HOUSE,
-    entityId: houseId,
-    villageId,
-    actorUserId: user.id,
-    metadata: {
-      houseNumber: house.houseNumber,
-      isActive: true,
-    },
+    await createAuditLog(tx, {
+      actionType: AuditActionType.STATUS_CHANGE,
+      entityType: AuditEntityType.HOUSE,
+      entityId: houseId,
+      villageId,
+      actorUserId: user.id,
+      metadata: {
+        houseNumber: house.houseNumber,
+        isActive: true,
+      },
+    });
   });
 
   redirect(`/village/houses/${houseId}`);

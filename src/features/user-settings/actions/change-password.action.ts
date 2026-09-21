@@ -1,6 +1,10 @@
 "use server";
 import { AuditActionType } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import {
+  destroySession,
+  revokeUserSessions,
+} from "@/lib/auth/session";
 import { requireAuthenticatedUser } from "@/lib/auth/guards";
 import { hashPassword, verifyPassword } from "@/lib/auth/password";
 import { AuditEntityType, createAuditLog } from "@/lib/audit";
@@ -21,7 +25,6 @@ export async function changePasswordAction(
   formData: FormData,
 ): Promise<ChangePasswordActionResult> {
   const user = await requireAuthenticatedUser();
-
   const validation = validatePasswordInput(formData);
   if (!validation.ok) {
     return {
@@ -32,8 +35,6 @@ export async function changePasswordAction(
   }
 
   const { currentPassword, newPassword } = validation.data;
-
-  // Load the user's current password hash from the database
   const dbUser = await prisma.user.findUnique({
     where: { id: user.id },
     select: { id: true, passwordHash: true },
@@ -46,9 +47,7 @@ export async function changePasswordAction(
     };
   }
 
-  // Verify current password
-  const isValid = await verifyPassword(currentPassword, dbUser.passwordHash);
-  if (!isValid) {
+  if (!(await verifyPassword(currentPassword, dbUser.passwordHash))) {
     return {
       success: false,
       fieldErrors: {
@@ -57,22 +56,26 @@ export async function changePasswordAction(
     };
   }
 
-  // Hash and store new password
   const newPasswordHash = await hashPassword(newPassword);
 
   try {
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { passwordHash: newPasswordHash },
-    });
+    await prisma.$transaction(async (tx) => {
+      await tx.user.update({
+        where: { id: user.id },
+        data: {
+          passwordHash: newPasswordHash,
+          sessionVersion: { increment: 1 },
+        },
+      });
 
-    await createAuditLog(prisma, {
-      actionType: AuditActionType.UPDATE,
-      entityType: AuditEntityType.USER,
-      entityId: user.id,
-      villageId: user.villageId ?? null,
-      actorUserId: user.id,
-      metadata: { note: "password_changed" },
+      await createAuditLog(tx, {
+        actionType: AuditActionType.UPDATE,
+        entityType: AuditEntityType.USER,
+        entityId: user.id,
+        villageId: user.villageId ?? null,
+        actorUserId: user.id,
+        metadata: { note: "password_changed" },
+      });
     });
   } catch {
     return {
@@ -81,5 +84,6 @@ export async function changePasswordAction(
     };
   }
 
+  await destroySession();
   return { success: true };
 }

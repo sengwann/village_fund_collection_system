@@ -6,10 +6,6 @@ datasource db {
   provider = "postgresql"
 }
 
-// =============================================================
-// Core Enums
-// =============================================================
-
 enum UserRole {
   SYSTEM_ADMIN
   CHIEF
@@ -68,19 +64,11 @@ enum AuditActionType {
   LOGOUT
 }
 
-// =============================================================
-// Module 3 Enums
-// =============================================================
-
 enum FundStatus {
   DRAFT
   ACTIVE
   CLOSED
 }
-
-// =============================================================
-// Core Models
-// =============================================================
 
 model Village {
   id          String        @id @default(cuid())
@@ -114,6 +102,7 @@ model User {
 
   role             UserRole          @default(VILLAGER)
   membershipStatus MembershipStatus?
+  sessionVersion   Int               @default(0)
 
   name         String
   email        String?   @unique
@@ -130,9 +119,8 @@ model User {
   collectorAssignments CollectorAssignment[]
   paymentsAsPayer      Payment[]             @relation("PaymentPayer")
   paymentsAsCollector  Payment[]             @relation("PaymentCollector")
-
-  raisedDisputes Dispute[]  @relation("DisputeRaisedBy")
-  auditLogs      AuditLog[] @relation("AuditLogActor")
+  raisedDisputes       Dispute[]             @relation("DisputeRaisedBy")
+  auditLogs            AuditLog[]            @relation("AuditLogActor")
 
   @@index([villageId])
   @@index([houseId])
@@ -147,47 +135,31 @@ model House {
   id        String  @id @default(cuid())
   villageId String
   village   Village @relation(fields: [villageId], references: [id], onDelete: Restrict)
-
   houseNumber String
-
   headOfHouseId String? @unique
   headOfHouse   User?   @relation("HouseHead", fields: [headOfHouseId], references: [id], onDelete: SetNull)
-
   members User[] @relation("HouseMembers")
-
   isActive Boolean @default(true)
-
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
   payments Payment[]
-
   @@unique([villageId, houseNumber])
   @@index([villageId])
   @@index([isActive])
   @@index([villageId, isActive])
 }
 
-// =============================================================
-// Module 3 Models
-// =============================================================
-
 model CollectorAssignment {
-  id        String  @id @default(cuid())
+  id String @id @default(cuid())
   villageId String
-  village   Village @relation(fields: [villageId], references: [id], onDelete: Restrict)
-
+  village Village @relation(fields: [villageId], references: [id], onDelete: Restrict)
   userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Restrict)
-
-  year  Int
+  user User @relation(fields: [userId], references: [id], onDelete: Restrict)
+  year Int
   month Int
-
   isActive Boolean @default(true)
-
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
   @@unique([villageId, userId, year, month])
   @@index([villageId])
   @@index([userId])
@@ -197,70 +169,49 @@ model CollectorAssignment {
 }
 
 model Fund {
-  id        String  @id @default(cuid())
+  id String @id @default(cuid())
   villageId String
-  village   Village @relation(fields: [villageId], references: [id], onDelete: Restrict)
-
-  name        String
+  village Village @relation(fields: [villageId], references: [id], onDelete: Restrict)
+  name String
   description String?
-
   targetAmount Int
-
   startDate DateTime @db.Date
-  endDate   DateTime @db.Date
-
+  endDate DateTime @db.Date
   status FundStatus @default(DRAFT)
-
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
   payments Payment[]
-
   @@index([villageId])
   @@index([status])
   @@index([villageId, status])
   @@index([villageId, startDate, endDate])
 }
 
-// =============================================================
-// Module 4 Models
-// =============================================================
-
 model Payment {
-  id        String  @id @default(cuid())
+  id String @id @default(cuid())
   villageId String
-  village   Village @relation(fields: [villageId], references: [id], onDelete: Restrict)
-
+  village Village @relation(fields: [villageId], references: [id], onDelete: Restrict)
   fundId String
-  fund   Fund   @relation(fields: [fundId], references: [id], onDelete: Restrict)
-
+  fund Fund @relation(fields: [fundId], references: [id], onDelete: Restrict)
   houseId String
-  house   House  @relation(fields: [houseId], references: [id], onDelete: Restrict)
-
+  house House @relation(fields: [houseId], references: [id], onDelete: Restrict)
   payerUserId String
-  payer       User   @relation("PaymentPayer", fields: [payerUserId], references: [id], onDelete: Restrict)
-
+  payer User @relation("PaymentPayer", fields: [payerUserId], references: [id], onDelete: Restrict)
   collectorUserId String?
-  collector       User?   @relation("PaymentCollector", fields: [collectorUserId], references: [id], onDelete: SetNull)
-
+  collector User? @relation("PaymentCollector", fields: [collectorUserId], references: [id], onDelete: SetNull)
   paymentMethod PaymentMethod
-  amount        Int
-  status        PaymentStatus @default(PENDING)
-
-  kpayTransactionId   String? @unique @db.VarChar(64)
-  kpaySenderName      String?
-  kpaySenderAccount   String?
+  amount Int
+  status PaymentStatus @default(PENDING)
+  kpayTransactionId String? @unique @db.VarChar(64)
+  kpaySenderName String?
+  kpaySenderAccount String?
   kpayReceiverAccount String?
-
   rejectionNote String?
-  voidReason    String?
-
-  receipt  Receipt?
+  voidReason String?
+  receipt Receipt?
   disputes Dispute[]
-
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
   @@index([villageId])
   @@index([fundId])
   @@index([houseId])
@@ -273,46 +224,33 @@ model Payment {
 }
 
 model Receipt {
-  id            String  @id @default(cuid())
-  receiptNumber String  @unique
-  paymentId     String  @unique
-  payment       Payment @relation(fields: [paymentId], references: [id], onDelete: Restrict)
-
+  id String @id @default(cuid())
+  receiptNumber String @unique
+  paymentId String @unique
+  payment Payment @relation(fields: [paymentId], references: [id], onDelete: Restrict)
   villageId String
-  village   Village @relation(fields: [villageId], references: [id], onDelete: Restrict)
-
+  village Village @relation(fields: [villageId], references: [id], onDelete: Restrict)
   status ReceiptStatus @default(ACTIVE)
-
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
   @@index([villageId])
   @@index([status])
   @@index([villageId, status])
 }
 
-// =============================================================
-// Module 5 Models
-// =============================================================
-
 model Dispute {
-  id        String  @id @default(cuid())
+  id String @id @default(cuid())
   villageId String
-  village   Village @relation(fields: [villageId], references: [id], onDelete: Restrict)
-
+  village Village @relation(fields: [villageId], references: [id], onDelete: Restrict)
   paymentId String
-  payment   Payment @relation(fields: [paymentId], references: [id], onDelete: Restrict)
-
+  payment Payment @relation(fields: [paymentId], references: [id], onDelete: Restrict)
   raisedByUserId String
-  raisedBy       User   @relation("DisputeRaisedBy", fields: [raisedByUserId], references: [id], onDelete: Restrict)
-
-  status         DisputeStatus @default(OPEN)
-  description    String
+  raisedBy User @relation("DisputeRaisedBy", fields: [raisedByUserId], references: [id], onDelete: Restrict)
+  status DisputeStatus @default(OPEN)
+  description String
   resolutionNote String?
-
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
   @@index([villageId])
   @@index([paymentId])
   @@index([raisedByUserId])
@@ -323,20 +261,16 @@ model Dispute {
 }
 
 model AuditLog {
-  id        String   @id @default(cuid())
+  id String @id @default(cuid())
   villageId String?
-  village   Village? @relation(fields: [villageId], references: [id], onDelete: SetNull)
-
+  village Village? @relation(fields: [villageId], references: [id], onDelete: SetNull)
   actorUserId String?
-  actor       User?   @relation("AuditLogActor", fields: [actorUserId], references: [id], onDelete: SetNull)
-
+  actor User? @relation("AuditLogActor", fields: [actorUserId], references: [id], onDelete: SetNull)
   actionType AuditActionType
   entityType String
-  entityId   String?
-  metadata   Json?
-
+  entityId String?
+  metadata Json?
   createdAt DateTime @default(now())
-
   @@index([villageId])
   @@index([actorUserId])
   @@index([actionType])
@@ -353,12 +287,11 @@ enum LanguagePreference {
 }
 
 model UserSettings {
-  id        String             @id @default(cuid())
-  userId    String             @unique
-  user      User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  language  LanguagePreference @default(EN)
-  createdAt DateTime           @default(now())
-  updatedAt DateTime           @updatedAt
-
+  id String @id @default(cuid())
+  userId String @unique
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  language LanguagePreference @default(EN)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   @@index([userId])
 }
