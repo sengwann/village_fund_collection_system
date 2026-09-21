@@ -6,122 +6,59 @@ datasource db {
   provider = "postgresql"
 }
 
-enum UserRole {
-  SYSTEM_ADMIN
-  CHIEF
-  VILLAGER
-}
-
-enum VillageStatus {
-  ACTIVE
-  SUSPENDED
-  DEACTIVATED
-}
-
-enum MembershipStatus {
-  PENDING
-  ACTIVE
-  REJECTED
-  REMOVED
-}
-
-enum PaymentMethod {
-  KPAY
-  CASH
-}
-
-enum PaymentStatus {
-  PENDING
-  ACCEPTED
-  REJECTED
-  VOIDED
-}
-
-enum ReceiptStatus {
-  ACTIVE
-  VOIDED
-}
-
-enum DisputeStatus {
-  OPEN
-  UNDER_REVIEW
-  RESOLVED
-  REJECTED
-}
-
-enum AuditActionType {
-  CREATE
-  UPDATE
-  DELETE
-  STATUS_CHANGE
-  APPROVE
-  REJECT
-  REMOVE
-  ASSIGN
-  VOID
-  ACCEPT
-  LOGIN
-  LOGOUT
-}
-
-enum FundStatus {
-  DRAFT
-  ACTIVE
-  CLOSED
-}
+enum UserRole { SYSTEM_ADMIN CHIEF VILLAGER }
+enum VillageStatus { ACTIVE SUSPENDED DEACTIVATED }
+enum MembershipStatus { PENDING ACTIVE REJECTED REMOVED }
+enum PaymentMethod { KPAY CASH }
+enum PaymentStatus { PENDING ACCEPTED REJECTED VOIDED }
+enum ReceiptStatus { ACTIVE VOIDED }
+enum DisputeStatus { OPEN UNDER_REVIEW RESOLVED REJECTED }
+enum AuditActionType { CREATE UPDATE DELETE STATUS_CHANGE APPROVE REJECT REMOVE ASSIGN VOID ACCEPT LOGIN LOGOUT }
+enum FundStatus { DRAFT ACTIVE CLOSED }
 
 model Village {
-  id          String        @id @default(cuid())
-  villageCode String        @unique
-  name        String
-  status      VillageStatus @default(ACTIVE)
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-
-  users                User[]
-  houses               House[]
+  id String @id @default(cuid())
+  villageCode String @unique
+  name String
+  status VillageStatus @default(ACTIVE)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  users User[]
+  houses House[]
   collectorAssignments CollectorAssignment[]
-  funds                Fund[]
-  payments             Payment[]
-  receipts             Receipt[]
-  disputes             Dispute[]
-  auditLogs            AuditLog[]
-
+  funds Fund[]
+  payments Payment[]
+  receipts Receipt[]
+  disputes Dispute[]
+  auditLogs AuditLog[]
   @@index([status])
 }
 
 model User {
-  id        String        @id @default(cuid())
+  id String @id @default(cuid())
   villageId String?
-  village   Village?      @relation(fields: [villageId], references: [id], onDelete: Restrict)
-  settings  UserSettings?
-  houseId   String?
-  house     House?        @relation("HouseMembers", fields: [houseId], references: [id], onDelete: SetNull)
-
+  village Village? @relation(fields: [villageId], references: [id], onDelete: Restrict)
+  settings UserSettings?
+  houseId String?
+  house House? @relation("HouseMembers", fields: [houseId], references: [id], onDelete: SetNull)
   headedHouse House? @relation("HouseHead")
-
-  role             UserRole          @default(VILLAGER)
+  role UserRole @default(VILLAGER)
   membershipStatus MembershipStatus?
-  sessionVersion   Int               @default(0)
-
-  name         String
-  email        String?   @unique
-  phone        String?   @unique
+  sessionVersion Int @default(0)
+  name String
+  email String? @unique
+  phone String? @unique
   passwordHash String
-  dateOfBirth  DateTime? @db.Date
-
-  kpayAccountName   String?
+  dateOfBirth DateTime? @db.Date
+  kpayAccountName String?
   kpayAccountNumber String?
-
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
   collectorAssignments CollectorAssignment[]
-  paymentsAsPayer      Payment[]             @relation("PaymentPayer")
-  paymentsAsCollector  Payment[]             @relation("PaymentCollector")
-  raisedDisputes       Dispute[]             @relation("DisputeRaisedBy")
-  auditLogs            AuditLog[]            @relation("AuditLogActor")
-
+  paymentsAsPayer Payment[] @relation("PaymentPayer")
+  paymentsAsCollector Payment[] @relation("PaymentCollector")
+  raisedDisputes Dispute[] @relation("DisputeRaisedBy")
+  auditLogs AuditLog[] @relation("AuditLogActor")
   @@index([villageId])
   @@index([houseId])
   @@index([role])
@@ -132,12 +69,12 @@ model User {
 }
 
 model House {
-  id        String  @id @default(cuid())
+  id String @id @default(cuid())
   villageId String
-  village   Village @relation(fields: [villageId], references: [id], onDelete: Restrict)
+  village Village @relation(fields: [villageId], references: [id], onDelete: Restrict)
   houseNumber String
   headOfHouseId String? @unique
-  headOfHouse   User?   @relation("HouseHead", fields: [headOfHouseId], references: [id], onDelete: SetNull)
+  headOfHouse User? @relation("HouseHead", fields: [headOfHouseId], references: [id], onDelete: SetNull)
   members User[] @relation("HouseMembers")
   isActive Boolean @default(true)
   createdAt DateTime @default(now())
@@ -281,10 +218,7 @@ model AuditLog {
   @@index([villageId, actionType])
 }
 
-enum LanguagePreference {
-  EN
-  MY
-}
+enum LanguagePreference { EN MY }
 
 model UserSettings {
   id String @id @default(cuid())
