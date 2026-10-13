@@ -115,6 +115,29 @@ export const en = {
   "common.save": "Save",
   "common.cancel": "Cancel",
   "common.back": "Back",
+
+  // Login
+  "login.title": "Sign in",
+  "login.subtitle": "Enter your email or phone number and password to continue.",
+  "login.identifier": "Email or phone",
+  "login.identifierPlaceholder": "you@example.com or 09xxxxxxx",
+  "login.password": "Password",
+  "login.showPassword": "Show password",
+  "login.hidePassword": "Hide password",
+  "login.submit": "Sign in",
+  "login.submitting": "Signing in...",
+  "login.registeredTitle": "Registration successful",
+  "login.registeredBody": "Please sign in.",
+  "login.errorTitle": "Could not sign in",
+  "login.errorInvalid":
+    "Invalid credentials. Check your email or phone and your password, then try again.",
+  "login.noAccount": "Don't have an account?",
+  "login.createAccount": "Create an account",
+  "login.language": "Language",
+  "login.brandTagline": "Village funds, kept clear and accountable.",
+  "login.brandPointPay": "Pay by KPay or cash and track every payment",
+  "login.brandPointReceipts": "Receipts you can look up at any time",
+  "login.brandPointVillage": "Households, collectors and funds in one place",
 } as const;
 
 export type TranslationKey = keyof typeof en;

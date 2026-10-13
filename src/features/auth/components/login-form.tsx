@@ -1,15 +1,27 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useId, useState, useTransition } from "react";
 import type { FormEvent } from "react";
+import { Eye, EyeOff } from "lucide-react";
 
+import { Alert } from "../../../components/ui/alert";
+import { Button } from "../../../components/ui/button";
+import { Field, Input, fieldControlClasses } from "../../../components/ui/field";
+import { useTranslation } from "../../../lib/i18n/provider";
+import { cn } from "../../../lib/utils";
 import { loginAction } from "../actions/login.action";
+
+/** The one generic message the server action returns for any failed sign-in. */
+const SERVER_INVALID_CREDENTIALS = "Invalid credentials.";
 
 export function LoginForm() {
   const router = useRouter();
+  const { t } = useTranslation();
+  const passwordId = useId();
 
   const [error, setError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -20,10 +32,20 @@ export function LoginForm() {
     const formData = new FormData(event.currentTarget);
 
     startTransition(async () => {
-      const result = await loginAction(formData);
+      let result: Awaited<ReturnType<typeof loginAction>>;
+      try {
+        result = await loginAction(formData);
+      } catch {
+        setError(t("common.error"));
+        return;
+      }
 
       if (!result.success) {
-        setError(result.error);
+        setError(
+          result.error === SERVER_INVALID_CREDENTIALS
+            ? t("login.errorInvalid")
+            : result.error,
+        );
         return;
       }
 
@@ -33,57 +55,69 @@ export function LoginForm() {
   }
 
   return (
-    <form className="space-y-4" onSubmit={handleSubmit}>
-      <div className="space-y-2">
-        <label
-          className="block text-sm font-medium text-slate-900"
-          htmlFor="identifier"
-        >
-          Email or phone
-        </label>
-
-        <input
-          autoComplete="username"
-          className="block w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
-          id="identifier"
-          name="identifier"
-          placeholder="you@example.com or 09xxxxxxx"
-          required
-          type="text"
-        />
-      </div>
-
-      <div className="space-y-2">
-        <label
-          className="block text-sm font-medium text-slate-900"
-          htmlFor="password"
-        >
-          Password
-        </label>
-
-        <input
-          autoComplete="current-password"
-          className="block w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
-          id="password"
-          name="password"
-          required
-          type="password"
-        />
-      </div>
-
+    <form className="space-y-5" onSubmit={handleSubmit}>
       {error ? (
-        <p className="text-sm text-red-600" role="alert">
+        <Alert tone="danger" title={t("login.errorTitle")}>
           {error}
-        </p>
+        </Alert>
       ) : null}
 
-      <button
-        className="w-full rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-60"
-        disabled={isPending}
-        type="submit"
-      >
-        {isPending ? "Signing in..." : "Sign in"}
-      </button>
+      <Field id="identifier" label={t("login.identifier")} required>
+        <Input
+          autoCapitalize="none"
+          autoComplete="username"
+          autoCorrect="off"
+          name="identifier"
+          placeholder={t("login.identifierPlaceholder")}
+          required
+          spellCheck={false}
+          type="text"
+        />
+      </Field>
+
+      <div className="space-y-1.5">
+        <label
+          className="block text-sm font-medium text-foreground"
+          htmlFor={passwordId}
+        >
+          {t("login.password")}
+          <span aria-hidden="true" className="ms-0.5 text-danger-strong">
+            *
+          </span>
+        </label>
+        <div className="relative">
+          <input
+            autoCapitalize="none"
+            autoComplete="current-password"
+            autoCorrect="off"
+            className={cn(fieldControlClasses, "pe-12")}
+            id={passwordId}
+            name="password"
+            required
+            spellCheck={false}
+            type={showPassword ? "text" : "password"}
+          />
+          <button
+            aria-label={
+              showPassword ? t("login.hidePassword") : t("login.showPassword")
+            }
+            aria-pressed={showPassword}
+            className="absolute inset-y-0 end-0 flex w-11 items-center justify-center rounded-e-lg text-muted-foreground transition-colors hover:text-foreground"
+            onClick={() => setShowPassword((value) => !value)}
+            type="button"
+          >
+            {showPassword ? (
+              <EyeOff aria-hidden className="size-5" />
+            ) : (
+              <Eye aria-hidden className="size-5" />
+            )}
+          </button>
+        </div>
+      </div>
+
+      <Button className="w-full" loading={isPending} size="lg" type="submit">
+        {isPending ? t("login.submitting") : t("login.submit")}
+      </Button>
     </form>
   );
 }

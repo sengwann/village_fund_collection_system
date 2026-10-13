@@ -123,4 +123,31 @@ export const my: Record<TranslationKey, string> = {
   "common.save": "သိမ်းရန်",
   "common.cancel": "ပယ်ဖျက်ရန်",
   "common.back": "နောက်သို့",
+
+  // Login
+  "login.title": "ဝင်ရောက်ရန်",
+  "login.subtitle":
+    "ဆက်လက်ရန် အီးမေးလ် သို့မဟုတ် ဖုန်းနံပါတ်နှင့် စကားဝှက်ကို ထည့်ပါ။",
+  "login.identifier": "အီးမေးလ် သို့မဟုတ် ဖုန်း",
+  "login.identifierPlaceholder": "you@example.com သို့မဟုတ် 09xxxxxxx",
+  "login.password": "စကားဝှက်",
+  "login.showPassword": "စကားဝှက် ပြရန်",
+  "login.hidePassword": "စကားဝှက် ဖျောက်ရန်",
+  "login.submit": "ဝင်ရောက်ရန်",
+  "login.submitting": "ဝင်ရောက်နေသည်...",
+  "login.registeredTitle": "စာရင်းသွင်းမှု အောင်မြင်ပါသည်",
+  "login.registeredBody": "ကျေးဇူးပြု၍ ဝင်ရောက်ပါ။",
+  "login.errorTitle": "ဝင်ရောက်၍ မရပါ",
+  "login.errorInvalid":
+    "အချက်အလက် မမှန်ကန်ပါ။ အီးမေးလ် သို့မဟုတ် ဖုန်းနှင့် စကားဝှက်ကို စစ်ဆေးပြီး ထပ်ကြိုးစားပါ။",
+  "login.noAccount": "အကောင့် မရှိသေးဘူးလား။",
+  "login.createAccount": "အကောင့် ဖွင့်ရန်",
+  "login.language": "ဘာသာစကား",
+  "login.brandTagline":
+    "ကျေးရွာ ရန်ပုံငွေများကို ရှင်းလင်းပြီး တာဝန်ခံမှုရှိစွာ စီမံခြင်း။",
+  "login.brandPointPay":
+    "KPay သို့မဟုတ် ငွေသားဖြင့် ပေးချေပြီး ငွေပေးချေမှုတိုင်းကို ခြေရာခံနိုင်သည်",
+  "login.brandPointReceipts": "ပြေစာများကို အချိန်မရွေး ပြန်ကြည့်နိုင်သည်",
+  "login.brandPointVillage":
+    "အိမ်ထောင်စုများ၊ ကောက်ခံသူများနှင့် ရန်ပုံငွေများကို တစ်နေရာတည်းတွင် စီမံနိုင်သည်",
 };
