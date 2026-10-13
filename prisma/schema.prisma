@@ -6,15 +6,62 @@ datasource db {
   provider = "postgresql"
 }
 
-enum UserRole { SYSTEM_ADMIN CHIEF VILLAGER }
-enum VillageStatus { ACTIVE SUSPENDED DEACTIVATED }
-enum MembershipStatus { PENDING ACTIVE REJECTED REMOVED }
-enum PaymentMethod { KPAY CASH }
-enum PaymentStatus { PENDING ACCEPTED REJECTED VOIDED }
-enum ReceiptStatus { ACTIVE VOIDED }
-enum DisputeStatus { OPEN UNDER_REVIEW RESOLVED REJECTED }
-enum AuditActionType { CREATE UPDATE DELETE STATUS_CHANGE APPROVE REJECT REMOVE ASSIGN VOID ACCEPT LOGIN LOGOUT }
-enum FundStatus { DRAFT ACTIVE CLOSED }
+
+enum UserRole { 
+SYSTEM_ADMIN 
+CHIEF 
+VILLAGER 
+}
+enum VillageStatus { 
+ACTIVE 
+SUSPENDED 
+DEACTIVATED 
+}
+enum MembershipStatus { 
+PENDING 
+ACTIVE 
+REJECTED 
+REMOVED 
+}
+enum PaymentMethod { 
+KPAY 
+CASH 
+}
+enum PaymentStatus { 
+PENDING 
+ACCEPTED 
+REJECTED 
+VOIDED 
+}
+enum ReceiptStatus { 
+ACTIVE 
+VOIDED 
+}
+enum DisputeStatus { 
+OPEN 
+UNDER_REVIEW 
+RESOLVED 
+REJECTED 
+}
+enum AuditActionType { 
+CREATE 
+UPDATE 
+DELETE 
+STATUS_CHANGE 
+APPROVE 
+REJECT 
+REMOVE 
+ASSIGN 
+VOID 
+ACCEPT 
+LOGIN 
+LOGOUT 
+}
+enum FundStatus { 
+DRAFT 
+ACTIVE 
+CLOSED 
+}
 
 model Village {
   id String @id @default(cuid())
@@ -218,7 +265,14 @@ model AuditLog {
   @@index([villageId, actionType])
 }
 
+<<<<<<< HEAD
 enum LanguagePreference { EN MY }
+=======
+enum LanguagePreference { 
+EN 
+MY 
+}
+>>>>>>> 84a2a94 (Update global css and components)
 
 model UserSettings {
   id String @id @default(cuid())

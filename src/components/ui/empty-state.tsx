@@ -1,29 +1,55 @@
 import type { ReactNode } from "react";
+import { cn } from "@/lib/utils";
+import { InboxIcon } from "./icons";
 
+/*
+ * Props title / description / action / className are unchanged, so all existing
+ * call sites keep working. `icon` is optional: omit it for the default glyph,
+ * or pass `null` to render no icon.
+ */
 export function EmptyState({
   title,
   description,
   action,
-  className = "",
+  icon,
+  className,
 }: {
   title: string;
   description?: string;
   action?: ReactNode;
+  icon?: ReactNode;
   className?: string;
 }) {
+  const glyph = icon === undefined ? <InboxIcon /> : icon;
+
   return (
     <div
-      className={`rounded-md border border-dashed border-slate-300 bg-slate-50 p-6 text-center dark:border-slate-600 dark:bg-slate-800/50 ${className}`}
+      className={cn(
+        "flex flex-col items-center rounded-xl border border-dashed border-border-strong bg-card/60 px-4 py-8 text-center sm:px-8 sm:py-10",
+        className,
+      )}
     >
-      <h3 className="text-sm font-medium text-slate-900 dark:text-slate-100">
+      {glyph ? (
+        <div
+          aria-hidden="true"
+          className="mb-3 flex size-11 items-center justify-center rounded-full bg-muted text-muted-foreground [&_svg]:size-5"
+        >
+          {glyph}
+        </div>
+      ) : null}
+      <h3 className="max-w-prose text-sm font-semibold text-foreground text-balance">
         {title}
       </h3>
       {description ? (
-        <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
+        <p className="mt-1.5 max-w-prose text-sm text-muted-foreground">
           {description}
         </p>
       ) : null}
-      {action ? <div className="mt-4">{action}</div> : null}
+      {action ? (
+        <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+          {action}
+        </div>
+      ) : null}
     </div>
   );
 }

@@ -5,6 +5,7 @@ import { PlatformAuditList } from "@/features/audit/components/platform-audit-li
 import {
   ACTION_TYPE_OPTIONS,
   ENTITY_TYPE_OPTIONS,
+  
   getFirstString,
   parseAuditFilters,
   resolveSearchParams,
@@ -60,6 +61,7 @@ export default async function PlatformAuditPage({
         initialDateTo={rawDateTo}
         initialEntityType=""
         showEntityTypeFilter={false}
+        entityTypesByAction={}
       />
 
       <PlatformAuditList logs={logs} />

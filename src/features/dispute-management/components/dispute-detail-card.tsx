@@ -50,7 +50,7 @@ export function DisputeDetailCard({ dispute }: { dispute: DisputeDetailData }) {
         </dl>
         <div className="mt-4 border-t pt-4">
           <h3 className="text-sm font-medium text-slate-900">
-            Villager's Description
+            Villager&apos;s Description
           </h3>
           <p className="mt-2 whitespace-pre-wrap text-sm text-slate-600">
             {dispute.description}
@@ -59,7 +59,7 @@ export function DisputeDetailCard({ dispute }: { dispute: DisputeDetailData }) {
         {dispute.resolutionNote && (
           <div className="mt-4 border-t pt-4">
             <h3 className="text-sm font-medium text-slate-900">
-              Chief's Resolution Note
+              Chief&apos;s Resolution Note
             </h3>
             <p className="mt-2 whitespace-pre-wrap text-sm text-slate-600">
               {dispute.resolutionNote}
@@ -100,8 +100,8 @@ export function DisputeDetailCard({ dispute }: { dispute: DisputeDetailData }) {
             </dd>
           </div>
 
-          <div className="border-t pt-3 mt-3">
-            <p className="text-xs font-semibold uppercase text-slate-500 mb-2">
+          <div className="mt-3 border-t pt-3">
+            <p className="mb-2 text-xs font-semibold uppercase text-slate-500">
               KPay Details (Auto-derived)
             </p>
             <div className="flex justify-between">
@@ -110,13 +110,13 @@ export function DisputeDetailCard({ dispute }: { dispute: DisputeDetailData }) {
                 {dispute.payment.kpayTransactionId ?? "—"}
               </dd>
             </div>
-            <div className="flex justify-between mt-1">
+            <div className="mt-1 flex justify-between">
               <dt className="font-medium text-slate-700">Receiver Account</dt>
               <dd className="text-slate-900">
                 {dispute.payment.kpayReceiverAccount ?? "—"}
               </dd>
             </div>
-            <div className="flex justify-between mt-1">
+            <div className="mt-1 flex justify-between">
               <dt className="font-medium text-slate-700">
                 Receiver Name (Collector)
               </dt>

@@ -3,7 +3,6 @@ import { AppShell } from "../../features/shell/components/app-shell";
 import { buildVillageNavigation } from "../../features/shell/lib/navigation";
 import { getVillageShellContext } from "../../features/shell/lib/shell-context";
 import { TranslationProvider } from "../../lib/i18n/provider";
-// Remove: import { ThemeSync } from "../../components/theme-sync";
 
 export default async function VillageLayout({
   children,

@@ -126,5 +126,6 @@ export async function getCurrentUser(): Promise<SessionUser | null> {
     membershipStatus: user.membershipStatus,
     email: user.email,
     phone: user.phone,
+    dateOfBirth: user.dateOfBirth,
   };
 }
