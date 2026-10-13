@@ -1,4 +1,14 @@
+"use client";
+
 import { Phone } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../../../components/ui/card";
+import { buttonVariants } from "../../../components/ui/button";
+import { useTranslation } from "../../../lib/i18n/provider";
 
 export function ChiefContactCard({
   chiefName,
@@ -7,28 +17,41 @@ export function ChiefContactCard({
   chiefName: string | null;
   chiefPhone: string | null;
 }) {
+  const { t } = useTranslation();
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-      <h2 className="text-sm font-medium text-slate-900">Village Chief</h2>
-      <dl className="mt-3 space-y-2 text-sm">
-        <div className="flex items-center justify-between gap-3">
-          <dt className="font-medium text-slate-700">Name</dt>
-          <dd className="text-slate-900">{chiefName ?? "—"}</dd>
-        </div>
-        <div className="flex items-center justify-between gap-3">
-          <dt className="font-medium text-slate-700">Phone</dt>
-          <dd className="text-slate-900">{chiefPhone ?? "—"}</dd>
-        </div>
-      </dl>
-      {chiefPhone ? (
-        <a
-          className="mt-4 flex w-full items-center justify-center gap-2 rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700"
-          href={`tel:${chiefPhone}`}
-        >
-          <Phone aria-hidden className="h-4 w-4" />
-          Call Chief
-        </a>
-      ) : null}
-    </div>
+    <Card>
+      <CardHeader className="pb-3 sm:pb-3">
+        <CardTitle as="h2" className="text-sm">
+          {t("shell.chief.title")}
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <dl className="space-y-2 text-sm">
+          <div className="flex items-start justify-between gap-3">
+            <dt className="shrink-0 text-muted-foreground">
+              {t("shell.chief.name")}
+            </dt>
+            <dd className="text-right font-medium">{chiefName ?? "—"}</dd>
+          </div>
+          <div className="flex items-start justify-between gap-3">
+            <dt className="shrink-0 text-muted-foreground">
+              {t("shell.chief.phone")}
+            </dt>
+            <dd className="text-right font-medium tabular-nums">
+              {chiefPhone ?? "—"}
+            </dd>
+          </div>
+        </dl>
+        {chiefPhone ? (
+          <a
+            className={buttonVariants({ className: "w-full" })}
+            href={`tel:${chiefPhone}`}
+          >
+            <Phone aria-hidden />
+            {t("shell.chief.call")}
+          </a>
+        ) : null}
+      </CardContent>
+    </Card>
   );
 }

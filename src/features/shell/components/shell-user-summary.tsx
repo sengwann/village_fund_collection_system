@@ -2,7 +2,15 @@
 
 import type { SessionUser } from "../../../lib/auth/auth.types";
 import { useTranslation } from "../../../lib/i18n/provider";
+import { Badge } from "../../../components/ui/badge";
+import {
+  getInitials,
+  getMembershipLabel,
+  getMembershipTone,
+  getRoleLabel,
+} from "../lib/shell-labels";
 
+/** Account card shown at the top of the mobile menu sheet. */
 export function ShellUserSummary({
   user,
   variant,
@@ -12,19 +20,29 @@ export function ShellUserSummary({
 }) {
   const { t } = useTranslation();
   return (
-    <div className="mb-4 rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-      <p className="text-sm font-medium text-slate-900">{user.name}</p>
-      <p className="mt-1 text-xs text-slate-600">{user.role}</p>
-      {variant === "village" ? (
-        <p className="mt-1 break-all text-xs text-slate-500">
-          {t("shell.villageId")}: {user.villageId ?? "—"}
+    <div className="flex items-center gap-3">
+      <span
+        aria-hidden="true"
+        className="flex size-12 shrink-0 items-center justify-center rounded-full bg-accent text-base font-semibold text-accent-foreground"
+      >
+        {getInitials(user.name)}
+      </span>
+      <div className="min-w-0 flex-1">
+        <p className="text-sm font-semibold leading-snug">{user.name}</p>
+        <p className="text-xs text-muted-foreground">
+          {getRoleLabel(t, user.role)}
         </p>
-      ) : null}
-      {variant === "village" ? (
-        <p className="mt-1 text-xs text-slate-500">
-          {t("shell.membership")}: {user.membershipStatus ?? "—"}
-        </p>
-      ) : null}
+        {variant === "village" ? (
+          <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1">
+            <Badge
+              dot
+              variant={getMembershipTone(user.membershipStatus)}
+            >
+              {getMembershipLabel(t, user.membershipStatus)}
+            </Badge>
+          </div>
+        ) : null}
+      </div>
     </div>
   );
 }

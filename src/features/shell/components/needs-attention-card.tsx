@@ -1,6 +1,11 @@
+"use client";
+
 import Link from "next/link";
-import { AlertTriangle, Bell } from "lucide-react";
+import { AlertTriangle, Bell, ChevronRight } from "lucide-react";
 import type { NotificationSummary } from "@/features/notifications/lib/notification-service";
+import { useTranslation } from "../../../lib/i18n/provider";
+import type { TranslationKey } from "../../../lib/i18n/en";
+import { formatCount } from "../lib/shell-labels";
 
 type AttentionVariant = "count" | "warning";
 
@@ -24,7 +29,11 @@ export function NeedsAttentionCard({
   isHeadOfHouse: boolean;
   isActiveVillager: boolean;
 }) {
+  const { t } = useTranslation();
   const items: AttentionItem[] = [];
+
+  const counted = (count: number, one: TranslationKey, other: TranslationKey) =>
+    formatCount(t(count === 1 ? one : other), count);
 
   if (isChief && notifications.chief) {
     const { disputesNeedingAction, hasActiveCollector, hasActiveFund } =
@@ -32,9 +41,11 @@ export function NeedsAttentionCard({
     if (disputesNeedingAction > 0) {
       items.push({
         key: "disputes",
-        label: `${disputesNeedingAction} dispute${
-          disputesNeedingAction === 1 ? "" : "s"
-        } awaiting review`,
+        label: counted(
+          disputesNeedingAction,
+          "shell.attention.disputesOne",
+          "shell.attention.disputesOther",
+        ),
         href: "/village/disputes",
         variant: "count",
       });
@@ -42,7 +53,7 @@ export function NeedsAttentionCard({
     if (!hasActiveCollector) {
       items.push({
         key: "no-collector",
-        label: "No active Collector assigned for the current period",
+        label: t("shell.attention.noCollector"),
         href: "/village/collectors",
         variant: "warning",
       });
@@ -50,7 +61,7 @@ export function NeedsAttentionCard({
     if (!hasActiveFund) {
       items.push({
         key: "no-fund",
-        label: "No active Fund — payments cannot be collected",
+        label: t("shell.attention.noFund"),
         href: "/village/funds",
         variant: "warning",
       });
@@ -62,10 +73,13 @@ export function NeedsAttentionCard({
     notifications.collector &&
     notifications.collector.pendingKpay > 0
   ) {
-    const count = notifications.collector.pendingKpay;
     items.push({
       key: "pending-kpay",
-      label: `${count} KPay payment${count === 1 ? "" : "s"} pending verification`,
+      label: counted(
+        notifications.collector.pendingKpay,
+        "shell.attention.kpayOne",
+        "shell.attention.kpayOther",
+      ),
       href: "/village/verify-kpay",
       variant: "count",
     });
@@ -76,10 +90,13 @@ export function NeedsAttentionCard({
     notifications.villager &&
     notifications.villager.rejectedPayments > 0
   ) {
-    const count = notifications.villager.rejectedPayments;
     items.push({
       key: "rejected-payments",
-      label: `${count} rejected payment${count === 1 ? "" : "s"} — resubmit or dispute`,
+      label: counted(
+        notifications.villager.rejectedPayments,
+        "shell.attention.rejectedOne",
+        "shell.attention.rejectedOther",
+      ),
       href: "/village/pay",
       variant: "count",
     });
@@ -90,10 +107,13 @@ export function NeedsAttentionCard({
     notifications.headOfHouse &&
     notifications.headOfHouse.pendingMembers > 0
   ) {
-    const count = notifications.headOfHouse.pendingMembers;
     items.push({
       key: "pending-members",
-      label: `${count} pending membership request${count === 1 ? "" : "s"}`,
+      label: counted(
+        notifications.headOfHouse.pendingMembers,
+        "shell.attention.membersOne",
+        "shell.attention.membersOther",
+      ),
       href: "/village/household",
       variant: "count",
     });
@@ -104,31 +124,28 @@ export function NeedsAttentionCard({
   }
 
   return (
-    <section className="rounded-lg border border-amber-200 bg-amber-50 p-4 shadow-sm dark:border-amber-800 dark:bg-amber-900/20">
-      <div className="flex items-center gap-2">
-        <Bell aria-hidden className="h-4 w-4 text-amber-700" />
-        <h2 className="text-sm font-semibold text-amber-900 dark:text-amber-200">
-          Needs Attention
-        </h2>
+    <section className="rounded-xl border border-warning-border bg-warning-soft p-3 sm:p-4">
+      <div className="flex items-center gap-2 text-warning-strong">
+        <Bell aria-hidden className="size-5 shrink-0" />
+        <h2 className="text-sm font-semibold">{t("shell.attention.title")}</h2>
       </div>
       <ul className="mt-3 space-y-2">
         {items.map((item) => (
           <li key={item.key}>
             <Link
-              className="flex items-center justify-between gap-3 rounded-md border border-amber-200 bg-white p-3 text-sm text-slate-800 transition hover:bg-amber-100 dark:border-amber-800 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+              className="flex min-h-12 items-center gap-3 rounded-lg border border-warning-border bg-card px-3 py-2.5 text-sm text-foreground transition-colors hover:bg-muted"
               href={item.href}
             >
-              <span className="flex items-center gap-2">
-                {item.variant === "warning" ? (
-                  <AlertTriangle
-                    aria-hidden
-                    className="h-4 w-4 shrink-0 text-amber-600"
-                  />
-                ) : null}
-                {item.label}
-              </span>
-              <span className="shrink-0 text-xs font-medium text-amber-700">
-                View →
+              {item.variant === "warning" ? (
+                <AlertTriangle
+                  aria-hidden
+                  className="size-4 shrink-0 text-warning-strong"
+                />
+              ) : null}
+              <span className="min-w-0 flex-1">{item.label}</span>
+              <span className="flex shrink-0 items-center gap-0.5 text-xs font-semibold text-warning-strong">
+                {t("shell.attention.view")}
+                <ChevronRight aria-hidden className="size-4" />
               </span>
             </Link>
           </li>

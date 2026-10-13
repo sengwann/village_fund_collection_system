@@ -25,6 +25,51 @@ export const my: Record<TranslationKey, string> = {
   "shell.villageId": "ကျေးရွာ ID",
   "shell.pendingBanner":
     "သင့်အိမ်ထောင်စု အဖွဲ့ဝင်အခြေအနေသည် အတည်ပြုချက် စောင့်ဆိုင်းနေပါသည်။ အိမ်ထောင်စုခေါင်းဆောင်က အတည်ပြုပြီးသည်အထိ အချို့သော လုပ်ဆောင်ချက်များ အသုံးပြု၍ မရပါ။",
+  "shell.pendingTitle": "အဖွဲ့ဝင်ခွင့် အတည်ပြုချက် စောင့်ဆိုင်းနေသည်",
+  "shell.skipToContent": "အဓိက အကြောင်းအရာသို့ ကျော်ရန်",
+  "shell.mainNavigation": "အဓိက မီနူး",
+  "shell.menu": "မီနူး",
+  "shell.closeMenu": "မီနူး ပိတ်ရန်",
+  "shell.account": "အကောင့်",
+  "shell.unavailable": "မရနိုင်သေးပါ",
+  "shell.hasAlerts": "အာရုံစိုက်ရန် ရှိသည်",
+  "shell.role.systemAdmin": "စနစ် အက်မင်",
+  "shell.role.chief": "ကျေးရွာ အုပ်ချုပ်ရေးမှူး",
+  "shell.role.villager": "ကျေးရွာသား",
+  "shell.membership.active": "လက်ရှိ အဖွဲ့ဝင်",
+  "shell.membership.pending": "စောင့်ဆိုင်းဆဲ",
+  "shell.membership.rejected": "ပယ်ချခံရသည်",
+  "shell.membership.removed": "ဖယ်ရှားခံရသည်",
+  "shell.attention.title": "အာရုံစိုက်ရန်",
+  "shell.attention.view": "ကြည့်ရန်",
+  "shell.attention.disputesOne":
+    "အငြင်းပွားမှု {count} ခု စစ်ဆေးရန် စောင့်ဆိုင်းနေသည်",
+  "shell.attention.disputesOther":
+    "အငြင်းပွားမှု {count} ခု စစ်ဆေးရန် စောင့်ဆိုင်းနေသည်",
+  "shell.attention.noCollector":
+    "လက်ရှိကာလအတွက် တာဝန်ပေးထားသော ကောက်ခံသူ မရှိပါ",
+  "shell.attention.noFund": "အသုံးပြုနေသော ရန်ပုံငွေ မရှိပါ — ငွေကောက်ခံ၍ မရပါ",
+  "shell.attention.kpayOne":
+    "KPay ငွေပေးချေမှု {count} ခု စစ်ဆေးရန် စောင့်ဆိုင်းနေသည်",
+  "shell.attention.kpayOther":
+    "KPay ငွေပေးချေမှု {count} ခု စစ်ဆေးရန် စောင့်ဆိုင်းနေသည်",
+  "shell.attention.rejectedOne":
+    "ပယ်ချခံရသော ငွေပေးချေမှု {count} ခု — ပြန်တင်ပါ သို့မဟုတ် အငြင်းပွားပါ",
+  "shell.attention.rejectedOther":
+    "ပယ်ချခံရသော ငွေပေးချေမှု {count} ခု — ပြန်တင်ပါ သို့မဟုတ် အငြင်းပွားပါ",
+  "shell.attention.membersOne":
+    "အဖွဲ့ဝင်ခွင့် တောင်းဆိုမှု {count} ခု စောင့်ဆိုင်းနေသည်",
+  "shell.attention.membersOther":
+    "အဖွဲ့ဝင်ခွင့် တောင်းဆိုမှု {count} ခု စောင့်ဆိုင်းနေသည်",
+  "shell.chief.title": "ကျေးရွာ အုပ်ချုပ်ရေးမှူး",
+  "shell.chief.name": "အမည်",
+  "shell.chief.phone": "ဖုန်း",
+  "shell.chief.call": "ဖုန်းခေါ်ရန်",
+  "shell.comingSoon": "မကြာမီ ရောက်ရှိမည်",
+  "shell.soon": "မကြာမီ",
+  "settings.membership": "အဖွဲ့ဝင်အခြေအနေ",
+  "settings.accountNote":
+    "ရာထူး၊ ကျေးရွာ၊ အိမ်နှင့် အဖွဲ့ဝင်အခြေအနေတို့ကို ကျေးရွာ အုပ်ချုပ်ရေးမှူးများက စီမံပြီး ဤနေရာတွင် ပြင်ဆင်၍ မရပါ။",
 
   // Settings page
   "settings.title": "ဆက်တင်များ",

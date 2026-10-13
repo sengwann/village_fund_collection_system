@@ -18,7 +18,13 @@ import {
 } from "lucide-react";
 import type { NavIconName } from "../lib/navigation";
 
-const iconMap: Record<NavIconName, LucideIcon> = {
+/*
+ * `navigation.ts` also uses "shield-alert" (disputes) although NavIconName does
+ * not list it yet, so the map accepts the wider key set and falls back to Home.
+ */
+type IconKey = NavIconName | "shield-alert" | "user-circle" | "settings";
+
+const iconMap: Record<IconKey, LucideIcon> = {
   home: Home,
   landmark: Landmark,
   "scroll-text": ScrollText,
@@ -42,6 +48,6 @@ export function NavIcon({
   name: NavIconName;
   className?: string;
 }) {
-  const Icon = iconMap[name];
+  const Icon = iconMap[name as IconKey] ?? Home;
   return <Icon aria-hidden className={className} />;
 }

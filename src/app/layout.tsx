@@ -15,13 +15,18 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#10b981",
+  // Required for env(safe-area-inset-*) to work on notched phones.
+  viewportFit: "cover",
+
+  themeColor: "#166448",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
-      <body className="min-h-dvh bg-slate-50">{children}</body>
+      <body className="min-h-dvh bg-background text-foreground">
+        {children}
+      </body>
     </html>
   );
 }
