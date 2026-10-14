@@ -43,14 +43,16 @@ const Textarea = React.forwardRef<
 ));
 Textarea.displayName = "Textarea";
 
-/* Native <select>: keeps the platform picker on phones and full keyboard and
-   screen-reader support. */
+/* Native <select>, so name/value/required, the keyboard and screen readers all
+   behave as usual. The `ui-select` class (see globals.css) restyles the open
+   list in browsers that support `appearance: base-select`; elsewhere the
+   browser's default list is used. `pr-8` is kept for that fallback only. */
 const Select = React.forwardRef<
   HTMLSelectElement,
   React.SelectHTMLAttributes<HTMLSelectElement>
 >(({ className, ...props }, ref) => (
   <select
-    className={cn(fieldControlClasses, "pr-8", className)}
+    className={cn("ui-select", fieldControlClasses, "pr-8", className)}
     ref={ref}
     {...props}
   />

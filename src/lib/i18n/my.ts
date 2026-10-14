@@ -215,4 +215,33 @@ export const my: Record<TranslationKey, string> = {
   "signup.noHousesBody":
     "{village} တွင် အသုံးပြုနေသော အိမ်နံပါတ် မရှိသေးပါ။ ကျေးရွာ အုပ်ချုပ်ရေးမှူးကို ဆက်သွယ်ပါ။",
   "signup.backToCode": "ကျေးရွာကုဒ်သို့ ပြန်ရန်",
+
+  // Settings (Feature Q additions)
+  "settings.profileDesc": "သင့်အမည်နှင့် ဝင်ရောက်မည့် နည်းလမ်း။",
+  "settings.kpayTitle": "ငွေပေးချေမှု အချက်အလက်",
+  "settings.kpayDesc":
+    "KPay ငွေပေးချေမှုများ ကောက်ခံရန် အသုံးပြုသော သင့် KPay အကောင့် အချက်အလက်။",
+  "settings.passwordDesc":
+    "စကားဝှက် ပြောင်းပြီးနောက် အကောင့်မှ ထွက်သွားမည် ဖြစ်သည်။",
+  "settings.preferencesDesc":
+    "အက်ပ်တစ်ခုလုံးတွင် အသုံးပြုမည့် ဘာသာစကားကို ရွေးပါ။",
+  "settings.saved": "ဆက်တင်များ သိမ်းပြီးပါပြီ။",
+  "settings.phonePlaceholder": "09xxxxxxx",
+  "profile.dob": "မွေးသက္ကရာဇ်",
+  "profile.optional": "မဖြည့်လည်းရ",
+  "profile.dobHint":
+    "ကျေးရွာ လူဦးရေ စာရင်းအင်းအတွက် အသုံးပြုသည်။ မဖြည့်ဘဲ ထားနိုင်သည်။",
+  "profile.signInGroup": "ဝင်ရောက်မည့် နည်းလမ်း",
+  "profile.signInIntro":
+    "အီးမေးလ်၊ ဖုန်းနံပါတ် သို့မဟုတ် နှစ်မျိုးလုံး ထည့်ပါ။ အနည်းဆုံး တစ်မျိုး လိုအပ်ပါသည်။",
+  "profile.saved": "ပရိုဖိုင် သိမ်းပြီးပါပြီ။",
+  "kpay.accountName": "KPay အကောင့် အမည်",
+  "kpay.accountNumber": "KPay အကောင့် နံပါတ်",
+  "kpay.save": "ပြောင်းလဲမှုများ သိမ်းရန်",
+  "kpay.saving": "သိမ်းဆည်းနေသည်...",
+  "kpay.saved": "ငွေပေးချေမှု အချက်အလက် သိမ်းပြီးပါပြီ။",
+  "password.showPasswords": "စကားဝှက်များ ပြရန်",
+  "password.signedOut":
+    "လုံခြုံရေးအတွက် အကောင့်မှ ထွက်သွားပါပြီ။ စကားဝှက်အသစ်ဖြင့် ပြန်လည် ဝင်ရောက်ပါ။",
+  "password.signInAgain": "ပြန်လည် ဝင်ရောက်ရန်",
 };

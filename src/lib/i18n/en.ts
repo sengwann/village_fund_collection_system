@@ -199,6 +199,34 @@ export const en = {
   "signup.noHousesBody":
     "{village} has no active house numbers yet. Please contact your village chief.",
   "signup.backToCode": "Back to village code",
+
+  // Settings (Feature Q additions)
+  "settings.profileDesc": "Your name and how you sign in.",
+  "settings.kpayTitle": "Payment information",
+  "settings.kpayDesc":
+    "Your KPay account details, used for collecting KPay payments.",
+  "settings.passwordDesc":
+    "You will be signed out after you change your password.",
+  "settings.preferencesDesc": "Choose the language used across the app.",
+  "settings.saved": "Settings saved.",
+  "settings.phonePlaceholder": "09xxxxxxx",
+  "profile.dob": "Date of birth",
+  "profile.optional": "Optional",
+  "profile.dobHint":
+    "Used for village demographic statistics. You can leave this empty.",
+  "profile.signInGroup": "How you sign in",
+  "profile.signInIntro":
+    "Add an email, a phone number, or both. You need at least one to sign in.",
+  "profile.saved": "Profile saved.",
+  "kpay.accountName": "KPay account name",
+  "kpay.accountNumber": "KPay account number",
+  "kpay.save": "Save changes",
+  "kpay.saving": "Saving...",
+  "kpay.saved": "Payment information saved.",
+  "password.showPasswords": "Show passwords",
+  "password.signedOut":
+    "For your security you have been signed out. Sign in again with your new password.",
+  "password.signInAgain": "Sign in again",
 } as const;
 
 export type TranslationKey = keyof typeof en;

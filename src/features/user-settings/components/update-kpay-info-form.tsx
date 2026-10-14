@@ -1,17 +1,17 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import type { FormEvent } from "react";
+import { Alert } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Field, Input } from "@/components/ui/field";
+import { useTranslation } from "@/lib/i18n/provider";
 import {
   updateKpayInfoAction,
   type UpdateKpayInfoActionResult,
 } from "../actions/update-kpay-info.action";
-
-function FieldError({ message }: { message?: string }) {
-  if (!message) return null;
-  return <p className="mt-1 text-xs text-red-600">{message}</p>;
-}
+import { useFocusFirstError } from "./use-focus-first-error";
 
 export function UpdateKpayInfoForm({
   initialKpayAccountName,
@@ -21,17 +21,21 @@ export function UpdateKpayInfoForm({
   initialKpayAccountNumber: string;
 }) {
   const router = useRouter();
+  const { t } = useTranslation();
+  const formRef = useRef<HTMLFormElement>(null);
   const [formError, setFormError] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [saved, setSaved] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<
     Record<string, string | undefined>
   >({});
   const [isPending, startTransition] = useTransition();
 
+  useFocusFirstError(formRef, fieldErrors, formError);
+
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setFormError(null);
-    setSuccessMessage(null);
+    setSaved(false);
     setFieldErrors({});
     const formData = new FormData(event.currentTarget);
 
@@ -39,7 +43,7 @@ export function UpdateKpayInfoForm({
       const result: UpdateKpayInfoActionResult =
         await updateKpayInfoAction(formData);
       if (result.success) {
-        setSuccessMessage("Payment information saved successfully.");
+        setSaved(true);
         router.refresh();
         return;
       }
@@ -49,63 +53,60 @@ export function UpdateKpayInfoForm({
   }
 
   return (
-    <form className="space-y-4" noValidate onSubmit={handleSubmit}>
-      <div className="space-y-2">
-        <label
-          className="block text-sm font-medium text-slate-900"
-          htmlFor="kpayAccountName"
-        >
-          KPay Account Name
-        </label>
-        <input
-          aria-describedby="kpayAccountName-error"
-          className="block w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
+    <form
+      className="space-y-6"
+      noValidate
+      onChange={() => {
+        if (saved) setSaved(false);
+      }}
+      onSubmit={handleSubmit}
+      ref={formRef}
+    >
+      <Field
+        error={fieldErrors.kpayAccountName}
+        id="kpayAccountName"
+        label={t("kpay.accountName")}
+        required
+      >
+        <Input
+          autoComplete="name"
           defaultValue={initialKpayAccountName}
-          id="kpayAccountName"
           name="kpayAccountName"
+          required
           type="text"
         />
-        <FieldError message={fieldErrors.kpayAccountName} />
-      </div>
+      </Field>
 
-      <div className="space-y-2">
-        <label
-          className="block text-sm font-medium text-slate-900"
-          htmlFor="kpayAccountNumber"
-        >
-          KPay Account Number
-        </label>
-        <input
-          aria-describedby="kpayAccountNumber-error"
+      <Field
+        error={fieldErrors.kpayAccountNumber}
+        id="kpayAccountNumber"
+        label={t("kpay.accountNumber")}
+        required
+      >
+        <Input
           autoComplete="tel"
-          className="block w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
           defaultValue={initialKpayAccountNumber}
-          id="kpayAccountNumber"
+          inputMode="tel"
           name="kpayAccountNumber"
+          placeholder={t("settings.phonePlaceholder")}
+          required
           type="tel"
         />
-        <FieldError message={fieldErrors.kpayAccountNumber} />
-      </div>
+      </Field>
 
       {formError ? (
-        <p className="text-sm text-red-600" role="alert">
-          {formError}
-        </p>
+        <div className="outline-none" data-form-error tabIndex={-1}>
+          <Alert tone="danger">{formError}</Alert>
+        </div>
       ) : null}
 
-      {successMessage ? (
-        <p className="rounded-md border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-900">
-          {successMessage}
-        </p>
-      ) : null}
+      {saved ? <Alert tone="success">{t("kpay.saved")}</Alert> : null}
 
-      <button
-        className="w-full rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-60"
-        disabled={isPending}
-        type="submit"
-      >
-        {isPending ? "Saving..." : "Save Changes"}
-      </button>
+      <div className="flex sm:justify-end">
+        <Button className="w-full sm:w-auto" loading={isPending} type="submit">
+          {isPending ? t("kpay.saving") : t("kpay.save")}
+        </Button>
+      </div>
     </form>
   );
 }

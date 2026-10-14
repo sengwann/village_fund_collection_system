@@ -1,11 +1,23 @@
+import type { ReactNode } from "react";
 import { getActiveCollectorContext } from "@/lib/authz";
 import { UpdateKpayInfoForm } from "@/features/user-settings/components/update-kpay-info-form";
-import Link from "next/link";
 import { LanguagePreference } from "@prisma/client";
+import { Home, LogOut, Lock, Settings, UserCircle, Wallet } from "lucide-react";
 import { ChangePasswordForm } from "@/features/user-settings/components/change-password-form";
 import { EditProfileForm } from "@/features/user-settings/components/edit-profile-form";
+import { SettingsSection } from "@/features/user-settings/components/settings-section";
 import { UpdateSettingsForm } from "@/features/user-settings/components/update-settings-form";
+import {
+  getInitials,
+  getMembershipLabel,
+  getMembershipTone,
+  getRoleLabel,
+} from "@/features/shell/lib/shell-labels";
 import { logoutAction } from "@/features/auth/actions/logout.action";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { InfoIcon } from "@/components/ui/icons";
+import { PageHeader } from "@/components/ui/page-header";
 import { requireAuthenticatedUser } from "@/lib/auth/guards";
 import { prisma } from "@/lib/prisma";
 import { getT } from "@/lib/i18n/translations";
@@ -13,26 +25,6 @@ import { getT } from "@/lib/i18n/translations";
 export const metadata = {
   title: "Settings | Village Fund Collection System",
 };
-
-function formatRole(role: string): string {
-  const labels: Record<string, string> = {
-    SYSTEM_ADMIN: "System Admin",
-    CHIEF: "Chief",
-    VILLAGER: "Villager",
-  };
-  return labels[role] ?? role;
-}
-
-function formatMembership(status: string | null): string {
-  if (!status) return "—";
-  const labels: Record<string, string> = {
-    ACTIVE: "Active",
-    PENDING: "Pending",
-    REJECTED: "Rejected",
-    REMOVED: "Removed",
-  };
-  return labels[status] ?? status;
-}
 
 export default async function SettingsPage() {
   const user = await requireAuthenticatedUser();
@@ -74,116 +66,139 @@ export default async function SettingsPage() {
   const language = settings?.language ?? LanguagePreference.EN;
   const t = getT(language);
 
-  return (
-    <main className="min-h-screen bg-slate-50">
-      <div className="mx-auto w-full max-w-2xl px-4 py-8">
-        {/* Header */}
-        <div className="mb-6 flex items-center justify-between gap-4">
-          <div>
-            <h1 className="text-lg font-semibold text-slate-900">
-              {t("settings.title")}
-            </h1>
-            <p className="mt-1 text-sm text-slate-600">
-              {t("settings.subtitle")}
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            <Link
-              className="rounded-md border border-slate-300 px-3 py-2 text-xs font-medium text-slate-900 transition hover:bg-slate-100"
-              href="/dashboard"
-            >
-              {t("settings.backToDashboard")}
-            </Link>
-            <form action={logoutAction}>
-              <button
-                className="rounded-md border border-slate-300 px-3 py-2 text-xs font-medium text-slate-900 transition hover:bg-slate-100"
-                type="submit"
-              >
-                {t("nav.logout")}
-              </button>
-            </form>
-          </div>
-        </div>
+  const accountRows: { label: string; value: ReactNode }[] = [
+    { label: t("settings.village"), value: village?.name ?? "—" },
+    { label: t("settings.house"), value: house?.houseNumber ?? "—" },
+    {
+      label: t("settings.membership"),
+      value: user.membershipStatus ? (
+        <Badge dot variant={getMembershipTone(user.membershipStatus)}>
+          {getMembershipLabel(t, user.membershipStatus)}
+        </Badge>
+      ) : (
+        "—"
+      ),
+    },
+  ];
 
-        <div className="space-y-6">
-          {/* Account Info */}
-          <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-            <h2 className="text-sm font-medium text-slate-900">
-              {t("settings.accountInfo")}
-            </h2>
-            <dl className="mt-3 space-y-3 text-sm">
-              <div className="flex items-center justify-between gap-3 border-b border-slate-100 pb-3">
-                <dt className="font-medium text-slate-700">
-                  {t("settings.role")}
-                </dt>
-                <dd className="text-slate-900">{formatRole(user.role)}</dd>
+  /*
+   * This route sits outside the app shell, so it sets its own `lang` (the
+   * root <html> is fixed to "en") to get correct Myanmar text shaping.
+   */
+  return (
+    <main
+      className="min-h-dvh bg-background text-foreground"
+      lang={language === LanguagePreference.MY ? "my" : "en"}
+    >
+      <div className="mx-auto w-full max-w-2xl space-y-6 px-4 pb-[max(2.5rem,env(safe-area-inset-bottom))] pt-[max(1rem,env(safe-area-inset-top))] sm:px-6 sm:pt-8">
+        <PageHeader
+          actions={
+            <form action={logoutAction}>
+              <Button className="w-full" type="submit" variant="outline">
+                <LogOut aria-hidden />
+                {t("nav.logout")}
+              </Button>
+            </form>
+          }
+          backHref="/dashboard"
+          backLabel={t("settings.backToDashboard")}
+          description={t("settings.subtitle")}
+          title={t("settings.title")}
+        />
+
+        <div className="space-y-4 sm:space-y-6">
+          {/* Account (read-only) */}
+          <SettingsSection
+            icon={Home}
+            id="settings-account"
+            title={t("settings.accountInfo")}
+          >
+            <div className="flex items-center gap-3">
+              <span
+                aria-hidden="true"
+                className="flex size-12 shrink-0 items-center justify-center rounded-full bg-accent text-base font-semibold text-accent-foreground"
+              >
+                {getInitials(user.name)}
+              </span>
+              <div className="min-w-0 flex-1 space-y-1">
+                <p className="font-semibold leading-snug [overflow-wrap:anywhere]">
+                  {user.name}
+                </p>
+                <Badge variant="neutral">{getRoleLabel(t, user.role)}</Badge>
               </div>
-              <div className="flex items-center justify-between gap-3 border-b border-slate-100 pb-3">
-                <dt className="font-medium text-slate-700">
-                  {t("settings.village")}
-                </dt>
-                <dd className="text-slate-900">{village?.name ?? "—"}</dd>
-              </div>
-              <div className="flex items-center justify-between gap-3 border-b border-slate-100 pb-3">
-                <dt className="font-medium text-slate-700">
-                  {t("settings.house")}
-                </dt>
-                <dd className="text-slate-900">{house?.houseNumber ?? "—"}</dd>
-              </div>
-              <div className="flex items-center justify-between gap-3">
-                <dt className="font-medium text-slate-700">
-                  {t("settings.membership")}
-                </dt>
-                <dd className="text-slate-900">
-                  {formatMembership(user.membershipStatus)}
-                </dd>
-              </div>
+            </div>
+
+            <dl className="mt-4 divide-y rounded-lg border">
+              {accountRows.map((row) => (
+                <div
+                  className="flex items-start justify-between gap-4 px-3 py-3 text-sm"
+                  key={row.label}
+                >
+                  <dt className="shrink-0 text-muted-foreground">
+                    {row.label}
+                  </dt>
+                  <dd className="min-w-0 text-right font-medium [overflow-wrap:anywhere]">
+                    {row.value}
+                  </dd>
+                </div>
+              ))}
             </dl>
-            <p className="mt-3 text-xs text-slate-500">
-              {t("settings.accountNote")}
+
+            <p className="mt-4 flex items-start gap-2 text-sm text-muted-foreground">
+              <InfoIcon className="mt-0.5 size-4 shrink-0" />
+              <span>{t("settings.accountNote")}</span>
             </p>
-          </section>
+          </SettingsSection>
+
+          {/* Preferences */}
+          <SettingsSection
+            description={t("settings.preferencesDesc")}
+            icon={Settings}
+            id="settings-preferences"
+            title={t("settings.preferences")}
+          >
+            <UpdateSettingsForm initialLanguage={language} />
+          </SettingsSection>
 
           {/* Edit Profile */}
-          <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-            <h2 className="mb-4 text-sm font-medium text-slate-900">
-              {t("settings.editProfile")}
-            </h2>
+          <SettingsSection
+            description={t("settings.profileDesc")}
+            icon={UserCircle}
+            id="settings-profile"
+            title={t("settings.editProfile")}
+          >
             <EditProfileForm
+              initialDateOfBirth={user.dateOfBirth ?? ""}
               initialEmail={user.email ?? ""}
               initialName={user.name}
               initialPhone={user.phone ?? ""}
-              initialDateOfBirth={user.dateOfBirth ?? ""}
             />
-          </section>
+          </SettingsSection>
+
           {/* Payment Information — visible to active collectors only */}
           {isActiveCollector ? (
-            <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-              <h2 className="mb-4 text-sm font-medium text-slate-900">
-                Payment Information
-              </h2>
+            <SettingsSection
+              description={t("settings.kpayDesc")}
+              icon={Wallet}
+              id="settings-payment"
+              title={t("settings.kpayTitle")}
+            >
               <UpdateKpayInfoForm
                 initialKpayAccountName={kpayAccountName}
                 initialKpayAccountNumber={kpayAccountNumber}
               />
-            </section>
+            </SettingsSection>
           ) : null}
 
           {/* Change Password */}
-          <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-            <h2 className="mb-4 text-sm font-medium text-slate-900">
-              {t("settings.changePassword")}
-            </h2>
+          <SettingsSection
+            description={t("settings.passwordDesc")}
+            icon={Lock}
+            id="settings-password"
+            title={t("settings.changePassword")}
+          >
             <ChangePasswordForm />
-          </section>
-
-          {/* Preferences */}
-          <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-            <h2 className="mb-4 text-sm font-medium text-slate-900">
-              {t("settings.preferences")}
-            </h2>
-            <UpdateSettingsForm initialLanguage={language} />
-          </section>
+          </SettingsSection>
         </div>
       </div>
     </main>

@@ -317,3 +317,133 @@
     }
   }
 }
+
+/* ------------------------------------------------------------------ */
+/* Styled <select> (class `ui-select`, applied by <Select> in          */
+/* components/ui/field.tsx)                                            */
+/*                                                                     */
+/* Uses the platform's customizable select (`appearance: base-select`) */
+/* so the control stays a real <select>: same name/value/required/form */
+/* submission, keyboard and screen-reader behaviour. Browsers that do  */
+/* not support it ignore this whole block and keep the default list.   */
+/*                                                                     */
+/* Deliberately unlayered and scoped to `.ui-select` so that the       */
+/* placeholder colour and padding below win over the utility classes   */
+/* on the element; nothing here touches other controls.               */
+/* ------------------------------------------------------------------ */
+@supports (appearance: base-select) {
+  .ui-select,
+  .ui-select::picker(select) {
+    appearance: base-select;
+  }
+
+  /* Closed control: the field look comes from the utility classes; only the
+     cursor, arrow spacing and placeholder tone are set here. */
+  .ui-select {
+    cursor: pointer;
+    padding-right: 0.75rem;
+  }
+
+  .ui-select:disabled {
+    cursor: not-allowed;
+  }
+
+  /* Placeholder option selected (value="") reads as a hint, not a value. */
+  .ui-select:has(option[value=""]:checked) {
+    color: var(--muted-foreground);
+  }
+
+  .ui-select::picker-icon {
+    color: var(--muted-foreground);
+    transition: rotate 0.15s ease;
+  }
+
+  .ui-select:open::picker-icon {
+    rotate: 180deg;
+  }
+
+  /* The list panel */
+  .ui-select::picker(select) {
+    box-sizing: border-box;
+    margin-block: 0.25rem;
+    padding: 0.375rem;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-xl, 1rem);
+    background: var(--popover);
+    color: var(--popover-foreground);
+    box-shadow: var(
+      --shadow-md,
+      0 4px 8px -2px hsl(222 47% 11% / 0.08),
+      0 2px 4px -2px hsl(222 47% 11% / 0.05)
+    );
+    font: inherit;
+    max-block-size: min(18rem, 50dvh);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  /* Rows: 44px touch targets, long (or Burmese) labels wrap. */
+  .ui-select option {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-block-size: 2.75rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--radius-md, 0.5rem);
+    color: var(--popover-foreground);
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+    cursor: pointer;
+  }
+
+  .ui-select option:hover,
+  .ui-select option:focus {
+    background: var(--muted);
+  }
+
+  /* Outlines are clipped by the panel, so draw the keyboard ring inside the row. */
+  .ui-select option:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: -2px;
+  }
+
+  /* Selected row: tint + bold + checkmark, so it is not colour alone. */
+  .ui-select option:checked {
+    background: var(--accent);
+    color: var(--accent-foreground);
+    font-weight: 600;
+  }
+
+  .ui-select option::checkmark {
+    order: 1;
+    margin-inline-start: auto;
+    color: var(--primary);
+  }
+
+  .ui-select option:disabled {
+    color: var(--muted-foreground);
+    cursor: not-allowed;
+  }
+
+  .ui-select option:disabled:hover {
+    background: transparent;
+  }
+
+  /* Placeholder row: muted, never highlighted as a chosen value. */
+  .ui-select option[value=""]:checked {
+    background: transparent;
+    color: var(--muted-foreground);
+    font-weight: inherit;
+  }
+
+  .ui-select option[value=""]::checkmark {
+    display: none;
+  }
+
+  /* The global reduced-motion rule does not reach ::picker-icon. */
+  @media (prefers-reduced-motion: reduce) {
+    .ui-select::picker-icon {
+      transition: none;
+    }
+  }
+}
