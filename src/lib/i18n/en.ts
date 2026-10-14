@@ -227,6 +227,42 @@ export const en = {
   "password.signedOut":
     "For your security you have been signed out. Sign in again with your new password.",
   "password.signInAgain": "Sign in again",
-} as const;
+
+  // Membership rejoin
+  "rejoin.title": "Rejoin a household",
+  "rejoin.subtitle":
+    "Choose your house and send a new request to rejoin {village}.",
+  "rejoin.villageFallback": "this village",
+  "rejoin.statusRejectedTitle": "Your membership request was rejected",
+  "rejoin.statusRemovedTitle": "You were removed from your household",
+  "rejoin.statusBody":
+    "To keep using {village}, submit a new household request below.",
+  "rejoin.village": "Village",
+  "rejoin.membership": "Membership",
+  "rejoin.formTitle": "New household request",
+  "rejoin.formDesc": "Select the house you want to rejoin.",
+  "rejoin.houseLabel": "House number",
+  "rejoin.housePlaceholder": "Select a house number",
+  "rejoin.houseRequired": "Select a house number to continue.",
+  "rejoin.nextTitle": "What happens next",
+  "rejoin.nextHasMembersTitle": "If the house already has active members",
+  "rejoin.nextHasMembersBody":
+    "Your request stays pending until the Head of House approves it.",
+  "rejoin.nextEmptyTitle": "If the house has no active members",
+  "rejoin.nextEmptyBody": "You become the active Head of House right away.",
+  "rejoin.submit": "Submit rejoin request",
+  "rejoin.submitting": "Submitting request...",
+  "rejoin.noHousesTitle": "No active houses yet",
+  "rejoin.noHousesBody":
+    "There are no active houses in this village yet. Please contact your village chief.",
+  "rejoin.signedInAs": "Signed in as",
+  
+  // Forbidden page (Feature T)
+    "forbidden.title": "Access denied",
+    "forbidden.body": "You do not have permission to view this page.",
+    "forbidden.hint":
+      "If this page is not meant for your account, go back to your dashboard. If you think you should have access, contact your village chief.",
+    "forbidden.goHome": "Go to my dashboard",
+  } as const;
 
 export type TranslationKey = keyof typeof en;

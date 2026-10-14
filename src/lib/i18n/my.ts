@@ -244,4 +244,41 @@ export const my: Record<TranslationKey, string> = {
   "password.signedOut":
     "လုံခြုံရေးအတွက် အကောင့်မှ ထွက်သွားပါပြီ။ စကားဝှက်အသစ်ဖြင့် ပြန်လည် ဝင်ရောက်ပါ။",
   "password.signInAgain": "ပြန်လည် ဝင်ရောက်ရန်",
+
+  // Membership rejoin
+  "rejoin.title": "အိမ်ထောင်စုသို့ ပြန်လည်ဝင်ရောက်ရန်",
+  "rejoin.subtitle":
+    "{village} သို့ ပြန်လည်ဝင်ရောက်ရန် သင့်အိမ်ကို ရွေးပြီး တောင်းဆိုမှု အသစ် ပို့ပါ။",
+  "rejoin.villageFallback": "ဤကျေးရွာ",
+  "rejoin.statusRejectedTitle": "သင့်အဖွဲ့ဝင်ခွင့် တောင်းဆိုမှုကို ပယ်ချခဲ့သည်",
+  "rejoin.statusRemovedTitle": "သင့်ကို အိမ်ထောင်စုမှ ဖယ်ရှားထားသည်",
+  "rejoin.statusBody":
+    "{village} ကို ဆက်လက်အသုံးပြုရန် အောက်တွင် အိမ်ထောင်စု တောင်းဆိုမှု အသစ် ပို့ပါ။",
+  "rejoin.village": "ကျေးရွာ",
+  "rejoin.membership": "အဖွဲ့ဝင်အခြေအနေ",
+  "rejoin.formTitle": "အိမ်ထောင်စု တောင်းဆိုမှု အသစ်",
+  "rejoin.formDesc": "ပြန်လည်ဝင်ရောက်လိုသော အိမ်ကို ရွေးပါ။",
+  "rejoin.houseLabel": "အိမ်နံပါတ်",
+  "rejoin.housePlaceholder": "အိမ်နံပါတ် ရွေးပါ",
+  "rejoin.houseRequired": "ဆက်လက်ရန် အိမ်နံပါတ် ရွေးပါ။",
+  "rejoin.nextTitle": "နောက်ဆက်တွဲ ဖြစ်မည့်အရာ",
+  "rejoin.nextHasMembersTitle":
+    "အိမ်တွင် လက်ရှိ အဖွဲ့ဝင်များ ရှိပြီးသား ဖြစ်လျှင်",
+  "rejoin.nextHasMembersBody":
+    "အိမ်ထောင်စုခေါင်းဆောင်က အတည်ပြုသည်အထိ သင့်တောင်းဆိုမှု စောင့်ဆိုင်းနေမည်။",
+  "rejoin.nextEmptyTitle": "အိမ်တွင် လက်ရှိ အဖွဲ့ဝင် မရှိလျှင်",
+  "rejoin.nextEmptyBody": "သင်သည် ချက်ချင်း အိမ်ထောင်စုခေါင်းဆောင် ဖြစ်လာမည်။",
+  "rejoin.submit": "ပြန်လည်ဝင်ရောက်ရန် တောင်းဆိုမည်",
+  "rejoin.submitting": "တောင်းဆိုမှု ပို့နေသည်...",
+  "rejoin.noHousesTitle": "အသုံးပြုနေသော အိမ် မရှိသေးပါ",
+  "rejoin.noHousesBody":
+    "ဤကျေးရွာတွင် အသုံးပြုနေသော အိမ် မရှိသေးပါ။ ကျေးရွာ အုပ်ချုပ်ရေးမှူးကို ဆက်သွယ်ပါ။",
+  "rejoin.signedInAs": "ဝင်ရောက်ထားသူ",
+
+  // Forbidden page (Feature T)
+  "forbidden.title": "ဝင်ရောက်ခွင့် မရှိပါ",
+  "forbidden.body": "ဤစာမျက်နှာကို ကြည့်ရှုရန် သင့်တွင် ခွင့်ပြုချက် မရှိပါ။",
+  "forbidden.hint":
+    "ဤစာမျက်နှာသည် သင့်အကောင့်အတွက် မဟုတ်ပါက ဒက်ရှ်ဘုတ်သို့ ပြန်သွားပါ။ ဝင်ခွင့်ရှိသင့်သည်ဟု ယူဆပါက ကျေးရွာ အုပ်ချုပ်ရေးမှူးကို ဆက်သွယ်ပါ။",
+  "forbidden.goHome": "ကျွန်ုပ်၏ ဒက်ရှ်ဘုတ်သို့ သွားရန်",
 };

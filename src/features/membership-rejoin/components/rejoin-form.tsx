@@ -1,9 +1,51 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
-import type { FormEvent } from "react";
+import { useRef, useState, useTransition } from "react";
+import type { FormEvent, ReactNode } from "react";
+import { Clock, ShieldCheck } from "lucide-react";
+import { Button } from "../../../components/ui/button";
+import { Field, Select } from "../../../components/ui/field";
+import { useTranslation } from "../../../lib/i18n/provider";
+import { cn } from "../../../lib/utils";
 import { submitRejoinRequestAction } from "../actions/submit-rejoin-request.action";
+
+/** One of the two possible outcomes of a request, shown before submitting. */
+function OutcomeItem({
+  icon,
+  tone,
+  title,
+  body,
+}: {
+  icon: ReactNode;
+  tone: "info" | "success";
+  title: string;
+  body: string;
+}) {
+  return (
+    <li className="flex items-start gap-3 rounded-lg border bg-card p-3">
+      <span
+        aria-hidden="true"
+        className={cn(
+          "flex size-9 shrink-0 items-center justify-center rounded-full border [&_svg]:size-4",
+          tone === "info"
+            ? "border-info-border bg-info-soft text-info-strong"
+            : "border-success-border bg-success-soft text-success-strong",
+        )}
+      >
+        {icon}
+      </span>
+      <div className="min-w-0 flex-1 space-y-0.5">
+        <p className="text-sm font-semibold leading-snug [overflow-wrap:anywhere]">
+          {title}
+        </p>
+        <p className="text-sm text-muted-foreground [overflow-wrap:anywhere]">
+          {body}
+        </p>
+      </div>
+    </li>
+  );
+}
 
 export function RejoinForm({
   houses,
@@ -13,7 +55,10 @@ export function RejoinForm({
   }[];
 }) {
   const router = useRouter();
+  const { t } = useTranslation();
   const [isPending, startTransition] = useTransition();
+  const [houseError, setHouseError] = useState(false);
+  const selectRef = useRef<HTMLSelectElement>(null);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -26,44 +71,64 @@ export function RejoinForm({
   }
 
   return (
-    <form className="space-y-6" onSubmit={handleSubmit}>
-      <div className="space-y-2 rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-        <label
-          className="block text-sm font-medium text-slate-900"
-          htmlFor="houseNumber"
-        >
-          Select a house to rejoin
-        </label>
-        <select
-          className="block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
+    <form className="space-y-5" onSubmit={handleSubmit}>
+      <Field
+        error={houseError ? t("rejoin.houseRequired") : undefined}
+        id="houseNumber"
+        label={t("rejoin.houseLabel")}
+        required
+      >
+        <Select
           defaultValue=""
-          id="houseNumber"
+          disabled={isPending}
           name="houseNumber"
+          onChange={() => setHouseError(false)}
+          onInvalid={(event) => {
+            // Same native `required` rule as before; only the message is restyled.
+            event.preventDefault();
+            setHouseError(true);
+            selectRef.current?.focus();
+          }}
+          ref={selectRef}
           required
         >
           <option disabled value="">
-            Select a house number
+            {t("rejoin.housePlaceholder")}
           </option>
           {houses.map((house) => (
             <option key={house.houseNumber} value={house.houseNumber}>
               {house.houseNumber}
             </option>
           ))}
-        </select>
-        <p className="text-xs text-slate-600">
-          If the house already has active members, your request will be pending
-          approval by the Head of House. If the house is empty, you will become
-          the active Head of House.
-        </p>
-      </div>
+        </Select>
+      </Field>
 
-      <button
-        className="w-full rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-60"
-        disabled={isPending}
-        type="submit"
-      >
-        {isPending ? "Submitting request..." : "Submit rejoin request"}
-      </button>
+      <section aria-labelledby="rejoin-next-heading" className="space-y-2.5">
+        <h3
+          className="text-sm font-semibold text-foreground"
+          id="rejoin-next-heading"
+        >
+          {t("rejoin.nextTitle")}
+        </h3>
+        <ul className="space-y-2">
+          <OutcomeItem
+            body={t("rejoin.nextHasMembersBody")}
+            icon={<Clock />}
+            title={t("rejoin.nextHasMembersTitle")}
+            tone="info"
+          />
+          <OutcomeItem
+            body={t("rejoin.nextEmptyBody")}
+            icon={<ShieldCheck />}
+            title={t("rejoin.nextEmptyTitle")}
+            tone="success"
+          />
+        </ul>
+      </section>
+
+      <Button className="w-full" loading={isPending} size="lg" type="submit">
+        {isPending ? t("rejoin.submitting") : t("rejoin.submit")}
+      </Button>
     </form>
   );
 }
