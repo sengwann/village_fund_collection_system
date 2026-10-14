@@ -150,4 +150,69 @@ export const my: Record<TranslationKey, string> = {
   "login.brandPointReceipts": "ပြေစာများကို အချိန်မရွေး ပြန်ကြည့်နိုင်သည်",
   "login.brandPointVillage":
     "အိမ်ထောင်စုများ၊ ကောက်ခံသူများနှင့် ရန်ပုံငွေများကို တစ်နေရာတည်းတွင် စီမံနိုင်သည်",
+
+  // Signup and villager registration
+  "signup.stepOf": "အဆင့် {current} / {total}",
+  "signup.stepsLabel": "စာရင်းသွင်းမှု တိုးတက်မှု",
+  "signup.stepVillage": "ကျေးရွာကုဒ်",
+  "signup.stepDetails": "သင့်အချက်အလက်",
+  "signup.codeTitle": "သင့်ကျေးရွာသို့ ဝင်ရောက်ရန်",
+  "signup.codeSubtitle":
+    "စာရင်းသွင်းရန် ကျေးရွာ အုပ်ချုပ်ရေးမှူးထံမှ ရရှိသော ကျေးရွာကုဒ်ကို ထည့်ပါ။",
+  "signup.codeLabel": "ကျေးရွာကုဒ်",
+  "signup.codePlaceholder": "ဥပမာ - DEV100",
+  "signup.codeHint":
+    "ကျေးရွာကုဒ်ကို သင့်ကျေးရွာ အုပ်ချုပ်ရေးမှူးထံမှ ရယူနိုင်သည်။",
+  "signup.codeSubmit": "ဆက်လက်ရန်",
+  "signup.codeChecking": "ကျေးရွာကုဒ် စစ်ဆေးနေသည်...",
+  "signup.invalidCode": "ကျေးရွာကုဒ် မမှန်ကန်ပါ။ စစ်ဆေးပြီး ထပ်ကြိုးစားပါ။",
+  "signup.haveAccount": "အကောင့် ရှိပြီးသားလား။",
+  "signup.signIn": "ဝင်ရောက်ရန်",
+  "signup.registerTitle": "အကောင့် ဖွင့်ရန်",
+  "signup.registerSubtitle":
+    "ကျေးရွာသား အကောင့်ဖွင့်ပြီး အိမ်တစ်အိမ်သို့ ဝင်ရောက်ပါ။",
+  "signup.village": "သင့်ကျေးရွာ",
+  "signup.changeVillage": "ကျေးရွာ ပြောင်းရန်",
+  "signup.sectionAbout": "သင့်အကြောင်း",
+  "signup.name": "အမည်အပြည့်အစုံ",
+  "signup.dob": "မွေးသက္ကရာဇ်",
+  "signup.optional": "မဖြည့်လည်းရ",
+  "signup.dobHint": "နောက်မှ ဆက်တင်များတွင် ထည့်နိုင်သည်။",
+  "signup.sectionSignIn": "ဝင်ရောက်မည့် နည်းလမ်း",
+  "signup.signInIntro":
+    "အီးမေးလ်၊ ဖုန်းနံပါတ် သို့မဟုတ် နှစ်မျိုးလုံး ထည့်ပါ။ အနည်းဆုံး တစ်မျိုး လိုအပ်ပါသည်။",
+  "signup.email": "အီးမေးလ်",
+  "signup.phone": "ဖုန်းနံပါတ်",
+  "signup.phonePlaceholder": "09xxxxxxx",
+  "signup.password": "စကားဝှက်",
+  "signup.sectionHouse": "သင့်အိမ်",
+  "signup.houseNumber": "အိမ်နံပါတ်",
+  "signup.housePlaceholder": "အိမ်နံပါတ် ရွေးပါ",
+  "signup.houseHint":
+    "ကျေးရွာ အုပ်ချုပ်ရေးမှူး ဖန်တီးထားသော အိမ်နံပါတ်ကို ရွေးပါ။",
+  "signup.houseNote":
+    "အိမ်တစ်အိမ်တွင် ပထမဆုံး စာရင်းသွင်းသူသည် ထိုအိမ်၏ အိမ်ထောင်စုခေါင်းဆောင် ဖြစ်လာပြီး ချက်ချင်း အတည်ပြုခံရမည်။ အခြားသူများမှာ အိမ်ထောင်စုခေါင်းဆောင်၏ အတည်ပြုချက်ကို စောင့်ရပါမည်။",
+  "signup.submit": "အကောင့် ဖွင့်ရန်",
+  "signup.submitting": "အကောင့် ဖွင့်နေသည်...",
+  "signup.errorTitle": "အကောင့် ဖွင့်၍ မရပါ",
+  "signup.fixFields":
+    "အမှတ်အသားပြထားသော အကွက်များကို စစ်ဆေးပြီး ထပ်ကြိုးစားပါ။",
+  "signup.err.name": "အမည်သည် အက္ခရာ ၂ လုံးမှ ၁၀၀ လုံးအတွင်း ဖြစ်ရပါမည်။",
+  "signup.err.email": "အီးမေးလ် မမှန်ကန်ပါ။",
+  "signup.err.phone": "ဖုန်းနံပါတ် မမှန်ကန်ပါ။",
+  "signup.err.identifier":
+    "အီးမေးလ် သို့မဟုတ် ဖုန်းနံပါတ် အနည်းဆုံး တစ်ခု ထည့်ပါ။",
+  "signup.err.password":
+    "စကားဝှက်သည် အက္ခရာ ၈ လုံးမှ ၇၂ လုံးအတွင်း ဖြစ်ရပါမည်။",
+  "signup.err.houseNumber": "မှန်ကန်သော အိမ်နံပါတ်ကို ရွေးပါ။",
+  "signup.err.dob": "မွေးသက္ကရာဇ် မမှန်ကန်ပါ။ အနာဂတ်ရက် မဖြစ်ရပါ။",
+  "signup.err.houseUnavailable": "ရွေးထားသော အိမ်ကို အသုံးပြု၍ မရပါ။",
+  "signup.err.emailExists": "ဤအီးမေးလ်ဖြင့် အကောင့် ရှိပြီးသား ဖြစ်သည်။",
+  "signup.err.phoneExists": "ဤဖုန်းနံပါတ်ဖြင့် အကောင့် ရှိပြီးသား ဖြစ်သည်။",
+  "signup.err.accountExists": "ဤအချက်အလက်များဖြင့် အကောင့် ရှိပြီးသား ဖြစ်သည်။",
+  "signup.err.generic": "အကောင့် ဖွင့်၍ မရပါ။ ထပ်ကြိုးစားပါ။",
+  "signup.noHousesTitle": "အိမ်များ မရှိသေးပါ",
+  "signup.noHousesBody":
+    "{village} တွင် အသုံးပြုနေသော အိမ်နံပါတ် မရှိသေးပါ။ ကျေးရွာ အုပ်ချုပ်ရေးမှူးကို ဆက်သွယ်ပါ။",
+  "signup.backToCode": "ကျေးရွာကုဒ်သို့ ပြန်ရန်",
 };

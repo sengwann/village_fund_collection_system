@@ -118,7 +118,8 @@ export const en = {
 
   // Login
   "login.title": "Sign in",
-  "login.subtitle": "Enter your email or phone number and password to continue.",
+  "login.subtitle":
+    "Enter your email or phone number and password to continue.",
   "login.identifier": "Email or phone",
   "login.identifierPlaceholder": "you@example.com or 09xxxxxxx",
   "login.password": "Password",
@@ -138,6 +139,66 @@ export const en = {
   "login.brandPointPay": "Pay by KPay or cash and track every payment",
   "login.brandPointReceipts": "Receipts you can look up at any time",
   "login.brandPointVillage": "Households, collectors and funds in one place",
+
+  // Signup and villager registration
+  "signup.stepOf": "Step {current} of {total}",
+  "signup.stepsLabel": "Registration progress",
+  "signup.stepVillage": "Village code",
+  "signup.stepDetails": "Your details",
+  "signup.codeTitle": "Join your village",
+  "signup.codeSubtitle":
+    "Enter the village code from your village chief to start registering.",
+  "signup.codeLabel": "Village code",
+  "signup.codePlaceholder": "Example: DEV100",
+  "signup.codeHint": "Your village chief can give you this code.",
+  "signup.codeSubmit": "Continue",
+  "signup.codeChecking": "Checking village code...",
+  "signup.invalidCode":
+    "That village code was not recognized. Check it and try again.",
+  "signup.haveAccount": "Already have an account?",
+  "signup.signIn": "Sign in",
+  "signup.registerTitle": "Create your account",
+  "signup.registerSubtitle": "Create your villager account and join a house.",
+  "signup.village": "Your village",
+  "signup.changeVillage": "Change village",
+  "signup.sectionAbout": "About you",
+  "signup.name": "Full name",
+  "signup.dob": "Date of birth",
+  "signup.optional": "Optional",
+  "signup.dobHint": "You can add this later in Settings.",
+  "signup.sectionSignIn": "How you will sign in",
+  "signup.signInIntro":
+    "Add an email, a phone number, or both. You need at least one to sign in.",
+  "signup.email": "Email",
+  "signup.phone": "Phone number",
+  "signup.phonePlaceholder": "09xxxxxxx",
+  "signup.password": "Password",
+  "signup.sectionHouse": "Your house",
+  "signup.houseNumber": "House number",
+  "signup.housePlaceholder": "Select a house number",
+  "signup.houseHint": "Choose a house number created by your village chief.",
+  "signup.houseNote":
+    "The first person to register for a house becomes its Head of House and is approved right away. Everyone else waits for the Head of House to approve.",
+  "signup.submit": "Create account",
+  "signup.submitting": "Creating account...",
+  "signup.errorTitle": "Could not create your account",
+  "signup.fixFields": "Please check the highlighted fields and try again.",
+  "signup.err.name": "Name must be between 2 and 100 characters.",
+  "signup.err.email": "Email is invalid.",
+  "signup.err.phone": "Phone number is invalid.",
+  "signup.err.identifier": "Add an email or a phone number (at least one).",
+  "signup.err.password": "Password must be between 8 and 72 characters.",
+  "signup.err.houseNumber": "Select a valid house number.",
+  "signup.err.dob": "Date of birth is invalid. It cannot be in the future.",
+  "signup.err.houseUnavailable": "The selected house is not available.",
+  "signup.err.emailExists": "An account with this email already exists.",
+  "signup.err.phoneExists": "An account with this phone number already exists.",
+  "signup.err.accountExists": "An account with those details already exists.",
+  "signup.err.generic": "Unable to create your account. Please try again.",
+  "signup.noHousesTitle": "No houses available yet",
+  "signup.noHousesBody":
+    "{village} has no active house numbers yet. Please contact your village chief.",
+  "signup.backToCode": "Back to village code",
 } as const;
 
 export type TranslationKey = keyof typeof en;

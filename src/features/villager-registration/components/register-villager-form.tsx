@@ -1,18 +1,68 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
-import type { FormEvent } from "react";
+import { useEffect, useId, useRef, useState, useTransition } from "react";
+import type { FormEvent, ReactNode } from "react";
+import { Building2, KeyRound, Landmark, User } from "lucide-react";
+
+import { Alert } from "../../../components/ui/alert";
+import { Badge } from "../../../components/ui/badge";
+import { Button, buttonVariants } from "../../../components/ui/button";
+import { AlertTriangleIcon } from "../../../components/ui/icons";
+import { Field, Input, Select } from "../../../components/ui/field";
+import { useTranslation } from "../../../lib/i18n/provider";
 import {
   registerVillagerAction,
   type RegisterVillagerActionResult,
 } from "../actions/register-villager.action";
+import { PasswordField } from "./password-field";
+import { translateServerMessage } from "./registration-messages";
 
-function FieldError({ message }: { message?: string }) {
-  if (!message) {
-    return null;
-  }
-  return <p className="mt-1 text-xs text-red-600">{message}</p>;
+/*
+ * Phones: a single column. The village is a summary card; the three sections
+ * are separated by a rule. From `sm` up each section becomes a card.
+ */
+function FormSection({
+  icon,
+  title,
+  description,
+  children,
+  id,
+}: {
+  icon: ReactNode;
+  title: string;
+  description?: string;
+  children: ReactNode;
+  id: string;
+}) {
+  return (
+    <section
+      aria-labelledby={`${id}-heading`}
+      className="space-y-4 border-t pt-6 sm:rounded-2xl sm:border sm:bg-card sm:p-6 sm:shadow-xs"
+    >
+      <div className="flex items-start gap-3">
+        <span
+          aria-hidden="true"
+          className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-accent text-accent-foreground [&_svg]:size-5"
+        >
+          {icon}
+        </span>
+        <div className="min-w-0 space-y-0.5 pt-0.5">
+          <h2
+            className="text-base font-semibold leading-snug"
+            id={`${id}-heading`}
+          >
+            {title}
+          </h2>
+          {description ? (
+            <p className="text-sm text-muted-foreground">{description}</p>
+          ) : null}
+        </div>
+      </div>
+      {children}
+    </section>
+  );
 }
 
 export function RegisterVillagerForm({
@@ -27,11 +77,29 @@ export function RegisterVillagerForm({
   }[];
 }) {
   const router = useRouter();
+  const { t } = useTranslation();
+  const signInGroupId = useId();
+  const formRef = useRef<HTMLFormElement>(null);
+  const alertRef = useRef<HTMLDivElement>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<
     Record<string, string | undefined>
   >({});
+  const [attempt, setAttempt] = useState(0);
   const [isPending, startTransition] = useTransition();
+
+  // After a failed submit, move keyboard and screen-reader focus to the first
+  // thing that needs attention (a field, the sign-in group, or the message).
+  useEffect(() => {
+    if (attempt === 0) {
+      return;
+    }
+    const target =
+      formRef.current?.querySelector<HTMLElement>(
+        '[aria-invalid="true"], [data-error-target="true"]',
+      ) ?? alertRef.current;
+    target?.focus();
+  }, [attempt]);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -41,8 +109,14 @@ export function RegisterVillagerForm({
     const formData = new FormData(event.currentTarget);
 
     startTransition(async () => {
-      const result: RegisterVillagerActionResult =
-        await registerVillagerAction(formData);
+      let result: RegisterVillagerActionResult;
+      try {
+        result = await registerVillagerAction(formData);
+      } catch {
+        setFormError(t("common.error"));
+        setAttempt((value) => value + 1);
+        return;
+      }
 
       if (result.success) {
         router.push(result.redirectTo);
@@ -52,169 +126,191 @@ export function RegisterVillagerForm({
 
       setFieldErrors(result.fieldErrors ?? {});
       setFormError(result.formError ?? "Unable to register.");
+      setAttempt((value) => value + 1);
     });
   }
 
+  const hasFieldErrors = Object.values(fieldErrors).some(Boolean);
+  const fieldError = (key: string) =>
+    translateServerMessage(t, fieldErrors[key]);
+  const identifierError = fieldError("identifier");
+  const identifierErrorId = `${signInGroupId}-error`;
+  // A field error already explains itself; the top message is only needed for
+  // problems that belong to no field, or as a short pointer to the fields.
+  const alertBody = hasFieldErrors
+    ? t("signup.fixFields")
+    : translateServerMessage(t, formError ?? undefined);
+  const showAlert = hasFieldErrors || Boolean(formError);
+
   return (
-    <form className="space-y-6" noValidate onSubmit={handleSubmit}>
+    <form
+      className="space-y-6"
+      noValidate
+      onSubmit={handleSubmit}
+      ref={formRef}
+    >
       <input name="villageCode" type="hidden" value={villageCode} />
 
-      <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-        <h2 className="text-sm font-medium text-slate-900">Village</h2>
-        <p className="mt-2 text-sm font-medium text-slate-900">{villageName}</p>
-        <p className="mt-1 text-xs text-slate-600">
-          Village code: {villageCode}
-        </p>
-        <p className="mt-2 text-xs text-slate-500">
-          Village cannot be changed during registration.
-        </p>
+      {showAlert ? (
+        <div className="outline-offset-4" ref={alertRef} tabIndex={-1}>
+          <Alert tone="danger" title={t("signup.errorTitle")}>
+            {alertBody}
+          </Alert>
+        </div>
+      ) : null}
+
+      <div className="flex flex-wrap items-center gap-3 rounded-xl border bg-accent/60 p-3 sm:p-4">
+        <span
+          aria-hidden="true"
+          className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground"
+        >
+          <Landmark className="size-5" />
+        </span>
+        <div className="min-w-0 flex-1 basis-40 space-y-1">
+          <p className="text-xs text-muted-foreground">{t("signup.village")}</p>
+          <p className="text-base font-semibold leading-snug">{villageName}</p>
+          <Badge className="font-mono" variant="neutral">
+            {t("signup.codeLabel")}: {villageCode}
+          </Badge>
+        </div>
+        <Link
+          className={buttonVariants({ variant: "outline", size: "sm" })}
+          href="/signup"
+        >
+          {t("signup.changeVillage")}
+        </Link>
       </div>
 
-      <div className="space-y-4 rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-        <h2 className="text-sm font-medium text-slate-900">Account details</h2>
+      <FormSection
+        icon={<User aria-hidden />}
+        id="about"
+        title={t("signup.sectionAbout")}
+      >
+        <Field
+          error={fieldError("name")}
+          id="name"
+          label={t("signup.name")}
+          required
+        >
+          <Input autoComplete="name" name="name" required type="text" />
+        </Field>
 
-        <div className="space-y-2">
-          <label
-            className="block text-sm font-medium text-slate-900"
-            htmlFor="name"
-          >
-            Name
-          </label>
-          <input
-            aria-describedby="name-error"
-            autoComplete="name"
-            className="block w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
-            id="name"
-            name="name"
-            type="text"
-          />
-          <FieldError message={fieldErrors.name} />
-        </div>
-
-        <div className="space-y-2">
-          <label
-            className="block text-sm font-medium text-slate-900"
-            htmlFor="email"
-          >
-            Email
-          </label>
-          <input
-            aria-describedby="email-error"
-            autoComplete="email"
-            className="block w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
-            id="email"
-            name="email"
-            type="email"
-          />
-          <FieldError message={fieldErrors.email} />
-        </div>
-
-        <div className="space-y-2">
-          <label
-            className="block text-sm font-medium text-slate-900"
-            htmlFor="phone"
-          >
-            Phone
-          </label>
-          <input
-            aria-describedby="phone-error"
-            autoComplete="tel"
-            className="block w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
-            id="phone"
-            name="phone"
-            type="tel"
-          />
-          <FieldError message={fieldErrors.phone} />
-        </div>
-
-        <FieldError message={fieldErrors.identifier} />
-
-        <div className="space-y-2">
-          <label
-            className="block text-sm font-medium text-slate-900"
-            htmlFor="password"
-          >
-            Password
-          </label>
-          <input
-            aria-describedby="password-error"
-            autoComplete="new-password"
-            className="block w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
-            id="password"
-            name="password"
-            type="password"
-          />
-          <FieldError message={fieldErrors.password} />
-        </div>
-        <div className="space-y-2">
-          <label
-            className="block text-sm font-medium text-slate-900"
-            htmlFor="dateOfBirth"
-          >
-            Date of birth{" "}
-            <span className="text-xs text-slate-500">(optional)</span>
-          </label>
-          <input
-            aria-describedby="dateOfBirth-error"
-            className="block w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
-            id="dateOfBirth"
+        <Field
+          error={fieldError("dateOfBirth")}
+          hint={t("signup.dobHint")}
+          id="dateOfBirth"
+          label={
+            <>
+              {t("signup.dob")}{" "}
+              <span className="font-normal text-muted-foreground">
+                ({t("signup.optional")})
+              </span>
+            </>
+          }
+        >
+          <Input
+            max={new Date().toISOString().split("T")[0]}
             name="dateOfBirth"
             type="date"
-            max={new Date().toISOString().split("T")[0]}
           />
-          <FieldError message={fieldErrors.dateOfBirth} />
-          <p className="text-xs text-slate-500">
-            Optional. You can add this later from Settings.
-          </p>
+        </Field>
+      </FormSection>
+
+      <FormSection
+        description={t("signup.signInIntro")}
+        icon={<KeyRound aria-hidden />}
+        id="signin"
+        title={t("signup.sectionSignIn")}
+      >
+        <div
+          aria-describedby={identifierError ? identifierErrorId : undefined}
+          aria-labelledby="signin-heading"
+          className="space-y-4"
+          role="group"
+        >
+          <Field
+            error={fieldError("email")}
+            id="email"
+            label={t("signup.email")}
+          >
+            <Input
+              autoCapitalize="none"
+              autoComplete="email"
+              autoCorrect="off"
+              inputMode="email"
+              name="email"
+              spellCheck={false}
+              type="email"
+            />
+          </Field>
+
+          <Field
+            error={fieldError("phone")}
+            id="phone"
+            label={t("signup.phone")}
+          >
+            <Input
+              autoComplete="tel"
+              inputMode="tel"
+              name="phone"
+              placeholder={t("signup.phonePlaceholder")}
+              type="tel"
+            />
+          </Field>
+
+          {identifierError ? (
+            <p
+              className="flex items-start gap-1.5 text-sm font-medium text-danger-strong outline-offset-4"
+              data-error-target="true"
+              id={identifierErrorId}
+              tabIndex={-1}
+            >
+              <AlertTriangleIcon className="mt-0.5 size-4 shrink-0" />
+              <span>{identifierError}</span>
+            </p>
+          ) : null}
         </div>
-      </div>
 
-      <div className="space-y-4 rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-        <h2 className="text-sm font-medium text-slate-900">House</h2>
+        <PasswordField
+          error={fieldError("password")}
+          hint={t("password.hint")}
+          id="password"
+          label={t("signup.password")}
+          name="password"
+          required
+        />
+      </FormSection>
 
-        <div className="space-y-2">
-          <label
-            className="block text-sm font-medium text-slate-900"
-            htmlFor="houseNumber"
-          >
-            House number
-          </label>
-          <select
-            aria-describedby="houseNumber-error"
-            className="block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
-            defaultValue=""
-            id="houseNumber"
-            name="houseNumber"
-          >
+      <FormSection
+        description={t("signup.houseHint")}
+        icon={<Building2 aria-hidden />}
+        id="house"
+        title={t("signup.sectionHouse")}
+      >
+        <Field
+          error={fieldError("houseNumber")}
+          id="houseNumber"
+          label={t("signup.houseNumber")}
+          required
+        >
+          <Select defaultValue="" name="houseNumber" required>
             <option disabled value="">
-              Select a house number
+              {t("signup.housePlaceholder")}
             </option>
             {houses.map((house) => (
               <option key={house.houseNumber} value={house.houseNumber}>
                 {house.houseNumber}
               </option>
             ))}
-          </select>
-          <FieldError message={fieldErrors.houseNumber} />
-          <p className="text-xs text-slate-500">
-            You can only join a house number created by the village chief.
-          </p>
-        </div>
-      </div>
+          </Select>
+        </Field>
 
-      {formError ? (
-        <p className="text-sm text-red-600" role="alert">
-          {formError}
-        </p>
-      ) : null}
+        <Alert tone="info">{t("signup.houseNote")}</Alert>
+      </FormSection>
 
-      <button
-        className="w-full rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-60"
-        disabled={isPending}
-        type="submit"
-      >
-        {isPending ? "Creating account..." : "Register"}
-      </button>
+      <Button className="w-full" loading={isPending} size="lg" type="submit">
+        {isPending ? t("signup.submitting") : t("signup.submit")}
+      </Button>
     </form>
   );
 }
