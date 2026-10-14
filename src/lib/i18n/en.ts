@@ -256,13 +256,33 @@ export const en = {
   "rejoin.noHousesBody":
     "There are no active houses in this village yet. Please contact your village chief.",
   "rejoin.signedInAs": "Signed in as",
-  
+
   // Forbidden page (Feature T)
-    "forbidden.title": "Access denied",
-    "forbidden.body": "You do not have permission to view this page.",
-    "forbidden.hint":
-      "If this page is not meant for your account, go back to your dashboard. If you think you should have access, contact your village chief.",
-    "forbidden.goHome": "Go to my dashboard",
-  } as const;
+  "forbidden.title": "Access denied",
+  "forbidden.body": "You do not have permission to view this page.",
+  "forbidden.hint":
+    "If this page is not meant for your account, go back to your dashboard. If you think you should have access, contact your village chief.",
+  "forbidden.goHome": "Go to my dashboard",
+
+  // Platform admin dashboard (Feature D)
+  "adminDashboard.title": "Platform dashboard",
+  "adminDashboard.description": "Overview of all villages in the system.",
+  "adminDashboard.create": "Create village",
+  "adminDashboard.statusTitle": "Villages by status",
+  "adminDashboard.totalVillages": "Total villages",
+  "adminDashboard.chartLabel":
+    "{total} villages: {active} active, {suspended} suspended, {deactivated} deactivated",
+  "adminDashboard.status.active": "Active",
+  "adminDashboard.status.suspended": "Suspended",
+  "adminDashboard.status.deactivated": "Deactivated",
+  "adminDashboard.suspendedOne": "{count} village is suspended",
+  "adminDashboard.suspendedOther": "{count} villages are suspended",
+  "adminDashboard.review": "Review",
+  "adminDashboard.recent": "Recent villages",
+  "adminDashboard.viewAll": "View all",
+  "adminDashboard.created": "Created {date}",
+  "adminDashboard.emptyTitle": "No villages yet",
+  "adminDashboard.emptyBody": "Create your first village to get started.",
+} as const;
 
 export type TranslationKey = keyof typeof en;

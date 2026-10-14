@@ -1,17 +1,23 @@
 import { VillageStatus } from "@prisma/client";
+import { Badge, type BadgeVariant } from "@/components/ui/badge";
 
-export function VillageStatusBadge({ status }: { status: VillageStatus }) {
-  const stylesByStatus: Record<VillageStatus, string> = {
-    [VillageStatus.ACTIVE]: "border-emerald-200 bg-emerald-50 text-emerald-700",
-    [VillageStatus.SUSPENDED]: "border-amber-200 bg-amber-50 text-amber-700",
-    [VillageStatus.DEACTIVATED]: "border-slate-200 bg-slate-100 text-slate-600",
-  };
+const VARIANT_BY_STATUS: Record<VillageStatus, BadgeVariant> = {
+  [VillageStatus.ACTIVE]: "success",
+  [VillageStatus.SUSPENDED]: "warning",
+  [VillageStatus.DEACTIVATED]: "neutral",
+};
 
+export function VillageStatusBadge({
+  status,
+  label,
+}: {
+  status: VillageStatus;
+  /** Already-translated text. Falls back to the raw status value. */
+  label?: string;
+}) {
   return (
-    <span
-      className={`inline-flex rounded-full border px-2 py-1 text-xs font-medium ${stylesByStatus[status]}`}
-    >
-      {status}
-    </span>
+    <Badge dot variant={VARIANT_BY_STATUS[status]}>
+      {label ?? status}
+    </Badge>
   );
 }

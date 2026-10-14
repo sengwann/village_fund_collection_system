@@ -15,7 +15,7 @@ export const my: Record<TranslationKey, string> = {
   "nav.settings": "ဆက်တင်များ",
   "nav.logout": "ထွက်ရန်",
   "nav.platformAudit": "ပလက်ဖောင်း စာရင်းစစ်",
-  "nav.villages": "ကျေးရွာများ",
+  "nav.villages": "ကျေးရွာမျ`ား",
   "nav.auditLog": "စာရင်းစစ် မှတ်တမ်း",
 
   // Shell
@@ -281,4 +281,24 @@ export const my: Record<TranslationKey, string> = {
   "forbidden.hint":
     "ဤစာမျက်နှာသည် သင့်အကောင့်အတွက် မဟုတ်ပါက ဒက်ရှ်ဘုတ်သို့ ပြန်သွားပါ။ ဝင်ခွင့်ရှိသင့်သည်ဟု ယူဆပါက ကျေးရွာ အုပ်ချုပ်ရေးမှူးကို ဆက်သွယ်ပါ။",
   "forbidden.goHome": "ကျွန်ုပ်၏ ဒက်ရှ်ဘုတ်သို့ သွားရန်",
+  
+  // Platform admin dashboard (Feature D)
+  "adminDashboard.title": "ပလက်ဖောင်း ဒက်ရှ်ဘုတ်",
+  "adminDashboard.description": "စနစ်ရှိ ကျေးရွာအားလုံးကို အကျဉ်းချုပ် ကြည့်ရန်။",
+  "adminDashboard.create": "ကျေးရွာ ဖန်တီးရန်",
+  "adminDashboard.statusTitle": "အခြေအနေအလိုက် ကျေးရွာများ",
+  "adminDashboard.totalVillages": "ကျေးရွာ စုစုပေါင်း",
+  "adminDashboard.chartLabel":
+    "ကျေးရွာ {total} ခု - လက်ရှိ {active} ခု၊ ယာယီရပ်ဆိုင်း {suspended} ခု၊ ပိတ်သိမ်း {deactivated} ခု",
+  "adminDashboard.status.active": "လက်ရှိ အသုံးပြုနေသည်",
+  "adminDashboard.status.suspended": "ယာယီ ရပ်ဆိုင်းထားသည်",
+  "adminDashboard.status.deactivated": "ပိတ်သိမ်းထားသည်",
+  "adminDashboard.suspendedOne": "ကျေးရွာ {count} ခု ယာယီ ရပ်ဆိုင်းထားသည်",
+  "adminDashboard.suspendedOther": "ကျေးရွာ {count} ခု ယာယီ ရပ်ဆိုင်းထားသည်",
+  "adminDashboard.review": "စစ်ဆေးရန်",
+  "adminDashboard.recent": "မကြာသေးမီက ကျေးရွာများ",
+  "adminDashboard.viewAll": "အားလုံး ကြည့်ရန်",
+  "adminDashboard.created": "ဖန်တီးသည့်ရက် {date}",
+  "adminDashboard.emptyTitle": "ကျေးရွာ မရှိသေးပါ",
+  "adminDashboard.emptyBody": "စတင်ရန် ပထမဆုံး ကျေးရွာကို ဖန်တီးပါ။",
 };

@@ -1,20 +1,33 @@
 import Link from "next/link";
+import { ChevronRight, Plus } from "lucide-react";
 import { VillageStatus } from "@prisma/client";
-import { EmptyState } from "../../../../components/ui/empty-state";
-import { VillageStatusBadge } from "../../../../features/village-management/components/village-status-badge";
-import { getPlatformShellContext } from "../../../../features/shell/lib/shell-context";
-import { prisma } from "../../../../lib/prisma";
+import { Alert } from "@/components/ui/alert";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
+import { PageHeader } from "@/components/ui/page-header";
+import { Section } from "@/components/ui/section";
+import { VillageStatusBadge } from "@/features/village-management/components/village-status-badge";
+import { VillageStatusSummary } from "@/features/village-management/components/village-status-summary";
+import { getPlatformShellContext } from "@/features/shell/lib/shell-context";
+import { formatYangonDateTime } from "@/lib/utils";
+import { getT } from "@/lib/i18n/translations";
+import { prisma } from "@/lib/prisma";
 
 export const metadata = {
   title: "Platform Dashboard | Village Fund Collection System",
 };
 
-function formatDate(date: Date): string {
-  return new Intl.DateTimeFormat("en", { dateStyle: "medium" }).format(date);
+function fill(template: string, values: Record<string, string | number>) {
+  return Object.entries(values).reduce(
+    (text, [key, value]) => text.replaceAll(`{${key}}`, String(value)),
+    template,
+  );
 }
 
 export default async function AdminDashboardPage() {
-  await getPlatformShellContext();
+  const { language } = await getPlatformShellContext();
+  const t = getT(language);
 
   const [
     totalVillages,
@@ -40,104 +53,139 @@ export default async function AdminDashboardPage() {
     }),
   ]);
 
-  const stats = [
-    {
-      label: "Total Villages",
-      value: totalVillages,
-      valueClass: "text-slate-900",
-    },
-    { label: "Active", value: activeVillages, valueClass: "text-emerald-600" },
-    {
-      label: "Suspended",
-      value: suspendedVillages,
-      valueClass: "text-amber-600",
-    },
-    {
-      label: "Deactivated",
-      value: deactivatedVillages,
-      valueClass: "text-slate-500",
-    },
-  ];
+  const statusLabels: Record<VillageStatus, string> = {
+    [VillageStatus.ACTIVE]: t("adminDashboard.status.active"),
+    [VillageStatus.SUSPENDED]: t("adminDashboard.status.suspended"),
+    [VillageStatus.DEACTIVATED]: t("adminDashboard.status.deactivated"),
+  };
+
+  const createHref = "/admin/villages/new";
 
   return (
     <div className="space-y-6">
-      <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h1 className="text-lg font-semibold text-slate-900">
-              Platform dashboard
-            </h1>
-            <p className="mt-1 text-sm text-slate-600">
-              Overview of all villages in the system.
-            </p>
-          </div>
-          <Link
-            className="rounded-md bg-slate-900 px-4 py-2 text-center text-sm font-medium text-white transition hover:bg-slate-700"
-            href="/admin/villages/new"
-          >
-            Create village
-          </Link>
-        </div>
-      </div>
+      <PageHeader
+        actions={
+          <Button asChild>
+            <Link href={createHref}>
+              <Plus aria-hidden />
+              {t("adminDashboard.create")}
+            </Link>
+          </Button>
+        }
+        description={t("adminDashboard.description")}
+        title={t("adminDashboard.title")}
+      />
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {stats.map((stat) => (
-          <div
-            className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm"
-            key={stat.label}
-          >
-            <p className="text-sm font-medium text-slate-600">{stat.label}</p>
-            <p className={`mt-2 text-2xl font-semibold ${stat.valueClass}`}>
-              {stat.value}
-            </p>
-          </div>
-        ))}
-      </div>
+      {suspendedVillages > 0 ? (
+        <Alert
+          action={
+            <Button asChild size="sm" variant="outline">
+              <Link href="/admin/villages">{t("adminDashboard.review")}</Link>
+            </Button>
+          }
+          title={fill(
+            t(
+              suspendedVillages === 1
+                ? "adminDashboard.suspendedOne"
+                : "adminDashboard.suspendedOther",
+            ),
+            { count: suspendedVillages },
+          )}
+          tone="warning"
+        />
+      ) : null}
 
-      <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-        <div className="flex items-center justify-between gap-3">
-          <h2 className="text-sm font-medium text-slate-900">
-            Recent villages
-          </h2>
-          <Link
-            className="text-xs font-medium text-slate-600 transition hover:text-slate-900"
-            href="/admin/villages"
-          >
-            View all
-          </Link>
-        </div>
-        {recentVillages.length === 0 ? (
-          <EmptyState
-            className="mt-3"
-            description="No villages created yet. Create your first village to get started."
-            title="No villages"
-          />
-        ) : (
-          <div className="mt-3 space-y-3">
-            {recentVillages.map((village) => (
+      <div className="grid gap-6 lg:grid-cols-3 lg:items-start">
+        <VillageStatusSummary
+          chartLabel={fill(t("adminDashboard.chartLabel"), {
+            total: totalVillages,
+            active: activeVillages,
+            suspended: suspendedVillages,
+            deactivated: deactivatedVillages,
+          })}
+          counts={{
+            [VillageStatus.ACTIVE]: activeVillages,
+            [VillageStatus.SUSPENDED]: suspendedVillages,
+            [VillageStatus.DEACTIVATED]: deactivatedVillages,
+          }}
+          statusLabels={statusLabels}
+          title={t("adminDashboard.statusTitle")}
+          total={totalVillages}
+          totalLabel={t("adminDashboard.totalVillages")}
+        />
+
+        <Section
+          actions={
+            recentVillages.length > 0 ? (
               <Link
-                className="flex items-center justify-between gap-3 rounded-md border border-slate-200 p-3 transition hover:bg-slate-50"
-                href={`/admin/villages/${village.id}`}
-                key={village.id}
+                className={buttonVariants({ variant: "ghost", size: "sm" })}
+                href="/admin/villages"
               >
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-medium text-slate-900">
-                    {village.villageCode}
-                  </p>
-                  <p className="truncate text-xs text-slate-600">
-                    {village.name}
-                  </p>
-                </div>
-                <div className="flex shrink-0 items-center gap-3">
-                  <VillageStatusBadge status={village.status} />
-                  <span className="hidden text-xs text-slate-500 sm:block">
-                    {formatDate(village.createdAt)}
-                  </span>
-                </div>
+                {t("adminDashboard.viewAll")}
+                <ChevronRight aria-hidden className="rtl:rotate-180" />
               </Link>
-            ))}
-          </div>
-        )}
+            ) : null
+          }
+          className="lg:col-span-2"
+          title={t("adminDashboard.recent")}
+        >
+          {recentVillages.length === 0 ? (
+            <EmptyState
+              action={
+                <Button asChild>
+                  <Link href={createHref}>
+                    <Plus aria-hidden />
+                    {t("adminDashboard.create")}
+                  </Link>
+                </Button>
+              }
+              description={t("adminDashboard.emptyBody")}
+              title={t("adminDashboard.emptyTitle")}
+            />
+          ) : (
+            <Card className="overflow-hidden">
+              <ul className="divide-y">
+                {recentVillages.map((village) => (
+                  <li key={village.id}>
+                    <Link
+                      className="flex min-h-16 items-center gap-3 px-4 py-3 transition-colors hover:bg-muted sm:px-5"
+                      href={`/admin/villages/${village.id}`}
+                    >
+                      <div className="min-w-0 flex-1 space-y-1">
+                        <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
+                          <p className="text-sm font-semibold [overflow-wrap:anywhere]">
+                            {village.villageCode}
+                          </p>
+                          <VillageStatusBadge
+                            label={statusLabels[village.status]}
+                            status={village.status}
+                          />
+                        </div>
+                        <p className="text-sm text-muted-foreground [overflow-wrap:anywhere]">
+                          {village.name}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          <time dateTime={village.createdAt.toISOString()}>
+                            {fill(t("adminDashboard.created"), {
+                              date: formatYangonDateTime(
+                                village.createdAt,
+                                "date",
+                              ),
+                            })}
+                          </time>
+                        </p>
+                      </div>
+                      <ChevronRight
+                        aria-hidden
+                        className="size-4 shrink-0 text-muted-foreground"
+                      />
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </Card>
+          )}
+        </Section>
       </div>
     </div>
   );
