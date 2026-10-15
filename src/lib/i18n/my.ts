@@ -281,10 +281,11 @@ export const my: Record<TranslationKey, string> = {
   "forbidden.hint":
     "ဤစာမျက်နှာသည် သင့်အကောင့်အတွက် မဟုတ်ပါက ဒက်ရှ်ဘုတ်သို့ ပြန်သွားပါ။ ဝင်ခွင့်ရှိသင့်သည်ဟု ယူဆပါက ကျေးရွာ အုပ်ချုပ်ရေးမှူးကို ဆက်သွယ်ပါ။",
   "forbidden.goHome": "ကျွန်ုပ်၏ ဒက်ရှ်ဘုတ်သို့ သွားရန်",
-  
+
   // Platform admin dashboard (Feature D)
   "adminDashboard.title": "ပလက်ဖောင်း ဒက်ရှ်ဘုတ်",
-  "adminDashboard.description": "စနစ်ရှိ ကျေးရွာအားလုံးကို အကျဉ်းချုပ် ကြည့်ရန်။",
+  "adminDashboard.description":
+    "စနစ်ရှိ ကျေးရွာအားလုံးကို အကျဉ်းချုပ် ကြည့်ရန်။",
   "adminDashboard.create": "ကျေးရွာ ဖန်တီးရန်",
   "adminDashboard.statusTitle": "အခြေအနေအလိုက် ကျေးရွာများ",
   "adminDashboard.totalVillages": "ကျေးရွာ စုစုပေါင်း",
@@ -301,4 +302,86 @@ export const my: Record<TranslationKey, string> = {
   "adminDashboard.created": "ဖန်တီးသည့်ရက် {date}",
   "adminDashboard.emptyTitle": "ကျေးရွာ မရှိသေးပါ",
   "adminDashboard.emptyBody": "စတင်ရန် ပထမဆုံး ကျေးရွာကို ဖန်တီးပါ။",
+
+  // Village directory and management (Feature E)
+  "adminVillages.title": "ကျေးရွာများ",
+  "adminVillages.description":
+    "ပလက်ဖောင်းရှိ ကျေးရွာအားလုံးကို ရှာဖွေ၊ စစ်ဆေးပြီး စီမံပါ။",
+  "adminVillages.create": "ကျေးရွာ ဖန်တီးရန်",
+  "adminVillages.searchLabel": "ကျေးရွာ ရှာရန်",
+  "adminVillages.searchPlaceholder": "ကုဒ် သို့မဟုတ် အမည်ဖြင့် ရှာပါ",
+  "adminVillages.clearSearch": "ရှာဖွေမှု ဖျက်ရန်",
+  "adminVillages.filterLabel": "အခြေအနေအလိုက် စစ်ထုတ်ရန်",
+  "adminVillages.filterAll": "အားလုံး",
+  "adminVillages.resultCount": "ကျေးရွာ {total} ခုအနက် {shown} ခု ပြသနေသည်",
+  "adminVillages.emptyTitle": "ကျေးရွာ မရှိသေးပါ",
+  "adminVillages.emptyBody": "စတင်ရန် ပထမဆုံး ကျေးရွာကို ဖန်တီးပါ။",
+  "adminVillages.noMatchTitle": "ကိုက်ညီသော ကျေးရွာ မတွေ့ပါ",
+  "adminVillages.noMatchBody":
+    "အခြား ရှာဖွေမှု သို့မဟုတ် အခြေအနေ စစ်ထုတ်မှုကို စမ်းကြည့်ပါ။",
+  "adminVillages.clearFilters": "စစ်ထုတ်မှုများ ဖျက်ရန်",
+  "adminVillages.back": "ကျေးရွာများသို့ ပြန်ရန်",
+  "adminVillages.new.title": "ကျေးရွာ ဖန်တီးရန်",
+  "adminVillages.new.description":
+    "ကျေးရွာအသစ်နှင့် ၎င်း၏ ပထမဆုံး အုပ်ချုပ်ရေးမှူး အကောင့်ကို ဖန်တီးပါ။",
+  "adminVillages.form.villageTitle": "ကျေးရွာ အချက်အလက်",
+  "adminVillages.form.villageDesc":
+    "ကျေးရွာသားများသည် ဤကုဒ်ကို ထည့်သွင်း၍ ကျေးရွာသို့ ဝင်ရောက်ရပါမည်။",
+  "adminVillages.form.code": "ကျေးရွာကုဒ်",
+  "adminVillages.form.codePlaceholder": "ဥပမာ - DEV101",
+  "adminVillages.form.codeHint": "တိုတောင်းပြီး တစ်ခုတည်းသာ ရှိရပါမည်။",
+  "adminVillages.form.name": "ကျေးရွာအမည်",
+  "adminVillages.form.namePlaceholder": "ဥပမာ - ဖွံ့ဖြိုးမှုကျေးရွာသစ်",
+  "adminVillages.form.chiefTitle": "ပထမဆုံး အုပ်ချုပ်ရေးမှူး အကောင့်",
+  "adminVillages.form.chiefDesc":
+    "အုပ်ချုပ်ရေးမှူးသည် ဤကျေးရွာ၏ အိမ်များ၊ ရန်ပုံငွေများနှင့် ကောက်ခံသူများကို စီမံပါသည်။",
+  "adminVillages.form.chiefName": "အုပ်ချုပ်ရေးမှူး အမည်",
+  "adminVillages.form.chiefEmail": "အုပ်ချုပ်ရေးမှူး အီးမေးလ်",
+  "adminVillages.form.chiefPhone": "အုပ်ချုပ်ရေးမှူး ဖုန်းနံပါတ်",
+  "adminVillages.form.phonePlaceholder": "09xxxxxxx",
+  "adminVillages.form.contactHint":
+    "အုပ်ချုပ်ရေးမှူးသည် အီးမေးလ် သို့မဟုတ် ဖုန်းနံပါတ်ဖြင့် ဝင်ရောက်ပါမည်။",
+  "adminVillages.form.password": "ယာယီ စကားဝှက်",
+  "adminVillages.form.passwordHint":
+    "အုပ်ချုပ်ရေးမှူးထံ လုံခြုံစွာ ပေးပို့ပါ။ ဝင်ရောက်ပြီးနောက် ပြောင်းလဲသင့်ပါသည်။",
+  "adminVillages.form.submit": "ကျေးရွာ ဖန်တီးရန်",
+  "adminVillages.form.submitting": "ကျေးရွာ ဖန်တီးနေသည်...",
+  "adminVillages.form.errorTitle": "ကျေးရွာ ဖန်တီး၍ မရပါ",
+  "adminVillages.form.fixFields":
+    "အမှတ်အသားပြထားသော အကွက်များကို စစ်ဆေးပြီး ထပ်ကြိုးစားပါ။",
+  "adminVillages.form.generic": "ကျေးရွာ ဖန်တီး၍ မရပါ။ ထပ်ကြိုးစားပါ။",
+  "adminVillages.err.codeExists": "ဤကျေးရွာကုဒ် ရှိပြီးသား ဖြစ်သည်။",
+  "adminVillages.err.emailExists":
+    "ဤအီးမေးလ်ဖြင့် အုပ်ချုပ်ရေးမှူး အကောင့် ရှိပြီးသား ဖြစ်သည်။",
+  "adminVillages.err.phoneExists":
+    "ဤဖုန်းနံပါတ်ဖြင့် အုပ်ချုပ်ရေးမှူး အကောင့် ရှိပြီးသား ဖြစ်သည်။",
+  "adminVillages.err.exists":
+    "ဤအချက်အလက်များဖြင့် ကျေးရွာ သို့မဟုတ် အုပ်ချုပ်ရေးမှူး အကောင့် ရှိပြီးသား ဖြစ်သည်။",
+  "adminVillages.detail.infoTitle": "ကျေးရွာ အချက်အလက်",
+  "adminVillages.detail.code": "ကျေးရွာကုဒ်",
+  "adminVillages.detail.name": "ကျေးရွာအမည်",
+  "adminVillages.detail.status": "အခြေအနေ",
+  "adminVillages.detail.createdAt": "ဖန်တီးသည့်ရက်",
+  "adminVillages.detail.updatedAt": "နောက်ဆုံး ပြင်ဆင်သည့်ရက်",
+  "adminVillages.detail.lifecycleTitle": "အခြေအနေနှင့် လုပ်ဆောင်ချက်များ",
+  "adminVillages.statusDesc.active":
+    "ဤကျေးရွာသည် လက်ရှိ ပုံမှန် အသုံးပြုနေဆဲ ဖြစ်သည်။",
+  "adminVillages.statusDesc.suspended":
+    "ဤကျေးရွာကို ယာယီ ရပ်ဆိုင်းထားသည်။ မည်သည့်အချိန်တွင်မဆို ပြန်ဖွင့်နိုင်သည်။",
+  "adminVillages.statusDesc.deactivated":
+    "ဤကျေးရွာကို ပိတ်သိမ်းထားသည်။ စီမံနိုင်သော လုပ်ဆောင်ချက် မရှိတော့ပါ။ ကျေးရွာ မှတ်တမ်းနှင့် သမိုင်းကြောင်း ဒေတာများကို ဆက်လက် သိမ်းဆည်းထားသည်။",
+  "adminVillages.suspend.button": "ကျေးရွာ ယာယီ ရပ်ဆိုင်းရန်",
+  "adminVillages.suspend.hint":
+    "ဤကျေးရွာကို ယာယီ ရပ်ဆိုင်းပါ။ နောက်မှ ပြန်ဖွင့်နိုင်သည်။",
+  "adminVillages.reactivate.button": "ကျေးရွာ ပြန်ဖွင့်ရန်",
+  "adminVillages.reactivate.hint":
+    "ဤကျေးရွာကို လက်ရှိ အသုံးပြုနေသော အခြေအနေသို့ ပြန်ထားပါ။",
+  "adminVillages.deactivate.title": "ကျေးရွာ ပိတ်သိမ်းရန်",
+  "adminVillages.deactivate.hint":
+    "ပိတ်သိမ်းခြင်းသည် MVP တွင် နောက်ပြန်လှည့်၍ မရပါ။ ကျေးရွာ မှတ်တမ်းနှင့် သမိုင်းကြောင်း ဒေတာများကို သိမ်းထားသော်လည်း ကျေးရွာအသုံးပြုသူများ ဝင်ရောက်ခွင့် ဆုံးရှုံးမည်။",
+  "adminVillages.deactivate.button": "ကျေးရွာ ပိတ်သိမ်းရန်",
+  "adminVillages.deactivate.confirmTitle": "ဤကျေးရွာကို ပိတ်သိမ်းမလား။",
+  "adminVillages.deactivate.confirmBody":
+    "{name} ({code}) ကို ပိတ်သိမ်းပါမည်။ ဤလုပ်ဆောင်ချက်ကို နောက်ပြန်လှည့်၍ မရပါ။ ကျေးရွာအသုံးပြုသူများ ဝင်ရောက်ခွင့် ဆုံးရှုံးမည်ဖြစ်ပြီး မှတ်တမ်းများကို ဆက်လက် သိမ်းထားမည်။",
+  "adminVillages.deactivate.confirm": "ဟုတ်ကဲ့၊ ပိတ်သိမ်းမည်",
 };

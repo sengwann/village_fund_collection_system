@@ -283,6 +283,85 @@ export const en = {
   "adminDashboard.created": "Created {date}",
   "adminDashboard.emptyTitle": "No villages yet",
   "adminDashboard.emptyBody": "Create your first village to get started.",
+
+  // Village directory and management (Feature E)
+  "adminVillages.title": "Villages",
+  "adminVillages.description":
+    "Search, review and manage every village on the platform.",
+  "adminVillages.create": "Create village",
+  "adminVillages.searchLabel": "Search villages",
+  "adminVillages.searchPlaceholder": "Search by code or name",
+  "adminVillages.clearSearch": "Clear search",
+  "adminVillages.filterLabel": "Filter by status",
+  "adminVillages.filterAll": "All",
+  "adminVillages.resultCount": "Showing {shown} of {total} villages",
+  "adminVillages.emptyTitle": "No villages yet",
+  "adminVillages.emptyBody": "Create the first village to get started.",
+  "adminVillages.noMatchTitle": "No villages match",
+  "adminVillages.noMatchBody": "Try a different search or status filter.",
+  "adminVillages.clearFilters": "Clear filters",
+  "adminVillages.back": "Back to villages",
+  "adminVillages.new.title": "Create village",
+  "adminVillages.new.description":
+    "Set up a new village and its first Chief account.",
+  "adminVillages.form.villageTitle": "Village details",
+  "adminVillages.form.villageDesc":
+    "Villagers enter the village code to join this village.",
+  "adminVillages.form.code": "Village code",
+  "adminVillages.form.codePlaceholder": "Example: DEV101",
+  "adminVillages.form.codeHint": "Keep it short and unique.",
+  "adminVillages.form.name": "Village name",
+  "adminVillages.form.namePlaceholder": "Example: New Development Village",
+  "adminVillages.form.chiefTitle": "Initial Chief account",
+  "adminVillages.form.chiefDesc":
+    "The Chief manages houses, funds and collectors for this village.",
+  "adminVillages.form.chiefName": "Chief name",
+  "adminVillages.form.chiefEmail": "Chief email",
+  "adminVillages.form.chiefPhone": "Chief phone",
+  "adminVillages.form.phonePlaceholder": "09xxxxxxx",
+  "adminVillages.form.contactHint":
+    "The Chief signs in with an email or a phone number.",
+  "adminVillages.form.password": "Temporary password",
+  "adminVillages.form.passwordHint":
+    "Share it with the Chief securely. They should change it after signing in.",
+  "adminVillages.form.submit": "Create village",
+  "adminVillages.form.submitting": "Creating village...",
+  "adminVillages.form.errorTitle": "Could not create the village",
+  "adminVillages.form.fixFields": "Check the highlighted fields and try again.",
+  "adminVillages.form.generic": "Unable to create village. Please try again.",
+  "adminVillages.err.codeExists": "This village code already exists.",
+  "adminVillages.err.emailExists":
+    "A Chief account with this email already exists.",
+  "adminVillages.err.phoneExists":
+    "A Chief account with this phone number already exists.",
+  "adminVillages.err.exists":
+    "A village or Chief account with those details already exists.",
+  "adminVillages.detail.infoTitle": "Village information",
+  "adminVillages.detail.code": "Village code",
+  "adminVillages.detail.name": "Village name",
+  "adminVillages.detail.status": "Status",
+  "adminVillages.detail.createdAt": "Created",
+  "adminVillages.detail.updatedAt": "Last updated",
+  "adminVillages.detail.lifecycleTitle": "Status and actions",
+  "adminVillages.statusDesc.active":
+    "This village is active and operating normally.",
+  "adminVillages.statusDesc.suspended":
+    "This village is suspended. You can reactivate it at any time.",
+  "adminVillages.statusDesc.deactivated":
+    "This village is deactivated. No lifecycle actions are available. The village record and historical data are preserved.",
+  "adminVillages.suspend.button": "Suspend village",
+  "adminVillages.suspend.hint":
+    "Pause this village. You can reactivate it later.",
+  "adminVillages.reactivate.button": "Reactivate village",
+  "adminVillages.reactivate.hint": "Return this village to active status.",
+  "adminVillages.deactivate.title": "Deactivate village",
+  "adminVillages.deactivate.hint":
+    "Deactivation is final for MVP. The village record and historical data are preserved, but village users will lose access.",
+  "adminVillages.deactivate.button": "Deactivate village",
+  "adminVillages.deactivate.confirmTitle": "Deactivate this village?",
+  "adminVillages.deactivate.confirmBody":
+    "{name} ({code}) will be deactivated. This cannot be undone. Village users will lose access; records and history are kept.",
+  "adminVillages.deactivate.confirm": "Yes, deactivate",
 } as const;
 
 export type TranslationKey = keyof typeof en;

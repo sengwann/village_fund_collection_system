@@ -1,9 +1,14 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { VillageLifecycleActions } from "../../../../../features/village-management/components/village-lifecycle-actions";
-import { VillageStatusBadge } from "../../../../../features/village-management/components/village-status-badge";
-import { requireVillageLifecycleAccess } from "../../../../../lib/authz";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageHeader } from "@/components/ui/page-header";
+import { getPlatformShellContext } from "@/features/shell/lib/shell-context";
+import { VillageLifecycleActions } from "@/features/village-management/components/village-lifecycle-actions";
+import { VillageStatusBadge } from "@/features/village-management/components/village-status-badge";
+import { requireVillageLifecycleAccess } from "@/lib/authz";
+import type { TranslationKey } from "@/lib/i18n/en";
+import { getT } from "@/lib/i18n/translations";
+import { formatYangonDateTime } from "@/lib/utils";
 
 export const metadata = {
   title: "Village Detail | Village Fund Collection System",
@@ -37,12 +42,6 @@ async function extractVillageId(rawParams: unknown): Promise<string> {
   return villageId ?? "";
 }
 
-function formatDate(date: Date): string {
-  return new Intl.DateTimeFormat("en", {
-    dateStyle: "medium",
-  }).format(date);
-}
-
 export default async function VillageDetailPage({
   params,
 }: {
@@ -55,70 +54,106 @@ export default async function VillageDetailPage({
   }
 
   const village = await requireVillageLifecycleAccess(villageId);
+  const { language } = await getPlatformShellContext();
+  const t = getT(language);
+
+  const statusLabels: Record<typeof village.status, TranslationKey> = {
+    ACTIVE: "adminDashboard.status.active",
+    SUSPENDED: "adminDashboard.status.suspended",
+    DEACTIVATED: "adminDashboard.status.deactivated",
+  };
+
+  const rows: { label: string; value: React.ReactNode }[] = [
+    {
+      label: t("adminVillages.detail.code"),
+      value: village.villageCode,
+    },
+    {
+      label: t("adminVillages.detail.name"),
+      value: village.name,
+    },
+    {
+      label: t("adminVillages.detail.status"),
+      value: (
+        <VillageStatusBadge
+          label={t(statusLabels[village.status])}
+          status={village.status}
+        />
+      ),
+    },
+    {
+      label: t("adminVillages.detail.createdAt"),
+      value: (
+        <time dateTime={village.createdAt.toISOString()}>
+          {formatYangonDateTime(village.createdAt)}
+        </time>
+      ),
+    },
+    {
+      label: t("adminVillages.detail.updatedAt"),
+      value: (
+        <time dateTime={village.updatedAt.toISOString()}>
+          {formatYangonDateTime(village.updatedAt)}
+        </time>
+      ),
+    },
+  ];
 
   return (
     <div className="space-y-6">
-      <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-        <div className="flex items-center justify-between gap-4">
-          <div className="min-w-0">
-            <h1 className="truncate text-lg font-semibold text-slate-900">
-              {village.villageCode}
-            </h1>
+      <PageHeader
+        backHref="/admin/villages"
+        backLabel={t("adminVillages.back")}
+        eyebrow={village.villageCode}
+        meta={
+          <VillageStatusBadge
+            label={t(statusLabels[village.status])}
+            status={village.status}
+          />
+        }
+        title={village.name}
+      />
 
-            <p className="truncate text-sm text-slate-600">{village.name}</p>
-          </div>
+      <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
+        <Card>
+          <CardHeader className="pb-3 sm:pb-3">
+            <CardTitle as="h2">{t("adminVillages.detail.infoTitle")}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <dl className="divide-y text-sm">
+              {rows.map((row) => (
+                <div
+                  className="flex min-h-12 flex-wrap items-center justify-between gap-x-4 gap-y-1 py-2.5"
+                  key={row.label}
+                >
+                  <dt className="shrink-0 text-muted-foreground">
+                    {row.label}
+                  </dt>
+                  <dd className="min-w-0 text-right font-medium [overflow-wrap:anywhere]">
+                    {row.value}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </CardContent>
+        </Card>
 
-          <Link
-            className="rounded-md border border-slate-300 px-3 py-2 text-xs font-medium text-slate-900 transition hover:bg-slate-100"
-            href="/admin/villages"
-          >
-            Back to villages
-          </Link>
-        </div>
-      </div>
-
-      <div className="grid gap-4 lg:grid-cols-2">
-        <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-          <h2 className="text-sm font-medium text-slate-900">
-            Village lifecycle
-          </h2>
-
-          <dl className="mt-3 space-y-3 text-sm">
-            <div className="flex items-center justify-between gap-3">
-              <dt className="font-medium text-slate-700">Status</dt>
-              <dd>
-                <VillageStatusBadge status={village.status} />
-              </dd>
-            </div>
-
-            <div className="flex items-center justify-between gap-3">
-              <dt className="font-medium text-slate-700">Created</dt>
-              <dd className="text-slate-900">
-                {formatDate(village.createdAt)}
-              </dd>
-            </div>
-
-            <div className="flex items-center justify-between gap-3">
-              <dt className="font-medium text-slate-700">Updated</dt>
-              <dd className="text-slate-900">
-                {formatDate(village.updatedAt)}
-              </dd>
-            </div>
-          </dl>
-        </div>
-
-        <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-          <h2 className="text-sm font-medium text-slate-900">
-            Lifecycle actions
-          </h2>
-
-          <div className="mt-3">
+        <Card>
+          <CardHeader className="pb-3 sm:pb-3">
+            <CardTitle as="h2">
+              {t("adminVillages.detail.lifecycleTitle")}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
             <VillageLifecycleActions
+              language={language}
               status={village.status}
+              villageCode={village.villageCode}
               villageId={village.id}
+              villageName={village.name}
             />
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

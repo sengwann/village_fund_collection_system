@@ -1,8 +1,14 @@
 import Link from "next/link";
+import { Plus } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
-import { requireSystemAdmin } from "@/lib/authz";
-import { prisma } from "@/lib/prisma";
+import { PageHeader } from "@/components/ui/page-header";
+import { getPlatformShellContext } from "@/features/shell/lib/shell-context";
 import { VillagesSearch } from "@/features/village-management/components/villages-search";
+import { requireSystemAdmin } from "@/lib/authz";
+import { getT } from "@/lib/i18n/translations";
+import { prisma } from "@/lib/prisma";
 
 export const metadata = {
   title: "Villages | Village Fund Collection System",
@@ -10,6 +16,8 @@ export const metadata = {
 
 export default async function AdminVillagesPage() {
   await requireSystemAdmin();
+  const { language } = await getPlatformShellContext();
+  const t = getT(language);
 
   const villages = await prisma.village.findMany({
     select: {
@@ -24,31 +32,28 @@ export default async function AdminVillagesPage() {
     },
   });
 
+  const createAction = (
+    <Button asChild>
+      <Link href="/admin/villages/new">
+        <Plus aria-hidden />
+        {t("adminVillages.create")}
+      </Link>
+    </Button>
+  );
+
   return (
     <div className="space-y-6">
-      <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h1 className="text-lg font-semibold text-slate-900">Villages</h1>
-
-            <p className="mt-1 text-sm text-slate-600">
-              Manage village lifecycle.
-            </p>
-          </div>
-
-          <Link
-            className="rounded-md bg-slate-900 px-4 py-2 text-center text-sm font-medium text-white transition hover:bg-slate-700"
-            href="/admin/villages/new"
-          >
-            Create village
-          </Link>
-        </div>
-      </div>
+      <PageHeader
+        actions={villages.length > 0 ? createAction : null}
+        description={t("adminVillages.description")}
+        title={t("adminVillages.title")}
+      />
 
       {villages.length === 0 ? (
         <EmptyState
-          description="No villages have been created yet."
-          title="No villages found"
+          action={createAction}
+          description={t("adminVillages.emptyBody")}
+          title={t("adminVillages.emptyTitle")}
         />
       ) : (
         <VillagesSearch villages={villages} />

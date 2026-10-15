@@ -1,6 +1,9 @@
+import type { LanguagePreference } from "@prisma/client";
 import { VillageStatus } from "@prisma/client";
 
-import { deactivateVillageAction } from "../actions/deactivate-village.action";
+import { Alert } from "@/components/ui/alert";
+import type { TranslationKey } from "@/lib/i18n/en";
+import { getT } from "@/lib/i18n/translations";
 import { reactivateVillageAction } from "../actions/reactivate-village.action";
 import { suspendVillageAction } from "../actions/suspend-village.action";
 import {
@@ -8,66 +11,96 @@ import {
   canReactivateVillage,
   canSuspendVillage,
 } from "../lib/village-lifecycle";
+import { fillTemplate } from "../lib/fill-template";
+import { DeactivateVillageDialog } from "./deactivate-village-dialog";
+import { LifecycleSubmitButton } from "./lifecycle-submit-button";
 
+const STATUS_DESCRIPTION_KEYS: Record<VillageStatus, TranslationKey> = {
+  [VillageStatus.ACTIVE]: "adminVillages.statusDesc.active",
+  [VillageStatus.SUSPENDED]: "adminVillages.statusDesc.suspended",
+  [VillageStatus.DEACTIVATED]: "adminVillages.statusDesc.deactivated",
+};
+
+/*
+ * Server component. Which actions appear is still decided by the
+ * canSuspend/canReactivate/canDeactivate rules; the actions and their
+ * `villageId` form field are unchanged. Deactivate (final) is separated into
+ * its own zone and needs an explicit confirmation.
+ */
 export function VillageLifecycleActions({
   status,
   villageId,
+  villageCode,
+  villageName,
+  language,
 }: {
   status: VillageStatus;
   villageId: string;
+  villageCode: string;
+  villageName: string;
+  language: LanguagePreference;
 }) {
+  const t = getT(language);
+
   if (status === VillageStatus.DEACTIVATED) {
-    return (
-      <p className="text-sm text-slate-600">
-        This village is deactivated. No lifecycle actions are available.
-      </p>
-    );
+    return <Alert tone="info">{t(STATUS_DESCRIPTION_KEYS[status])}</Alert>;
   }
 
   return (
-    <div className="space-y-4">
-      {canSuspendVillage(status) ? (
-        <form action={suspendVillageAction}>
-          <input name="villageId" type="hidden" value={villageId} />
+    <div className="space-y-5">
+      <p className="text-sm text-muted-foreground">
+        {t(STATUS_DESCRIPTION_KEYS[status])}
+      </p>
 
-          <button
-            className="w-full rounded-md border border-amber-300 bg-amber-50 px-4 py-2 text-sm font-medium text-amber-900 transition hover:bg-amber-100"
-            type="submit"
+      {canSuspendVillage(status) ? (
+        <form action={suspendVillageAction} className="space-y-2">
+          <input name="villageId" type="hidden" value={villageId} />
+          <p className="text-sm text-muted-foreground">
+            {t("adminVillages.suspend.hint")}
+          </p>
+          <LifecycleSubmitButton
+            className="w-full border-warning-border bg-warning-soft text-warning-strong hover:bg-warning-soft active:bg-warning-soft"
+            variant="outline"
           >
-            Suspend village
-          </button>
+            {t("adminVillages.suspend.button")}
+          </LifecycleSubmitButton>
         </form>
       ) : null}
 
       {canReactivateVillage(status) ? (
-        <form action={reactivateVillageAction}>
+        <form action={reactivateVillageAction} className="space-y-2">
           <input name="villageId" type="hidden" value={villageId} />
-
-          <button
-            className="w-full rounded-md border border-emerald-300 bg-emerald-50 px-4 py-2 text-sm font-medium text-emerald-900 transition hover:bg-emerald-100"
-            type="submit"
-          >
-            Reactivate village
-          </button>
+          <p className="text-sm text-muted-foreground">
+            {t("adminVillages.reactivate.hint")}
+          </p>
+          <LifecycleSubmitButton className="w-full">
+            {t("adminVillages.reactivate.button")}
+          </LifecycleSubmitButton>
         </form>
       ) : null}
 
       {canDeactivateVillage(status) ? (
-        <form action={deactivateVillageAction} className="space-y-2">
-          <input name="villageId" type="hidden" value={villageId} />
-
-          <button
-            className="w-full rounded-md border border-red-300 bg-red-50 px-4 py-2 text-sm font-medium text-red-900 transition hover:bg-red-100"
-            type="submit"
-          >
-            Deactivate village
-          </button>
-
-          <p className="text-xs text-red-700">
-            Deactivation is final for MVP. The village record and historical
-            data are preserved, but village users will lose access.
+        <div className="space-y-3 rounded-lg border border-danger-border bg-danger-soft/40 p-4">
+          <h3 className="text-sm font-semibold text-danger-strong">
+            {t("adminVillages.deactivate.title")}
+          </h3>
+          <p className="text-sm text-muted-foreground">
+            {t("adminVillages.deactivate.hint")}
           </p>
-        </form>
+          <DeactivateVillageDialog
+            labels={{
+              trigger: t("adminVillages.deactivate.button"),
+              title: t("adminVillages.deactivate.confirmTitle"),
+              body: fillTemplate(t("adminVillages.deactivate.confirmBody"), {
+                name: villageName,
+                code: villageCode,
+              }),
+              confirm: t("adminVillages.deactivate.confirm"),
+              cancel: t("common.cancel"),
+            }}
+            villageId={villageId}
+          />
+        </div>
       ) : null}
     </div>
   );

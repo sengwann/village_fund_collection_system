@@ -1,11 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
-
-import { EmptyState } from "@/components/ui/empty-state";
+import { useMemo, useRef, useState } from "react";
+import { Check, ChevronRight, Search, X } from "lucide-react";
 import { VillageStatus } from "@prisma/client";
+
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Input } from "@/components/ui/field";
 import { VillageStatusBadge } from "@/features/village-management/components/village-status-badge";
+import { fillTemplate } from "@/features/village-management/lib/fill-template";
+import type { TranslationKey } from "@/lib/i18n/en";
+import { useTranslation } from "@/lib/i18n/provider";
+import { cn, formatYangonDateTime } from "@/lib/utils";
 
 interface Village {
   id: string;
@@ -17,15 +25,37 @@ interface Village {
 
 type StatusFilter = "ALL" | VillageStatus;
 
-function formatDate(date: Date): string {
-  return new Intl.DateTimeFormat("en", {
-    dateStyle: "medium",
-  }).format(date);
-}
+const FILTERS: StatusFilter[] = [
+  "ALL",
+  VillageStatus.ACTIVE,
+  VillageStatus.SUSPENDED,
+  VillageStatus.DEACTIVATED,
+];
+
+const STATUS_KEYS: Record<VillageStatus, TranslationKey> = {
+  [VillageStatus.ACTIVE]: "adminDashboard.status.active",
+  [VillageStatus.SUSPENDED]: "adminDashboard.status.suspended",
+  [VillageStatus.DEACTIVATED]: "adminDashboard.status.deactivated",
+};
 
 export function VillagesSearch({ villages }: { villages: Village[] }) {
+  const { t } = useTranslation();
+  const inputRef = useRef<HTMLInputElement>(null);
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState<StatusFilter>("ALL");
+
+  const counts = useMemo(() => {
+    const result: Record<StatusFilter, number> = {
+      ALL: villages.length,
+      [VillageStatus.ACTIVE]: 0,
+      [VillageStatus.SUSPENDED]: 0,
+      [VillageStatus.DEACTIVATED]: 0,
+    };
+    for (const village of villages) {
+      result[village.status] += 1;
+    }
+    return result;
+  }, [villages]);
 
   const filteredVillages = useMemo(() => {
     const normalizedQuery = query.trim().toUpperCase();
@@ -42,90 +72,154 @@ export function VillagesSearch({ villages }: { villages: Village[] }) {
     });
   }, [villages, query, status]);
 
-  const filters: {
-    label: string;
-    value: StatusFilter;
-  }[] = [
-    {
-      label: "All",
-      value: "ALL",
-    },
-    {
-      label: "Active",
-      value: VillageStatus.ACTIVE,
-    },
-    {
-      label: "Suspended",
-      value: VillageStatus.SUSPENDED,
-    },
-    {
-      label: "Deactivated",
-      value: VillageStatus.DEACTIVATED,
-    },
-  ];
+  const hasActiveFilters = query.trim() !== "" || status !== "ALL";
+
+  function clearAll() {
+    setQuery("");
+    setStatus("ALL");
+  }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-3 sm:flex-row">
-        <input
-          className="block w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
-          onChange={(event) => setQuery(event.target.value)}
-          placeholder="Search village code or name..."
-          type="search"
-          value={query}
-        />
+    <div className="space-y-4">
+      <div className="space-y-3">
+        <div className="relative">
+          <label className="sr-only" htmlFor="villages-search">
+            {t("adminVillages.searchLabel")}
+          </label>
+          <Search
+            aria-hidden
+            className="pointer-events-none absolute start-3 top-1/2 size-5 -translate-y-1/2 text-muted-foreground"
+          />
+          <Input
+            autoComplete="off"
+            className="ps-10 pe-11 [&::-webkit-search-cancel-button]:hidden"
+            enterKeyHint="search"
+            id="villages-search"
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder={t("adminVillages.searchPlaceholder")}
+            ref={inputRef}
+            type="search"
+            value={query}
+          />
+          {query ? (
+            <button
+              aria-label={t("adminVillages.clearSearch")}
+              className="absolute end-0 top-0 flex size-11 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground"
+              onClick={() => {
+                setQuery("");
+                inputRef.current?.focus();
+              }}
+              type="button"
+            >
+              <X aria-hidden className="size-5" />
+            </button>
+          ) : null}
+        </div>
+
+        <div
+          aria-label={t("adminVillages.filterLabel")}
+          className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0"
+          role="group"
+        >
+          {FILTERS.map((filter) => {
+            const selected = status === filter;
+            const label =
+              filter === "ALL"
+                ? t("adminVillages.filterAll")
+                : t(STATUS_KEYS[filter]);
+
+            return (
+              <button
+                aria-pressed={selected}
+                className={cn(
+                  "inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-colors",
+                  selected
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-border-strong bg-card text-foreground hover:bg-muted",
+                )}
+                key={filter}
+                onClick={() => setStatus(filter)}
+                type="button"
+              >
+                {selected ? (
+                  <Check aria-hidden className="size-4 shrink-0" />
+                ) : null}
+                <span>{label}</span>
+                <span
+                  className={cn(
+                    "text-xs tabular-nums",
+                    selected
+                      ? "text-primary-foreground/80"
+                      : "text-muted-foreground",
+                  )}
+                >
+                  {counts[filter]}
+                </span>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
-      <div className="flex flex-wrap gap-2">
-        {filters.map((filter) => (
-          <button
-            className={`rounded-full border px-3 py-1 text-xs font-medium transition ${
-              status === filter.value
-                ? "border-slate-900 bg-slate-900 text-white"
-                : "border-slate-300 bg-white text-slate-700 hover:bg-slate-100"
-            }`}
-            key={filter.value}
-            onClick={() => setStatus(filter.value)}
-            type="button"
-          >
-            {filter.label}
-          </button>
-        ))}
-      </div>
+      <p aria-live="polite" className="text-sm text-muted-foreground">
+        {fillTemplate(t("adminVillages.resultCount"), {
+          shown: filteredVillages.length,
+          total: villages.length,
+        })}
+      </p>
 
       {filteredVillages.length === 0 ? (
         <EmptyState
-          description="No villages match your search or filter."
-          title="No villages found"
+          action={
+            hasActiveFilters ? (
+              <Button onClick={clearAll} type="button" variant="outline">
+                {t("adminVillages.clearFilters")}
+              </Button>
+            ) : null
+          }
+          description={t("adminVillages.noMatchBody")}
+          icon={<Search />}
+          title={t("adminVillages.noMatchTitle")}
         />
       ) : (
-        <div className="space-y-3">
+        <ul className="grid gap-3 lg:grid-cols-2">
           {filteredVillages.map((village) => (
-            <Link
-              className="block rounded-lg border border-slate-200 bg-white p-4 shadow-sm transition hover:bg-slate-50"
-              href={`/admin/villages/${village.id}`}
-              key={village.id}
-            >
-              <div className="flex items-center justify-between gap-3">
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-medium text-slate-900">
-                    {village.villageCode}
-                  </p>
-
-                  <p className="truncate text-xs text-slate-600">
-                    {village.name}
-                  </p>
-                </div>
-
-                <VillageStatusBadge status={village.status} />
-              </div>
-
-              <p className="mt-3 text-xs text-slate-500">
-                Created {formatDate(village.createdAt)}
-              </p>
-            </Link>
+            <li key={village.id}>
+              <Card interactive>
+                <Link
+                  className="flex min-h-16 items-center gap-3 rounded-xl p-4"
+                  href={`/admin/villages/${village.id}`}
+                >
+                  <div className="min-w-0 flex-1 space-y-1.5">
+                    <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
+                      <p className="text-sm font-semibold [overflow-wrap:anywhere]">
+                        {village.villageCode}
+                      </p>
+                      <VillageStatusBadge
+                        label={t(STATUS_KEYS[village.status])}
+                        status={village.status}
+                      />
+                    </div>
+                    <p className="text-sm text-muted-foreground [overflow-wrap:anywhere]">
+                      {village.name}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      <time dateTime={village.createdAt.toISOString()}>
+                        {fillTemplate(t("adminDashboard.created"), {
+                          date: formatYangonDateTime(village.createdAt, "date"),
+                        })}
+                      </time>
+                    </p>
+                  </div>
+                  <ChevronRight
+                    aria-hidden
+                    className="size-4 shrink-0 text-muted-foreground rtl:rotate-180"
+                  />
+                </Link>
+              </Card>
+            </li>
           ))}
-        </div>
+        </ul>
       )}
     </div>
   );
