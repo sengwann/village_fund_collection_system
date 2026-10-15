@@ -1,19 +1,27 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useId, useState, useTransition } from "react";
 import type { FormEvent } from "react";
+import { ChevronDown, SlidersHorizontal } from "lucide-react";
 
-function formatOptionLabel(value: string): string {
-  return value
-    .replace(/_/g, " ")
-    .toLowerCase()
-    .replace(/^\w/, (char) => char.toUpperCase());
-}
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Field, Input, Select } from "@/components/ui/field";
+import { useTranslation } from "@/lib/i18n/provider";
+import { cn } from "@/lib/utils";
+import {
+  fillTemplate,
+  getActionLabel,
+  getEntityLabel,
+} from "../lib/audit-labels";
 
-const controlClass =
-  "block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200";
-
+/*
+ * Phones (<md): the fields sit behind a "Filters" toggle that shows how many
+ * filters are active. md and up: the fields are always visible.
+ * Submitting still navigates with the same query parameters as before.
+ */
 export function AuditFiltersForm({
   basePath,
   actionTypeOptions,
@@ -36,37 +44,47 @@ export function AuditFiltersForm({
   showEntityTypeFilter: boolean;
 }) {
   const router = useRouter();
+  const { t } = useTranslation();
+  const panelId = useId();
+  const [isPending, startTransition] = useTransition();
+
   const [actionType, setActionType] = useState(initialActionType);
   const [entityType, setEntityType] = useState(initialEntityType);
   const [dateFrom, setDateFrom] = useState(initialDateFrom);
   const [dateTo, setDateTo] = useState(initialDateTo);
 
+  const activeCount = [
+    initialActionType,
+    showEntityTypeFilter ? initialEntityType : "",
+    initialDateFrom,
+    initialDateTo,
+  ].filter(Boolean).length;
+  const hasActiveFilters = activeCount > 0;
+
+  const [open, setOpen] = useState(hasActiveFilters);
+
   /*
-   * Determine which entity types are available for the currently selected action type.
-   * If no action type is selected, show all entity types.
+   * Entity types offered for an action. The page's mapping is honoured; values
+   * that are not real entity types are dropped, and actions without a usable
+   * mapping fall back to every entity type instead of an empty list.
    */
-  const availableEntityTypes = useMemo(() => {
-    return actionType
-      ? (entityTypesByAction[actionType] ?? [])
-      : entityTypeOptions;
-  }, [actionType, entityTypesByAction, entityTypeOptions]);
+  function resolveEntityOptions(action: string): string[] {
+    if (!action) {
+      return entityTypeOptions;
+    }
+    const mapped = entityTypesByAction[action];
+    if (!mapped) {
+      return entityTypeOptions;
+    }
+    const valid = mapped.filter((option) => entityTypeOptions.includes(option));
+    return valid.length > 0 ? valid : entityTypeOptions;
+  }
 
-  const hasActiveFilters = Boolean(
-    initialActionType || initialEntityType || initialDateFrom || initialDateTo,
-  );
+  const availableEntityTypes = resolveEntityOptions(actionType);
 
-  function handleActionTypeChange(newActionType: string) {
-    setActionType(newActionType);
-
-    /*
-     * If the selected action type changes and the current entity type
-     * is no longer valid, reset the entity type directly in the handler.
-     */
-    const nextAvailableEntityTypes = newActionType
-      ? (entityTypesByAction[newActionType] ?? [])
-      : entityTypeOptions;
-
-    if (entityType && !nextAvailableEntityTypes.includes(entityType)) {
+  function handleActionTypeChange(next: string) {
+    setActionType(next);
+    if (entityType && !resolveEntityOptions(next).includes(entityType)) {
       setEntityType("");
     }
   }
@@ -89,7 +107,9 @@ export function AuditFiltersForm({
     }
 
     const query = params.toString();
-    router.push(query ? `${basePath}?${query}` : basePath);
+    startTransition(() => {
+      router.push(query ? `${basePath}?${query}` : basePath);
+    });
   }
 
   function handleReset() {
@@ -97,115 +117,116 @@ export function AuditFiltersForm({
     setEntityType("");
     setDateFrom("");
     setDateTo("");
-    router.push(basePath);
+    startTransition(() => {
+      router.push(basePath);
+    });
   }
 
   return (
-    <form
-      className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm"
-      onSubmit={handleSubmit}
-    >
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {/* Action Type */}
-        <div className="space-y-2">
-          <label
-            className="block text-sm font-medium text-slate-900"
-            htmlFor="actionType"
-          >
-            Action type
-          </label>
-          <select
-            className={controlClass}
-            id="actionType"
-            onChange={(event) => handleActionTypeChange(event.target.value)}
-            value={actionType}
-          >
-            <option value="">All actions</option>
-            {actionTypeOptions.map((option) => (
-              <option key={option} value={option}>
-                {formatOptionLabel(option)}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Entity Type */}
-        {showEntityTypeFilter ? (
-          <div className="space-y-2">
-            <label
-              className="block text-sm font-medium text-slate-900"
-              htmlFor="entityType"
-            >
-              Entity type
-            </label>
-            <select
-              className={controlClass}
-              id="entityType"
-              onChange={(event) => setEntityType(event.target.value)}
-              value={entityType}
-            >
-              <option value="">All entities</option>
-              {availableEntityTypes.map((option) => (
-                <option key={option} value={option}>
-                  {formatOptionLabel(option)}
-                </option>
-              ))}
-            </select>
-          </div>
-        ) : null}
-
-        {/* From Date */}
-        <div className="space-y-2">
-          <label
-            className="block text-sm font-medium text-slate-900"
-            htmlFor="dateFrom"
-          >
-            From date
-          </label>
-          <input
-            className={controlClass}
-            id="dateFrom"
-            onChange={(event) => setDateFrom(event.target.value)}
-            type="date"
-            value={dateFrom}
-          />
-        </div>
-
-        {/* To Date */}
-        <div className="space-y-2">
-          <label
-            className="block text-sm font-medium text-slate-900"
-            htmlFor="dateTo"
-          >
-            To date
-          </label>
-          <input
-            className={controlClass}
-            id="dateTo"
-            onChange={(event) => setDateTo(event.target.value)}
-            type="date"
-            value={dateTo}
-          />
-        </div>
-      </div>
-
-      <div className="mt-4 flex flex-col gap-2 sm:flex-row">
-        <button
-          className="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700"
-          type="submit"
+    <Card>
+      <CardContent className="space-y-4">
+        <Button
+          aria-controls={panelId}
+          aria-expanded={open}
+          className="w-full justify-between md:hidden"
+          onClick={() => setOpen((value) => !value)}
+          type="button"
+          variant="outline"
         >
-          Apply filters
-        </button>
-        {hasActiveFilters ? (
-          <button
-            className="rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-900 transition hover:bg-slate-100"
-            onClick={handleReset}
-            type="button"
+          <span className="flex min-w-0 items-center gap-2">
+            <SlidersHorizontal aria-hidden />
+            {t("audit.filters.title")}
+            {hasActiveFilters ? (
+              <Badge variant="info">
+                {fillTemplate(t("audit.filters.activeCount"), {
+                  count: activeCount,
+                })}
+              </Badge>
+            ) : null}
+          </span>
+          <ChevronDown
+            aria-hidden
+            className={cn("transition-transform", open && "rotate-180")}
+          />
+        </Button>
+
+        <form
+          className={cn("space-y-4", open ? "block" : "hidden", "md:block")}
+          id={panelId}
+          onSubmit={handleSubmit}
+        >
+          <div
+            className={cn(
+              "grid gap-4 sm:grid-cols-2",
+              showEntityTypeFilter ? "lg:grid-cols-4" : "lg:grid-cols-3",
+            )}
           >
-            Reset
-          </button>
-        ) : null}
-      </div>
-    </form>
+            <Field id="audit-actionType" label={t("audit.filters.action")}>
+              <Select
+                onChange={(event) => handleActionTypeChange(event.target.value)}
+                value={actionType}
+              >
+                <option value="">{t("audit.filters.allActions")}</option>
+                {actionTypeOptions.map((option) => (
+                  <option key={option} value={option}>
+                    {getActionLabel(t, option)}
+                  </option>
+                ))}
+              </Select>
+            </Field>
+
+            {showEntityTypeFilter ? (
+              <Field id="audit-entityType" label={t("audit.filters.entity")}>
+                <Select
+                  onChange={(event) => setEntityType(event.target.value)}
+                  value={entityType}
+                >
+                  <option value="">{t("audit.filters.allEntities")}</option>
+                  {availableEntityTypes.map((option) => (
+                    <option key={option} value={option}>
+                      {getEntityLabel(t, option)}
+                    </option>
+                  ))}
+                </Select>
+              </Field>
+            ) : null}
+
+            <Field id="audit-dateFrom" label={t("audit.filters.from")}>
+              <Input
+                onChange={(event) => setDateFrom(event.target.value)}
+                type="date"
+                value={dateFrom}
+              />
+            </Field>
+
+            <Field id="audit-dateTo" label={t("audit.filters.to")}>
+              <Input
+                onChange={(event) => setDateTo(event.target.value)}
+                type="date"
+                value={dateTo}
+              />
+            </Field>
+          </div>
+
+          <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+            {hasActiveFilters ? (
+              <Button
+                disabled={isPending}
+                onClick={handleReset}
+                type="button"
+                variant="outline"
+              >
+                {t("audit.filters.reset")}
+              </Button>
+            ) : null}
+            <Button loading={isPending} type="submit">
+              {isPending
+                ? t("audit.filters.applying")
+                : t("audit.filters.apply")}
+            </Button>
+          </div>
+        </form>
+      </CardContent>
+    </Card>
   );
 }

@@ -1,4 +1,5 @@
 import { requireChief } from "@/lib/authz";
+import { PageHeader } from "@/components/ui/page-header";
 import { AuditFiltersForm } from "@/features/audit/components/audit-filters-form";
 import { AuditLogList } from "@/features/audit/components/audit-log-list";
 import { AuditPagination } from "@/features/audit/components/audit-pagination";
@@ -10,7 +11,10 @@ import {
   resolveSearchParams,
   entityTypesByAction,
 } from "@/features/audit/lib/audit-filters";
+import { fillTemplate } from "@/features/audit/lib/audit-labels";
 import { getChiefAuditLogs } from "@/features/audit/lib/audit-queries";
+import { getVillageShellContext } from "@/features/shell/lib/shell-context";
+import { getT } from "@/lib/i18n/translations";
 
 export const metadata = {
   title: "Audit Log | Village Fund Collection System",
@@ -22,9 +26,15 @@ export default async function VillageAuditPage({
   searchParams?: unknown;
 }) {
   const { villageId } = await requireChief();
+  const { language } = await getVillageShellContext();
+  const t = getT(language);
+
   const params = await resolveSearchParams(searchParams);
   const filters = parseAuditFilters(params);
-  const { logs, totalPages } = await getChiefAuditLogs({ villageId, filters });
+  const { logs, total, totalPages } = await getChiefAuditLogs({
+    villageId,
+    filters,
+  });
 
   const rawActionType = getFirstString(params.actionType);
   const rawEntityType = getFirstString(params.entityType);
@@ -45,22 +55,20 @@ export default async function VillageAuditPage({
     filterParams.set("dateTo", rawDateTo);
   }
   const baseQuery = filterParams.toString();
+  const hasActiveFilters = baseQuery !== "";
 
   return (
     <div className="space-y-6">
-      <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-        <h1 className="text-lg font-semibold text-slate-900">Audit Log</h1>
-        <p className="mt-1 text-sm text-slate-600">
-          Review the history of actions taken in your village. Audit records are
-          append-only.
-        </p>
-      </div>
+      <PageHeader
+        description={t("audit.description")}
+        title={t("audit.title")}
+      />
 
       <AuditFiltersForm
-        entityTypesByAction={entityTypesByAction}
         actionTypeOptions={ACTION_TYPE_OPTIONS}
         basePath="/village/audit"
         entityTypeOptions={ENTITY_TYPE_OPTIONS}
+        entityTypesByAction={entityTypesByAction}
         initialActionType={rawActionType}
         initialDateFrom={rawDateFrom}
         initialDateTo={rawDateTo}
@@ -68,12 +76,24 @@ export default async function VillageAuditPage({
         showEntityTypeFilter={true}
       />
 
-      <AuditLogList basePath="/village/audit" logs={logs} />
+      {total > 0 ? (
+        <p aria-live="polite" className="text-sm text-muted-foreground">
+          {fillTemplate(t("audit.summary"), { total })}
+        </p>
+      ) : null}
+
+      <AuditLogList
+        basePath="/village/audit"
+        hasActiveFilters={hasActiveFilters}
+        language={language}
+        logs={logs}
+      />
 
       <AuditPagination
         basePath="/village/audit"
         baseQuery={baseQuery}
         currentPage={filters.page}
+        language={language}
         totalPages={totalPages}
       />
     </div>

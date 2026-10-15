@@ -1,33 +1,18 @@
-import { AuditActionType } from "@prisma/client";
-
-const stylesByAction: Record<AuditActionType, string> = {
-  [AuditActionType.CREATE]: "border-emerald-200 bg-emerald-50 text-emerald-700",
-  [AuditActionType.UPDATE]: "border-blue-200 bg-blue-50 text-blue-700",
-  [AuditActionType.DELETE]: "border-red-200 bg-red-50 text-red-700",
-  [AuditActionType.STATUS_CHANGE]:
-    "border-amber-200 bg-amber-50 text-amber-700",
-  [AuditActionType.APPROVE]:
-    "border-emerald-200 bg-emerald-50 text-emerald-700",
-  [AuditActionType.REJECT]: "border-red-200 bg-red-50 text-red-700",
-  [AuditActionType.REMOVE]: "border-red-200 bg-red-50 text-red-700",
-  [AuditActionType.ASSIGN]: "border-blue-200 bg-blue-50 text-blue-700",
-  [AuditActionType.VOID]: "border-slate-200 bg-slate-100 text-slate-600",
-  [AuditActionType.ACCEPT]: "border-emerald-200 bg-emerald-50 text-emerald-700",
-  [AuditActionType.LOGIN]: "border-slate-200 bg-slate-100 text-slate-600",
-  [AuditActionType.LOGOUT]: "border-slate-200 bg-slate-100 text-slate-600",
-};
+import type { AuditActionType } from "@prisma/client";
+import { Badge } from "@/components/ui/badge";
+import { getActionTone, humanize } from "../lib/audit-labels";
 
 export function AuditActionBadge({
   actionType,
+  label,
 }: {
   actionType: AuditActionType;
+  /** Already-translated text. Falls back to a readable form of the raw value. */
+  label?: string;
 }) {
-  const label = actionType.replace(/_/g, " ");
   return (
-    <span
-      className={`inline-flex rounded-full border px-2 py-1 text-xs font-medium ${stylesByAction[actionType]}`}
-    >
-      {label}
-    </span>
+    <Badge dot variant={getActionTone(actionType)}>
+      {label ?? humanize(actionType)}
+    </Badge>
   );
 }
