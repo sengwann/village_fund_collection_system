@@ -1,23 +1,35 @@
-import { MembershipStatus } from "@prisma/client";
+"use client";
+
+import type { MembershipStatus } from "@prisma/client";
+import { Badge, type BadgeVariant } from "@/components/ui/badge";
+import { useTranslation } from "@/lib/i18n/provider";
+import type { TranslationKey } from "@/lib/i18n/en";
+
+/*
+ * Type-only Prisma import on purpose: this is a client component, so the
+ * enum's runtime value must not be bundled. String keys match the enum.
+ */
+const STATUS_CONFIG: Record<
+  MembershipStatus,
+  { variant: BadgeVariant; label: TranslationKey }
+> = {
+  PENDING: { variant: "warning", label: "shell.membership.pending" },
+  ACTIVE: { variant: "success", label: "shell.membership.active" },
+  REJECTED: { variant: "danger", label: "shell.membership.rejected" },
+  REMOVED: { variant: "neutral", label: "shell.membership.removed" },
+};
 
 export function MembershipStatusBadge({
   status,
 }: {
   status: MembershipStatus;
 }) {
-  const stylesByStatus: Record<MembershipStatus, string> = {
-    [MembershipStatus.PENDING]: "border-amber-200 bg-amber-50 text-amber-700",
-    [MembershipStatus.ACTIVE]:
-      "border-emerald-200 bg-emerald-50 text-emerald-700",
-    [MembershipStatus.REJECTED]: "border-red-200 bg-red-50 text-red-700",
-    [MembershipStatus.REMOVED]: "border-slate-200 bg-slate-100 text-slate-600",
-  };
+  const { t } = useTranslation();
+  const config = STATUS_CONFIG[status];
 
   return (
-    <span
-      className={`inline-flex rounded-full border px-2 py-1 text-xs font-medium ${stylesByStatus[status]}`}
-    >
-      {status}
-    </span>
+    <Badge dot variant={config.variant}>
+      {t(config.label)}
+    </Badge>
   );
 }

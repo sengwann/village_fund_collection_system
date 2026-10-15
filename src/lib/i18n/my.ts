@@ -561,4 +561,51 @@ export const my: Record<TranslationKey, string> = {
   "dashboard.search.noHead": "အိမ်ထောင်စုခေါင်းဆောင် မရှိပါ",
   "dashboard.search.paid": "ပေးပြီး",
   "dashboard.search.notPaid": "မပေးရသေးပါ",
+
+  // Household and membership (Feature G)
+  "household.title": "အိမ်ထောင်စု အဖွဲ့ဝင်များ",
+  "household.description": "အိမ်နံပါတ် {number} ၏ အဖွဲ့ဝင်များကို စီမံပါ။",
+  "household.stat.head": "အိမ်ထောင်စုခေါင်းဆောင်",
+  "household.stat.noHead": "မသတ်မှတ်ရသေးပါ",
+  "household.stat.active": "လက်ရှိ အဖွဲ့ဝင်များ",
+  "household.stat.pending": "စောင့်ဆိုင်းနေသော တောင်းဆိုမှုများ",
+  "household.headBadge": "အိမ်ထောင်စုခေါင်းဆောင်",
+  "household.pending.title": "စောင့်ဆိုင်းနေသော တောင်းဆိုမှုများ",
+  "household.pending.desc":
+    "ဤအိမ်သို့ ဝင်ရောက်ရန် တောင်းဆိုထားသူများ။ တောင်းဆိုမှုတစ်ခုချင်းကို အတည်ပြုပါ သို့မဟုတ် ပယ်ချပါ။",
+  "household.pending.emptyTitle": "စောင့်ဆိုင်းနေသော တောင်းဆိုမှု မရှိပါ",
+  "household.pending.emptyBody":
+    "ဤအိမ်အတွက် စောင့်ဆိုင်းနေသော အဖွဲ့ဝင်ခွင့် တောင်းဆိုမှု မရှိပါ။",
+  "household.approve": "အတည်ပြုရန်",
+  "household.reject": "ပယ်ချရန်",
+  "household.reject.confirmBody":
+    "{name} ၏ တောင်းဆိုမှုကို ပယ်ချပါမည်။ ပြန်လည်ဝင်ရောက်လိုပါက တောင်းဆိုမှု အသစ် ပို့ရပါမည်။",
+  "household.reject.confirm": "ဟုတ်ကဲ့၊ ပယ်ချမည်",
+  "household.active.title": "လက်ရှိ အဖွဲ့ဝင်များ",
+  "household.active.desc": "ယခုအချိန်တွင် ဤအိမ်နှင့် သက်ဆိုင်သူများ။",
+  "household.active.emptyTitle": "လက်ရှိ အဖွဲ့ဝင် မရှိပါ",
+  "household.active.emptyBody": "ဤအိမ်တွင် လက်ရှိ အဖွဲ့ဝင် မရှိပါ။",
+  "household.headNote":
+    "အိမ်ထောင်စုခေါင်းဆောင်ကို တိုက်ရိုက် ဖယ်ရှား၍ မရပါ။ ခေါင်းဆောင်တာဝန်ကို အရင် လွှဲပြောင်းပါ။",
+  "household.remove": "အဖွဲ့ဝင် ဖယ်ရှားရန်",
+  "household.remove.confirmBody":
+    "{name} ကို ဤအိမ်မှ ဖယ်ရှားပါမည်။ ပြန်လည်ဝင်ရောက်လိုပါက တောင်းဆိုမှု အသစ် ပို့ရပါမည်။",
+  "household.remove.confirm": "ဟုတ်ကဲ့၊ ဖယ်ရှားမည်",
+  "household.changeHead.title": "အိမ်ထောင်စုခေါင်းဆောင် ပြောင်းရန်",
+  "household.changeHead.desc":
+    "ခေါင်းဆောင်တာဝန်ကို အခြား လက်ရှိ အဖွဲ့ဝင်တစ်ဦးထံ လွှဲပြောင်းပါ။",
+  "household.changeHead.label": "အိမ်ထောင်စုခေါင်းဆောင် အသစ်",
+  "household.changeHead.placeholder": "လက်ရှိ အဖွဲ့ဝင်တစ်ဦးကို ရွေးပါ",
+  "household.changeHead.submit": "အိမ်ထောင်စုခေါင်းဆောင် ပြောင်းရန်",
+  "household.changeHead.note":
+    "ချက်ချင်း အကျိုးသက်ရောက်မည်။ သင်သည် လက်ရှိ အဖွဲ့ဝင်အဖြစ် ဆက်ရှိနေမည်ဖြစ်သော်လည်း အိမ်ထောင်စု အဖွဲ့ဝင်များကို စီမံ၍ မရတော့ပါ။",
+  "household.changeHead.emptyTitle": "ရွေးချယ်ခွင့်ရှိသူ မရှိပါ",
+  "household.changeHead.emptyBody":
+    "လက်ရှိ ခေါင်းဆောင် မဟုတ်သော လက်ရှိ အဖွဲ့ဝင်များသာ အိမ်ထောင်စုခေါင်းဆောင် အသစ် ဖြစ်နိုင်သည်။",
+  "household.history.title": "ယခင် တောင်းဆိုမှုများနှင့် ဖယ်ရှားမှုများ",
+  "household.history.emptyTitle": "သမိုင်းကြောင်း မှတ်တမ်း မရှိပါ",
+  "household.history.emptyBody":
+    "ဤအိမ်တွင် ပယ်ချခံရသူ သို့မဟုတ် ဖယ်ရှားခံရသူ မရှိပါ။",
+  "household.history.note":
+    "ပယ်ချခံရသူနှင့် ဖယ်ရှားခံရသူများကို မှတ်တမ်းတွင် ဆက်ထားပြီး လက်ရှိ အဖွဲ့ဝင်အဖြစ် ပြန်ပြောင်း၍ မရပါ။ ပြန်လည်ဝင်ရောက်လိုပါက တောင်းဆိုမှု အသစ် ပို့ရပါမည်။",
 };

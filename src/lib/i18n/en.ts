@@ -535,6 +535,53 @@ export const en = {
   "dashboard.search.noHead": "No head of house",
   "dashboard.search.paid": "Paid",
   "dashboard.search.notPaid": "Not paid",
+
+  // Household and membership (Feature G)
+  "household.title": "Household members",
+  "household.description": "Manage membership for House {number}.",
+  "household.stat.head": "Head of House",
+  "household.stat.noHead": "Not assigned",
+  "household.stat.active": "Active members",
+  "household.stat.pending": "Pending requests",
+  "household.headBadge": "Head of House",
+  "household.pending.title": "Pending requests",
+  "household.pending.desc":
+    "People asking to join this house. Approve or reject each request.",
+  "household.pending.emptyTitle": "No pending requests",
+  "household.pending.emptyBody":
+    "There are no pending membership requests for this house.",
+  "household.approve": "Approve",
+  "household.reject": "Reject",
+  "household.reject.confirmBody":
+    "{name}'s request will be rejected. They must send a new request to join again.",
+  "household.reject.confirm": "Yes, reject",
+  "household.active.title": "Active members",
+  "household.active.desc": "People who currently belong to this house.",
+  "household.active.emptyTitle": "No active members",
+  "household.active.emptyBody": "There are no active members in this house.",
+  "household.headNote":
+    "The Head of House cannot be removed directly. Transfer head responsibility first.",
+  "household.remove": "Remove member",
+  "household.remove.confirmBody":
+    "{name} will be removed from this house. They must send a new request to join again.",
+  "household.remove.confirm": "Yes, remove",
+  "household.changeHead.title": "Change Head of House",
+  "household.changeHead.desc":
+    "Hand over head responsibility to another active member.",
+  "household.changeHead.label": "New Head of House",
+  "household.changeHead.placeholder": "Select an active member",
+  "household.changeHead.submit": "Change Head of House",
+  "household.changeHead.note":
+    "This takes effect immediately. You stay an active member, but you will no longer be able to manage household members.",
+  "household.changeHead.emptyTitle": "No eligible members",
+  "household.changeHead.emptyBody":
+    "Only active members who are not the current head can become the new Head of House.",
+  "household.history.title": "Past requests and removals",
+  "household.history.emptyTitle": "No historical records",
+  "household.history.emptyBody":
+    "There are no rejected or removed members in this house.",
+  "household.history.note":
+    "Rejected and removed people stay on record and cannot be switched back to active. They must send a new join request to return.",
 } as const;
 
 export type TranslationKey = keyof typeof en;

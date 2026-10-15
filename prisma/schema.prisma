@@ -265,14 +265,10 @@ model AuditLog {
   @@index([villageId, actionType])
 }
 
-<<<<<<< HEAD
-enum LanguagePreference { EN MY }
-=======
 enum LanguagePreference { 
 EN 
 MY 
 }
->>>>>>> 84a2a94 (Update global css and components)
 
 model UserSettings {
   id String @id @default(cuid())
