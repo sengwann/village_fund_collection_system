@@ -1,15 +1,8 @@
 "use client";
 
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Cell,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
+import type { TranslationKey } from "@/lib/i18n/en";
+import { useTranslation } from "@/lib/i18n/provider";
+import { fill } from "./fill";
 import { ChartEmptyState } from "./chart-empty-state";
 
 interface AgeGroupData {
@@ -17,58 +10,67 @@ interface AgeGroupData {
   count: number;
 }
 
-const COLORS: Record<string, string> = {
-  Children: "#60a5fa", // blue-400
-  Teenagers: "#a78bfa", // violet-400
-  Adults: "#34d399", // emerald-400
-  Elderly: "#fbbf24", // amber-400
-  "Not set": "#94a3b8", // slate-400
+const LABELS: Record<string, TranslationKey> = {
+  Children: "dashboard.age.children",
+  Teenagers: "dashboard.age.teenagers",
+  Adults: "dashboard.age.adults",
+  Elderly: "dashboard.age.elderly",
+  "Not set": "dashboard.age.notSet",
+};
+
+/* Bars are decorative: every row also states the group, count and percent. */
+const BARS: Record<string, string> = {
+  Children: "bg-info",
+  Teenagers: "bg-warning",
+  Adults: "bg-success",
+  Elderly: "bg-secondary-foreground/70",
+  "Not set": "bg-muted-foreground/50",
 };
 
 export function AgeGroupChart({ data }: { data: AgeGroupData[] }) {
+  const { t } = useTranslation();
   const total = data.reduce((sum, item) => sum + item.count, 0);
 
   if (total === 0) {
-    return <ChartEmptyState message="No member data available." />;
+    return <ChartEmptyState message={t("dashboard.chart.emptyMembers")} />;
   }
 
   return (
-    <div className="space-y-3">
-      <ResponsiveContainer width="100%" height={220}>
-        <BarChart
-          data={data}
-          margin={{ top: 5, right: 10, left: -10, bottom: 5 }}
-        >
-          <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-          <XAxis
-            dataKey="group"
-            tick={{ fontSize: 12, fill: "#64748b" }}
-            axisLine={{ stroke: "#e2e8f0" }}
-            tickLine={false}
-          />
-          <YAxis
-            tick={{ fontSize: 12, fill: "#64748b" }}
-            axisLine={{ stroke: "#e2e8f0" }}
-            tickLine={false}
-            allowDecimals={false}
-          />
-          <Tooltip
-            formatter={(value: number) => [`${value} members`, "Count"]}
-            contentStyle={{
-              borderRadius: "8px",
-              border: "1px solid #e2e8f0",
-              fontSize: "12px",
-            }}
-          />
-          <Bar dataKey="count" radius={[4, 4, 0, 0]}>
-            {data.map((entry) => (
-              <Cell key={entry.group} fill={COLORS[entry.group] ?? "#94a3b8"} />
-            ))}
-          </Bar>
-        </BarChart>
-      </ResponsiveContainer>
-      <p className="text-center text-xs text-slate-500">
-        Total active members: {total}
+    <div className="space-y-4">
+      <ul className="space-y-3.5">
+        {data.map((item) => {
+          const pct = (item.count / total) * 100;
+          const labelKey = LABELS[item.group];
+          return (
+            <li key={item.group}>
+              <div className="flex items-baseline justify-between gap-3 text-sm">
+                <span className="min-w-0 font-medium">
+                  {labelKey ? t(labelKey) : item.group}
+                </span>
+                <span className="shrink-0 tabular-nums text-muted-foreground">
+                  <span className="font-semibold text-foreground">
+                    {item.count}
+                  </span>{" "}
+                  · {Math.round(pct)}%
+                </span>
+              </div>
+              <div
+                aria-hidden="true"
+                className="mt-1.5 h-2.5 overflow-hidden rounded-full bg-muted"
+              >
+                <div
+                  className={`h-full rounded-full ${BARS[item.group] ?? "bg-muted-foreground/50"}`}
+                  style={{
+                    width: item.count > 0 ? `${Math.max(pct, 2)}%` : "0%",
+                  }}
+                />
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+      <p className="border-t border-border pt-3 text-sm text-muted-foreground">
+        {fill(t("dashboard.demo.total"), { count: total })}
       </p>
     </div>
   );

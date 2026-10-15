@@ -1,14 +1,29 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useId, useState, useTransition } from "react";
 import type { FormEvent } from "react";
-import { EmptyState } from "../../../components/ui/empty-state";
+import { Alert } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Field, Input } from "@/components/ui/field";
+import { useTranslation } from "@/lib/i18n/provider";
+import { fill } from "@/features/analytics/components/fill";
 import {
   searchPaymentStatusAction,
   type PaymentStatusSearchItem,
 } from "../actions/search-payment-status.action";
 
 export function PaymentStatusSearchSection({ fundId }: { fundId: string }) {
+  const { t } = useTranslation();
+  const inputId = useId();
   const [results, setResults] = useState<PaymentStatusSearchItem[] | null>(
     null,
   );
@@ -34,76 +49,91 @@ export function PaymentStatusSearchSection({ fundId }: { fundId: string }) {
   }
 
   return (
-    <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-      <h2 className="text-sm font-medium text-slate-900">
-        Payment status search
-      </h2>
-      <p className="mt-1 text-xs text-slate-600">
-        Search by house number or head of house name to check whether a house
-        has paid for the current fund.
-      </p>
-      <form
-        className="mt-3 flex flex-col gap-3 sm:flex-row"
-        noValidate
-        onSubmit={handleSubmit}
-      >
-        <input
-          className="block w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
-          name="q"
-          placeholder="House number or head of house name"
-          type="text"
-        />
-        <button
-          className="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-60"
-          disabled={isPending}
-          type="submit"
+    <Card>
+      <CardHeader className="pb-3 sm:pb-3">
+        <CardTitle as="h2">{t("dashboard.search.title")}</CardTitle>
+        <CardDescription>{t("dashboard.search.desc")}</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <form
+          className="flex flex-col gap-3 sm:flex-row sm:items-end"
+          noValidate
+          onSubmit={handleSubmit}
+          role="search"
         >
-          {isPending ? "Searching..." : "Search"}
-        </button>
-      </form>
+          <Field
+            className="sm:flex-1"
+            id={inputId}
+            label={t("dashboard.search.label")}
+          >
+            <Input
+              autoComplete="off"
+              enterKeyHint="search"
+              name="q"
+              placeholder={t("dashboard.search.placeholder")}
+              type="text"
+            />
+          </Field>
+          <Button
+            className="w-full sm:w-auto"
+            loading={isPending}
+            type="submit"
+          >
+            {isPending
+              ? t("dashboard.search.searching")
+              : t("dashboard.search.submit")}
+          </Button>
+        </form>
 
-      {error ? (
-        <p className="mt-3 text-sm text-red-600" role="alert">
-          {error}
-        </p>
-      ) : null}
+        <div aria-live="polite" className="space-y-3">
+          {error ? <Alert tone="danger">{error}</Alert> : null}
 
-      {results !== null && results.length === 0 ? (
-        <EmptyState
-          className="mt-3"
-          description="No houses match your search."
-          title="No matches"
-        />
-      ) : null}
+          {results !== null && results.length === 0 ? (
+            <EmptyState
+              description={t("dashboard.search.noMatchBody")}
+              title={t("dashboard.search.noMatchTitle")}
+            />
+          ) : null}
 
-      {results !== null && results.length > 0 ? (
-        <div className="mt-3 space-y-3">
-          {results.map((result) => (
-            <div
-              className="flex items-center justify-between gap-3 rounded-md border border-slate-200 p-3"
-              key={result.id}
-            >
-              <div className="min-w-0">
-                <p className="truncate text-sm font-medium text-slate-900">
-                  House {result.houseNumber}
-                </p>
-                <p className="truncate text-xs text-slate-600">
-                  {result.headName ?? "No head of house"}
-                </p>
-              </div>
-              {result.paid ? (
-                <span className="inline-flex rounded-full border border-emerald-200 bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-700">
-                  Paid
-                </span>
-              ) : (
-                <span className="inline-flex rounded-full border border-slate-200 bg-slate-100 px-2 py-1 text-xs font-medium text-slate-600">
-                  Not paid
-                </span>
-              )}
-            </div>
-          ))}
+          {results !== null && results.length > 0 ? (
+            <>
+              <p className="text-sm text-muted-foreground">
+                {fill(t("dashboard.search.results"), {
+                  count: results.length,
+                })}
+              </p>
+              <ul className="space-y-2">
+                {results.map((result) => (
+                  <li
+                    className="flex items-center justify-between gap-3 rounded-lg border border-border p-3"
+                    key={result.id}
+                  >
+                    <div className="min-w-0">
+                      <p className="font-semibold">
+                        {fill(t("dashboard.search.house"), {
+                          number: result.houseNumber,
+                        })}
+                      </p>
+                      <p className="text-sm text-muted-foreground break-words">
+                        {result.headName ?? t("dashboard.search.noHead")}
+                      </p>
+                    </div>
+                    {result.paid ? (
+                      <Badge dot variant="success">
+                        {t("dashboard.search.paid")}
+                      </Badge>
+                    ) : (
+                      <Badge dot variant="neutral">
+                        {t("dashboard.search.notPaid")}
+                      </Badge>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </>
+          ) : null}
         </div>
-      ) : null}
-    </section>
+      </CardContent>
+    </Card>
   );
 }
