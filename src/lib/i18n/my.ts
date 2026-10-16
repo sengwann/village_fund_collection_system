@@ -916,4 +916,65 @@ export const my: Record<TranslationKey, string> = {
   "kpayPay.disputeStatus.underReview": "စစ်ဆေးနေသည်",
   "kpayPay.disputeStatus.resolved": "ဖြေရှင်းပြီး",
   "kpayPay.disputeStatus.rejected": "ပယ်ချပြီး",
+
+  // Cash payment collection (Feature K)
+  "cashPay.title": "ငွေသား ငွေပေးချေမှုများ",
+  "cashPay.description":
+    "လက်ရှိ ရန်ပုံငွေအတွက် လက်ခံရရှိသော ငွေသားကို မှတ်တမ်းတင်ပါ။ ငွေသား ငွေပေးချေမှုများကို ချက်ချင်း လက်ခံသည်။",
+  "cashPay.fundBadge": "အသုံးပြုနေသော ရန်ပုံငွေ - {name}",
+  "cashPay.noFundTitle": "အသုံးပြုနေသော ရန်ပုံငွေ မရှိပါ",
+  "cashPay.noFundBody":
+    "သင့်ကျေးရွာတွင် ယခုအချိန် အသုံးပြုနေသော ရန်ပုံငွေ မရှိပါ။ ငွေသား ငွေပေးချေမှု မှတ်တမ်းတင်ခြင်းကို အသုံးပြု၍ မရပါ။",
+  "cashPay.fund.eyebrow": "လက်ရှိ ရန်ပုံငွေ",
+  "cashPay.fund.minPerHouse": "အိမ်တစ်အိမ်လျှင် အနည်းဆုံး",
+  "cashPay.fund.formula":
+    "စုစုပေါင်း ÷ အိမ် {count} လုံး (အပေါ်သို့ ပိုင်းသည်)",
+  "cashPay.fund.total": "စီမံကိန်း စုစုပေါင်း ငွေပမာဏ",
+  "cashPay.fund.note":
+    "ငွေပေးချေမှုတိုင်းသည် အိမ်တစ်အိမ်လျှင် ကျသင့်ငွေထက် မလျော့ရပါ။ ပိုပေးခြင်းကို အပိုထည့်ဝင်ငွေအဖြစ် လက်ခံသည်။",
+  "cashPay.fund.unavailableTitle": "ပေးချေရမည့် ပမာဏကို တွက်ချက်၍ မရပါ",
+  "cashPay.form.title": "ငွေသား ငွေပေးချေမှု မှတ်တမ်းတင်ရန်",
+  "cashPay.form.description":
+    "အိမ်နှင့် ငွေပေးသူကို ရွေးပြီး လက်ခံရရှိသော ငွေသား ပမာဏကို ထည့်ပါ။",
+  "cashPay.form.house": "အိမ်",
+  "cashPay.form.housePlaceholder": "အိမ် ရွေးပါ",
+  "cashPay.form.houseOption": "အိမ်နံပါတ် {number}",
+  "cashPay.form.payer": "ငွေပေးသူ",
+  "cashPay.form.payerPlaceholder": "ငွေပေးသူ ရွေးပါ",
+  "cashPay.form.payerFirst": "အိမ်ကို အရင် ရွေးပါ",
+  "cashPay.form.noMembers":
+    "ဤအိမ်တွင် ရွေးချယ်ခွင့်ရှိသော လက်ရှိ အဖွဲ့ဝင် မရှိပါ။",
+  "cashPay.form.amount": "လက်ခံရရှိသော ငွေပမာဏ",
+  "cashPay.form.amountPlaceholder": "အနည်းဆုံး - {amount}",
+  "cashPay.form.amountHint":
+    "အနည်းဆုံး {amount} ဖြစ်ရမည်။ ပိုပေးခြင်းကို လက်ခံသည်။",
+  "cashPay.form.useMinimum": "အနည်းဆုံး ({amount}) ထည့်ရန်",
+  "cashPay.form.submit": "ငွေသား ငွေပေးချေမှု မှတ်တမ်းတင်ရန်",
+  "cashPay.form.submitting": "မှတ်တမ်းတင်နေသည်...",
+  "cashPay.form.success": "ငွေသား ငွေပေးချေမှုကို မှတ်တမ်းတင်ပြီးပါပြီ။",
+  "cashPay.form.errorTitle": "ငွေပေးချေမှုကို မှတ်တမ်းတင်၍ မရပါ",
+  "cashPay.form.errorGeneric":
+    "ငွေသား ငွေပေးချေမှုကို မှတ်တမ်းတင်၍ မရပါ။ ထပ်ကြိုးစားပါ။",
+  "cashPay.form.fixFields":
+    "အမှတ်အသားပြထားသော အကွက်များကို စစ်ဆေးပြီး ထပ်ကြိုးစားပါ။",
+  "cashPay.list.title": "မကြာသေးမီက ငွေသား ငွေပေးချေမှုများ",
+  "cashPay.list.description": "သင့်ကျေးရွာ၏ နောက်ဆုံး ငွေသား ငွေပေးချေမှုများ။",
+  "cashPay.list.emptyTitle": "ငွေသား ငွေပေးချေမှု မရှိပါ",
+  "cashPay.list.emptyBody":
+    "ငွေသား ငွေပေးချေမှု မှတ်တမ်းတင်ထားခြင်း မရှိသေးပါ။",
+  "cashPay.list.house": "အိမ်နံပါတ် {number}",
+  "cashPay.list.voidReason": "ပယ်ဖျက်ရသည့် အကြောင်းရင်း",
+  "cashPay.status.accepted": "လက်ခံပြီး",
+  "cashPay.status.voided": "ပယ်ဖျက်ပြီး",
+  "cashPay.void.open": "ဤငွေပေးချေမှုကို ပယ်ဖျက်ရန်",
+  "cashPay.void.warning":
+    "ငွေပေးချေမှုနှင့် ပြေစာကို ပယ်ဖျက်ပြီးအဖြစ် အမှတ်အသားပြုမည်ဖြစ်ပြီး သမိုင်းကြောင်း မှတ်တမ်းအဖြစ် ဆက်လက် သိမ်းထားမည်။",
+  "cashPay.void.reason": "ပယ်ဖျက်ရသည့် အကြောင်းရင်း",
+  "cashPay.void.reasonHint": "အနည်းဆုံး အက္ခရာ ၅ လုံး။",
+  "cashPay.void.reasonPlaceholder":
+    "ဤငွေပေးချေမှုကို အဘယ်ကြောင့် ပယ်ဖျက်ရသည်ကို ရှင်းပြပါ...",
+  "cashPay.void.submit": "ငွေပေးချေမှု ပယ်ဖျက်ရန်",
+  "cashPay.void.submitting": "ပယ်ဖျက်နေသည်...",
+  "cashPay.void.errorTitle": "ငွေပေးချေမှုကို ပယ်ဖျက်၍ မရပါ",
+  "cashPay.void.errorGeneric": "ငွေပေးချေမှုကို ပယ်ဖျက်၍ မရပါ။ ထပ်ကြိုးစားပါ။",
 };

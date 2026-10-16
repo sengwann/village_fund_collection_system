@@ -887,6 +887,62 @@ export const en = {
   "kpayPay.disputeStatus.underReview": "Under review",
   "kpayPay.disputeStatus.resolved": "Resolved",
   "kpayPay.disputeStatus.rejected": "Rejected",
+
+  // Cash payment collection (Feature K)
+  "cashPay.title": "Cash payments",
+  "cashPay.description":
+    "Record cash received for the current fund. Cash payments are accepted immediately.",
+  "cashPay.fundBadge": "Active fund: {name}",
+  "cashPay.noFundTitle": "No active fund available",
+  "cashPay.noFundBody":
+    "There is no active fund in your village right now. Cash payment recording is unavailable.",
+  "cashPay.fund.eyebrow": "Current fund",
+  "cashPay.fund.minPerHouse": "Minimum per house",
+  "cashPay.fund.formula": "Total ÷ {count} houses, rounded up",
+  "cashPay.fund.total": "Total project amount",
+  "cashPay.fund.note":
+    "Each payment must be at least the amount per house. Paying more is accepted as an extra contribution.",
+  "cashPay.fund.unavailableTitle": "Unable to calculate payment amount",
+  "cashPay.form.title": "Record cash payment",
+  "cashPay.form.description":
+    "Choose the house and payer, then enter the cash received.",
+  "cashPay.form.house": "House",
+  "cashPay.form.housePlaceholder": "Select a house",
+  "cashPay.form.houseOption": "House {number}",
+  "cashPay.form.payer": "Payer",
+  "cashPay.form.payerPlaceholder": "Select a payer",
+  "cashPay.form.payerFirst": "Select a house first",
+  "cashPay.form.noMembers": "No eligible active members in this house.",
+  "cashPay.form.amount": "Amount received",
+  "cashPay.form.amountPlaceholder": "Minimum: {amount}",
+  "cashPay.form.amountHint": "At least {amount}. Paying more is allowed.",
+  "cashPay.form.useMinimum": "Use minimum ({amount})",
+  "cashPay.form.submit": "Record cash payment",
+  "cashPay.form.submitting": "Recording payment...",
+  "cashPay.form.success": "Cash payment recorded.",
+  "cashPay.form.errorTitle": "Could not record the payment",
+  "cashPay.form.errorGeneric":
+    "Unable to record cash payment. Please try again.",
+  "cashPay.form.fixFields": "Check the highlighted fields and try again.",
+  "cashPay.list.title": "Recent cash payments",
+  "cashPay.list.description": "The latest cash payments in your village.",
+  "cashPay.list.emptyTitle": "No cash payments",
+  "cashPay.list.emptyBody": "No cash payments have been recorded yet.",
+  "cashPay.list.house": "House {number}",
+  "cashPay.list.voidReason": "Void reason",
+  "cashPay.status.accepted": "Accepted",
+  "cashPay.status.voided": "Voided",
+  "cashPay.void.open": "Void this payment",
+  "cashPay.void.warning":
+    "The payment and its receipt will be marked as voided but kept as historical records.",
+  "cashPay.void.reason": "Void reason",
+  "cashPay.void.reasonHint": "At least 5 characters.",
+  "cashPay.void.reasonPlaceholder":
+    "Explain why this payment is being voided...",
+  "cashPay.void.submit": "Void payment",
+  "cashPay.void.submitting": "Voiding payment...",
+  "cashPay.void.errorTitle": "Could not void the payment",
+  "cashPay.void.errorGeneric": "Unable to void payment. Please try again.",
 } as const;
 
 export type TranslationKey = keyof typeof en;

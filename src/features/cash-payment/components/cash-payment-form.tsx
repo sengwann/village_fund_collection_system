@@ -3,15 +3,23 @@
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import type { FormEvent } from "react";
+import { Alert } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Field, Input, Select } from "@/components/ui/field";
+import { useTranslation } from "@/lib/i18n/provider";
+import { formatAmount } from "@/lib/utils";
 import {
   recordCashPaymentAction,
   type RecordCashPaymentActionResult,
 } from "../actions/record-cash-payment.action";
-
-function FieldError({ message }: { message?: string }) {
-  if (!message) return null;
-  return <p className="mt-1 text-xs text-red-600">{message}</p>;
-}
+import { formatMessage } from "./format-message";
 
 export interface HouseOption {
   id: string;
@@ -27,20 +35,25 @@ export function CashPaymentForm({
   minimumAmount: number;
 }) {
   const router = useRouter();
+  const { t } = useTranslation();
   const [formError, setFormError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<
     Record<string, string | undefined>
   >({});
+  const [success, setSuccess] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [selectedHouseId, setSelectedHouseId] = useState<string>("");
+  const [amount, setAmount] = useState<string>("");
 
   const selectedHouse = houses.find((h) => h.id === selectedHouseId);
   const availableMembers = selectedHouse?.members ?? [];
+  const minimumLabel = formatAmount(minimumAmount);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setFormError(null);
     setFieldErrors({});
+    setSuccess(false);
 
     const form = event.currentTarget;
     const formData = new FormData(form);
@@ -52,121 +65,145 @@ export function CashPaymentForm({
       if (result.success) {
         form.reset();
         setSelectedHouseId("");
+        setAmount("");
+        setSuccess(true);
         router.refresh();
         return;
       }
 
-      setFieldErrors(result.fieldErrors ?? {});
-      setFormError(result.formError ?? "Unable to record cash payment.");
+      const errors = result.fieldErrors ?? {};
+      setFieldErrors(errors);
+      setFormError(
+        result.formError ??
+          (Object.keys(errors).length > 0
+            ? t("cashPay.form.fixFields")
+            : t("cashPay.form.errorGeneric")),
+      );
     });
   }
 
   return (
-    <form className="space-y-6" noValidate onSubmit={handleSubmit}>
-      <div className="space-y-4 rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-        <h2 className="text-sm font-medium text-slate-900">
-          Record cash payment
-        </h2>
+    <Card>
+      <form noValidate onSubmit={handleSubmit}>
+        <CardHeader>
+          <CardTitle as="h2">{t("cashPay.form.title")}</CardTitle>
+          <CardDescription>{t("cashPay.form.description")}</CardDescription>
+        </CardHeader>
 
-        <div className="space-y-2">
-          <label
-            className="block text-sm font-medium text-slate-900"
-            htmlFor="houseId"
-          >
-            House
-          </label>
-          <select
-            aria-describedby="houseId-error"
-            className="block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
-            defaultValue=""
+        <CardContent className="space-y-5">
+          <Field
+            error={fieldErrors.houseId}
             id="houseId"
-            name="houseId"
-            onChange={(e) => setSelectedHouseId(e.target.value)}
+            label={t("cashPay.form.house")}
+            required
           >
-            <option disabled value="">
-              Select a house
-            </option>
-            {houses.map((house) => (
-              <option key={house.id} value={house.id}>
-                House {house.houseNumber}
+            <Select
+              defaultValue=""
+              name="houseId"
+              onChange={(e) => setSelectedHouseId(e.target.value)}
+            >
+              <option disabled value="">
+                {t("cashPay.form.housePlaceholder")}
               </option>
-            ))}
-          </select>
-          <FieldError message={fieldErrors.houseId} />
-        </div>
+              {houses.map((house) => (
+                <option key={house.id} value={house.id}>
+                  {formatMessage(t("cashPay.form.houseOption"), {
+                    number: house.houseNumber,
+                  })}
+                </option>
+              ))}
+            </Select>
+          </Field>
 
-        <div className="space-y-2">
-          <label
-            className="block text-sm font-medium text-slate-900"
-            htmlFor="payerUserId"
-          >
-            Payer
-          </label>
-          <select
-            aria-describedby="payerUserId-error"
-            className="block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
-            defaultValue=""
-            disabled={!selectedHouseId}
+          <Field
+            error={fieldErrors.payerUserId}
             id="payerUserId"
-            name="payerUserId"
+            label={t("cashPay.form.payer")}
+            required
           >
-            <option disabled value="">
-              {selectedHouseId ? "Select a payer" : "Select a house first"}
-            </option>
-            {availableMembers.map((member) => (
-              <option key={member.id} value={member.id}>
-                {member.name}
+            <Select
+              defaultValue=""
+              disabled={!selectedHouseId}
+              key={selectedHouseId}
+              name="payerUserId"
+            >
+              <option disabled value="">
+                {selectedHouseId
+                  ? t("cashPay.form.payerPlaceholder")
+                  : t("cashPay.form.payerFirst")}
               </option>
-            ))}
-          </select>
-          <FieldError message={fieldErrors.payerUserId} />
+              {availableMembers.map((member) => (
+                <option key={member.id} value={member.id}>
+                  {member.name}
+                </option>
+              ))}
+            </Select>
+          </Field>
+
           {selectedHouseId && availableMembers.length === 0 ? (
-            <p className="text-xs text-amber-700">
-              No eligible active members in this house.
-            </p>
+            <Alert tone="warning">{t("cashPay.form.noMembers")}</Alert>
           ) : null}
-        </div>
 
-        <div className="space-y-2">
-          <label
-            className="block text-sm font-medium text-slate-900"
-            htmlFor="amount"
+          <div className="space-y-2">
+            <Field
+              error={fieldErrors.amount}
+              hint={formatMessage(t("cashPay.form.amountHint"), {
+                amount: minimumLabel,
+              })}
+              id="amount"
+              label={t("cashPay.form.amount")}
+              required
+            >
+              <Input
+                autoComplete="off"
+                inputMode="numeric"
+                name="amount"
+                onChange={(e) => setAmount(e.target.value.replace(/\D/g, ""))}
+                placeholder={formatMessage(
+                  t("cashPay.form.amountPlaceholder"),
+                  {
+                    amount: minimumLabel,
+                  },
+                )}
+                type="text"
+                value={amount}
+              />
+            </Field>
+            <Button
+              onClick={() => setAmount(String(minimumAmount))}
+              size="sm"
+              type="button"
+              variant="secondary"
+            >
+              {formatMessage(t("cashPay.form.useMinimum"), {
+                amount: minimumLabel,
+              })}
+            </Button>
+          </div>
+
+          {formError ? (
+            <Alert title={t("cashPay.form.errorTitle")} tone="danger">
+              {formError}
+            </Alert>
+          ) : null}
+
+          {success ? (
+            <Alert tone="success">{t("cashPay.form.success")}</Alert>
+          ) : null}
+
+          <Button
+            className="w-full"
+            disabled={!selectedHouseId || availableMembers.length === 0}
+            loading={isPending}
+            size="lg"
+            type="submit"
           >
-            Amount
-          </label>
-          <input
-            aria-describedby="amount-error"
-            className="block w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
-            id="amount"
-            min={minimumAmount}
-            name="amount"
-            placeholder={`Minimum: ${minimumAmount.toLocaleString()}`}
-            step={1}
-            type="number"
-          />
-          <FieldError message={fieldErrors.amount} />
-          <p className="text-xs text-slate-500">
-            Must be at least {minimumAmount.toLocaleString()}. Overpayment is
-            allowed.
-          </p>
-        </div>
-      </div>
-
-      {formError ? (
-        <p className="text-sm text-red-600" role="alert">
-          {formError}
-        </p>
-      ) : null}
-
-      <button
-        className="w-full rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-60"
-        disabled={
-          isPending || !selectedHouseId || availableMembers.length === 0
-        }
-        type="submit"
-      >
-        {isPending ? "Recording payment..." : "Record Cash Payment"}
-      </button>
-    </form>
+            {isPending
+              ? t("cashPay.form.submitting")
+              : t("cashPay.form.submit")}
+          </Button>
+        </CardContent>
+      </form>
+    </Card>
   );
 }
