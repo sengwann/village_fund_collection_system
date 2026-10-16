@@ -1,38 +1,55 @@
 "use client";
 
 import Link from "next/link";
+import { Lock, Pencil } from "lucide-react";
+import { Alert } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { useTranslation } from "@/lib/i18n/provider";
+import {
+  getEditBlockedKey,
+  type HouseRuleFlags,
+  type RuleResult,
+} from "../lib/house-ui";
 
 interface EditHouseLinkProps {
   houseId: string;
-  editRules: {
-    allowed: boolean;
-    reason?: string;
-  };
+  editRules: RuleResult;
+  /** Used only to pick a translated explanation when editing is blocked. */
+  flags: HouseRuleFlags;
 }
 
-export function EditHouseLink({ houseId, editRules }: EditHouseLinkProps) {
+export function EditHouseLink({
+  houseId,
+  editRules,
+  flags,
+}: EditHouseLinkProps) {
+  const { t } = useTranslation();
+
+  if (editRules.allowed) {
+    return (
+      <div className="space-y-2">
+        <Button asChild className="w-full" variant="outline">
+          <Link href={`/village/houses/${houseId}/edit`}>
+            <Pencil aria-hidden />
+            {t("houses.edit.button")}
+          </Link>
+        </Button>
+        <p className="text-sm text-muted-foreground">{t("houses.edit.hint")}</p>
+      </div>
+    );
+  }
+
+  // Blocked: a real disabled button (not a fake link) plus a visible reason.
+  const key = getEditBlockedKey(flags);
+  const message = key ? t(key) : editRules.reason;
+
   return (
-    <div className="space-y-2">
-      <Link
-        className={`block w-full rounded-md border px-4 py-2 text-center text-sm font-medium transition ${
-          editRules.allowed
-            ? "border-slate-300 bg-white text-slate-900 hover:bg-slate-100"
-            : "cursor-not-allowed border-slate-200 bg-slate-50 text-slate-400"
-        }`}
-        href={editRules.allowed ? `/village/houses/${houseId}/edit` : "#"}
-        aria-disabled={!editRules.allowed}
-        onClick={(e) => {
-          if (!editRules.allowed) {
-            e.preventDefault();
-          }
-        }}
-        title={editRules.reason}
-      >
-        Edit house number
-      </Link>
-      {!editRules.allowed && editRules.reason ? (
-        <p className="text-xs text-slate-600">{editRules.reason}</p>
-      ) : null}
+    <div className="space-y-3">
+      <Button className="w-full" disabled variant="outline">
+        <Lock aria-hidden />
+        {t("houses.edit.button")}
+      </Button>
+      {message ? <Alert tone="info">{message}</Alert> : null}
     </div>
   );
 }

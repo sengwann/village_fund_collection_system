@@ -582,6 +582,76 @@ export const en = {
     "There are no rejected or removed members in this house.",
   "household.history.note":
     "Rejected and removed people stay on record and cannot be switched back to active. They must send a new join request to return.",
+  
+  // House management (Feature H)
+  "houses.back": "Back to houses",
+  "houses.list.title": "Houses",
+  "houses.list.description": "Manage official house numbers in your village.",
+  "houses.list.create": "Create house",
+  "houses.list.searchLabel": "Search houses",
+  "houses.list.searchPlaceholder": "Search house number",
+  "houses.list.clearSearch": "Clear search",
+  "houses.list.filterLabel": "Filter by status",
+  "houses.list.resultCount": "Showing {shown} of {total} houses",
+  "houses.list.emptyTitle": "No houses yet",
+  "houses.list.emptyBody":
+    "No houses have been created yet. Villagers need a house number to register.",
+  "houses.list.emptyAction": "Create first house",
+  "houses.list.noMatchTitle": "No houses match",
+  "houses.list.noMatchBody": "Try a different house number or status filter.",
+  "houses.list.clearFilters": "Clear filters",
+  "houses.filter.all": "All",
+  "houses.filter.active": "Active",
+  "houses.filter.inactive": "Inactive",
+  "houses.status.active": "Active",
+  "houses.status.inactive": "Inactive",
+  "houses.detail.title": "House {number}",
+  "houses.detail.description": "Official house number details.",
+  "houses.detail.members": "Active/pending members",
+  "houses.detail.payments": "Payment records",
+  "houses.detail.infoTitle": "House information",
+  "houses.detail.head": "Head of House",
+  "houses.detail.noHead": "Not assigned",
+  "houses.detail.created": "Created",
+  "houses.detail.updated": "Last updated",
+  "houses.detail.actionsTitle": "Actions",
+  "houses.detail.lifecycleTitle": "House status",
+  "houses.edit.button": "Edit house number",
+  "houses.edit.hint": "Change the official number for this house.",
+  "houses.edit.blockedPayments":
+    "House number cannot be edited because this house has payment records.",
+  "houses.deactivate.button": "Deactivate house",
+  "houses.deactivate.hint":
+    "Deactivating a house prevents new members from joining.",
+  "houses.deactivate.confirmTitle": "Deactivate this house?",
+  "houses.deactivate.confirmBody":
+    "House {number} will no longer accept new members. You can reactivate it later.",
+  "houses.deactivate.confirm": "Yes, deactivate",
+  "houses.deactivate.blockedMembers":
+    "A house with active or pending members cannot be deactivated.",
+  "houses.deactivate.blockedPayments":
+    "A house with payment records cannot be deactivated.",
+  "houses.reactivate.button": "Reactivate house",
+  "houses.reactivate.hint":
+    "Reactivating allows new members to join this house again.",
+  "houses.form.houseNumber": "House number",
+  "houses.form.hint":
+    "Letters, numbers, spaces, hyphens, slashes and dots are allowed (2–30 characters).",
+  "houses.create.title": "Create house",
+  "houses.create.description": "Add a new official house number to your village.",
+  "houses.create.cardTitle": "House details",
+  "houses.create.placeholder": "Example: A-12 or 101",
+  "houses.create.submit": "Create house",
+  "houses.create.submitting": "Creating house...",
+  "houses.create.errorTitle": "Could not create the house",
+  "houses.create.generic": "Unable to create house. Please try again.",
+  "houses.editPage.title": "Edit house number",
+  "houses.editPage.description": "Update the official house number.",
+  "houses.editPage.current": "Current house number: {number}",
+  "houses.editPage.submit": "Save changes",
+  "houses.editPage.submitting": "Saving...",
+  "houses.editPage.errorTitle": "Could not update the house number",
+  "houses.editPage.generic": "Unable to update house number. Please try again.",
 } as const;
 
 export type TranslationKey = keyof typeof en;
