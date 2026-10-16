@@ -943,6 +943,68 @@ export const en = {
   "cashPay.void.submitting": "Voiding payment...",
   "cashPay.void.errorTitle": "Could not void the payment",
   "cashPay.void.errorGeneric": "Unable to void payment. Please try again.",
+
+  // KPay verification (Feature M)
+  "kpayVerify.queue.title": "Verify KPay payments",
+  "kpayVerify.queue.description":
+    "Check each submitted KPay payment against the KPay app, then accept or reject it. Oldest first.",
+  "kpayVerify.queue.countOne": "{count} payment waiting",
+  "kpayVerify.queue.countOther": "{count} payments waiting",
+  "kpayVerify.queue.emptyTitle": "No pending payments",
+  "kpayVerify.queue.emptyBody":
+    "There are no KPay payments waiting for verification. New submissions will appear here.",
+  "kpayVerify.queue.house": "House {number}",
+  "kpayVerify.queue.submitted": "Submitted {date}",
+  "kpayVerify.queue.review": "Review",
+  "kpayVerify.detail.title": "Verify payment",
+  "kpayVerify.detail.description":
+    "Compare these details with the KPay app before you accept or reject.",
+  "kpayVerify.detail.back": "Back to queue",
+  "kpayVerify.amount": "Amount",
+  "kpayVerify.check.title": "Check against your KPay app",
+  "kpayVerify.check.body":
+    "Open KPay and confirm that the transaction ID, amount, sender and receiver all match the details below.",
+  "kpayVerify.txn.title": "KPay transaction details",
+  "kpayVerify.txn.id": "Transaction ID",
+  "kpayVerify.txn.senderName": "Sender's KPay name",
+  "kpayVerify.txn.senderAccount": "Sender's KPay account",
+  "kpayVerify.txn.receiverAccount": "Receiver's KPay account",
+  "kpayVerify.txn.notProvided": "Not provided",
+  "kpayVerify.info.title": "Payment information",
+  "kpayVerify.info.fund": "Fund",
+  "kpayVerify.info.fundTarget": "Fund target",
+  "kpayVerify.info.house": "House",
+  "kpayVerify.info.payer": "Payer",
+  "kpayVerify.info.method": "Method",
+  "kpayVerify.info.submitted": "Submitted",
+  "kpayVerify.info.status": "Status",
+  "kpayVerify.actions.title": "Your decision",
+  "kpayVerify.accept.title": "Accept payment",
+  "kpayVerify.accept.body":
+    "Accepting creates a receipt and marks the payment as accepted. This cannot be undone.",
+  "kpayVerify.accept.button": "Accept payment",
+  "kpayVerify.accept.confirmTitle": "Accept this payment?",
+  "kpayVerify.accept.confirmBody":
+    "Only accept after you have seen the matching transfer in your KPay app. A receipt will be created.",
+  "kpayVerify.accept.confirm": "Yes, accept",
+  "kpayVerify.accept.submitting": "Accepting...",
+  "kpayVerify.reject.title": "Reject payment",
+  "kpayVerify.reject.body":
+    "A reason is required. The villager will see it and can resubmit.",
+  "kpayVerify.reject.label": "Rejection reason",
+  "kpayVerify.reject.placeholder":
+    "Explain why this payment is being rejected...",
+  "kpayVerify.reject.hint":
+    "At least 5 characters. The villager will see this reason.",
+  "kpayVerify.reject.submit": "Reject payment",
+  "kpayVerify.reject.submitting": "Rejecting...",
+  "kpayVerify.reject.errorTitle": "Could not reject the payment",
+  "kpayVerify.reject.errorGeneric":
+    "Unable to reject payment. Please try again.",
+  "kpayVerify.done.title": "Already processed",
+  "kpayVerify.done.body":
+    "This payment is {status}. No further actions are available.",
+  "kpayVerify.done.rejectionReason": "Rejection reason",
 } as const;
 
 export type TranslationKey = keyof typeof en;

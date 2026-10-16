@@ -977,4 +977,66 @@ export const my: Record<TranslationKey, string> = {
   "cashPay.void.submitting": "ပယ်ဖျက်နေသည်...",
   "cashPay.void.errorTitle": "ငွေပေးချေမှုကို ပယ်ဖျက်၍ မရပါ",
   "cashPay.void.errorGeneric": "ငွေပေးချေမှုကို ပယ်ဖျက်၍ မရပါ။ ထပ်ကြိုးစားပါ။",
+
+  // KPay verification (Feature M)
+  "kpayVerify.queue.title": "KPay ငွေပေးချေမှုများ စစ်ဆေးရန်",
+  "kpayVerify.queue.description":
+    "တင်သွင်းထားသော KPay ငွေပေးချေမှုတစ်ခုချင်းကို KPay အက်ပ်နှင့် တိုက်စစ်ပြီး လက်ခံပါ သို့မဟုတ် ပယ်ချပါ။ အစောဆုံးကို ရှေ့ဆုံးတွင် ပြထားသည်။",
+  "kpayVerify.queue.countOne": "စောင့်ဆိုင်းနေသော ငွေပေးချေမှု {count} ခု",
+  "kpayVerify.queue.countOther": "စောင့်ဆိုင်းနေသော ငွေပေးချေမှု {count} ခု",
+  "kpayVerify.queue.emptyTitle": "စောင့်ဆိုင်းနေသော ငွေပေးချေမှု မရှိပါ",
+  "kpayVerify.queue.emptyBody":
+    "စစ်ဆေးရန် စောင့်ဆိုင်းနေသော KPay ငွေပေးချေမှု မရှိပါ။ အသစ်တင်သွင်းလျှင် ဤနေရာတွင် ပေါ်လာမည်။",
+  "kpayVerify.queue.house": "အိမ်နံပါတ် {number}",
+  "kpayVerify.queue.submitted": "တင်သွင်းသည့်ရက် {date}",
+  "kpayVerify.queue.review": "စစ်ဆေးရန်",
+  "kpayVerify.detail.title": "ငွေပေးချေမှု စစ်ဆေးရန်",
+  "kpayVerify.detail.description":
+    "လက်ခံခြင်း သို့မဟုတ် ပယ်ချခြင်း မပြုမီ ဤအချက်အလက်များကို KPay အက်ပ်နှင့် နှိုင်းယှဉ်စစ်ဆေးပါ။",
+  "kpayVerify.detail.back": "စစ်ဆေးရန် စာရင်းသို့ ပြန်ရန်",
+  "kpayVerify.amount": "ငွေပမာဏ",
+  "kpayVerify.check.title": "KPay အက်ပ်နှင့် တိုက်စစ်ပါ",
+  "kpayVerify.check.body":
+    "KPay ကိုဖွင့်ပြီး ငွေလွှဲ ID၊ ငွေပမာဏ၊ ငွေပို့သူနှင့် ငွေလက်ခံသူတို့ အောက်ပါအချက်အလက်များနှင့် ကိုက်ညီကြောင်း စစ်ဆေးပါ။",
+  "kpayVerify.txn.title": "KPay ငွေလွှဲ အချက်အလက်",
+  "kpayVerify.txn.id": "ငွေလွှဲ ID",
+  "kpayVerify.txn.senderName": "ငွေပို့သူ၏ KPay အမည်",
+  "kpayVerify.txn.senderAccount": "ငွေပို့သူ၏ KPay အကောင့်",
+  "kpayVerify.txn.receiverAccount": "ငွေလက်ခံသူ၏ KPay အကောင့်",
+  "kpayVerify.txn.notProvided": "မဖော်ပြထားပါ",
+  "kpayVerify.info.title": "ငွေပေးချေမှု အချက်အလက်",
+  "kpayVerify.info.fund": "ရန်ပုံငွေ",
+  "kpayVerify.info.fundTarget": "ရန်ပုံငွေ ပစ်မှတ်",
+  "kpayVerify.info.house": "အိမ်",
+  "kpayVerify.info.payer": "ငွေပေးသူ",
+  "kpayVerify.info.method": "ပေးချေပုံ",
+  "kpayVerify.info.submitted": "တင်သွင်းသည့်ရက်",
+  "kpayVerify.info.status": "အခြေအနေ",
+  "kpayVerify.actions.title": "သင်၏ ဆုံးဖြတ်ချက်",
+  "kpayVerify.accept.title": "ငွေပေးချေမှု လက်ခံရန်",
+  "kpayVerify.accept.body":
+    "လက်ခံပါက ပြေစာ ဖန်တီးပြီး ငွေပေးချေမှုကို လက်ခံပြီးအဖြစ် သတ်မှတ်မည်။ နောက်ပြန်ပြင်၍ မရပါ။",
+  "kpayVerify.accept.button": "ငွေပေးချေမှု လက်ခံရန်",
+  "kpayVerify.accept.confirmTitle": "ဤငွေပေးချေမှုကို လက်ခံမလား။",
+  "kpayVerify.accept.confirmBody":
+    "KPay အက်ပ်တွင် ကိုက်ညီသော ငွေလွှဲမှုကို မြင်ပြီးမှသာ လက်ခံပါ။ ပြေစာ ဖန်တီးမည်။",
+  "kpayVerify.accept.confirm": "ဟုတ်ကဲ့၊ လက်ခံမည်",
+  "kpayVerify.accept.submitting": "လက်ခံနေသည်...",
+  "kpayVerify.reject.title": "ငွေပေးချေမှု ပယ်ချရန်",
+  "kpayVerify.reject.body":
+    "အကြောင်းရင်း လိုအပ်သည်။ ကျေးရွာသားက မြင်ရမည်ဖြစ်ပြီး ပြန်တင်နိုင်သည်။",
+  "kpayVerify.reject.label": "ပယ်ချရသည့် အကြောင်းရင်း",
+  "kpayVerify.reject.placeholder":
+    "ဤငွေပေးချေမှုကို အဘယ်ကြောင့် ပယ်ချရသည်ကို ရှင်းပြပါ...",
+  "kpayVerify.reject.hint":
+    "အနည်းဆုံး အက္ခရာ ၅ လုံး။ ကျေးရွာသားက ဤအကြောင်းရင်းကို မြင်ရမည်။",
+  "kpayVerify.reject.submit": "ငွေပေးချေမှု ပယ်ချရန်",
+  "kpayVerify.reject.submitting": "ပယ်ချနေသည်...",
+  "kpayVerify.reject.errorTitle": "ငွေပေးချေမှုကို ပယ်ချ၍ မရပါ",
+  "kpayVerify.reject.errorGeneric":
+    "ငွေပေးချေမှုကို ပယ်ချ၍ မရပါ။ ထပ်ကြိုးစားပါ။",
+  "kpayVerify.done.title": "စီမံပြီးသား",
+  "kpayVerify.done.body":
+    "ဤငွေပေးချေမှုသည် {status} ဖြစ်သည်။ ဆက်လက်လုပ်ဆောင်စရာ မရှိတော့ပါ။",
+  "kpayVerify.done.rejectionReason": "ပယ်ချရသည့် အကြောင်းရင်း",
 };

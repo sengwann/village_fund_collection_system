@@ -3,10 +3,15 @@
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import type { FormEvent } from "react";
+import { Alert } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Field, Textarea } from "@/components/ui/field";
+import { useTranslation } from "@/lib/i18n/provider";
 import { rejectKpayPaymentAction } from "../actions/reject-kpay-payment.action";
 
 export function RejectPaymentForm({ paymentId }: { paymentId: string }) {
   const router = useRouter();
+  const { t } = useTranslation();
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [isPending, startTransition] = useTransition();
@@ -27,7 +32,7 @@ export function RejectPaymentForm({ paymentId }: { paymentId: string }) {
       }
 
       setFieldErrors(result.fieldErrors ?? {});
-      setError(result.error ?? "Unable to reject payment.");
+      setError(result.error ?? t("kpayVerify.reject.errorGeneric"));
     });
   }
 
@@ -35,44 +40,36 @@ export function RejectPaymentForm({ paymentId }: { paymentId: string }) {
     <form className="space-y-4" onSubmit={handleSubmit}>
       <input name="paymentId" type="hidden" value={paymentId} />
 
-      <div className="space-y-2">
-        <label
-          className="block text-sm font-medium text-slate-900"
-          htmlFor="rejectionNote"
-        >
-          Rejection reason <span className="text-red-600">*</span>
-        </label>
-        <textarea
-          aria-describedby="rejectionNote-error"
-          className="block w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
-          id="rejectionNote"
+      <Field
+        error={fieldErrors.rejectionNote}
+        hint={t("kpayVerify.reject.hint")}
+        id="rejectionNote"
+        label={t("kpayVerify.reject.label")}
+        required
+      >
+        <Textarea
           name="rejectionNote"
-          placeholder="Explain why this payment is being rejected..."
-          rows={3}
+          placeholder={t("kpayVerify.reject.placeholder")}
+          rows={4}
         />
-        {fieldErrors.rejectionNote ? (
-          <p className="text-xs text-red-600" id="rejectionNote-error">
-            {fieldErrors.rejectionNote}
-          </p>
-        ) : null}
-        <p className="text-xs text-slate-500">
-          Minimum 5 characters. This reason will be visible to the villager.
-        </p>
-      </div>
+      </Field>
 
       {error ? (
-        <p className="text-sm text-red-600" role="alert">
+        <Alert title={t("kpayVerify.reject.errorTitle")} tone="danger">
           {error}
-        </p>
+        </Alert>
       ) : null}
 
-      <button
-        className="w-full rounded-md border border-red-300 bg-red-50 px-4 py-2 text-sm font-medium text-red-900 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60"
-        disabled={isPending}
+      <Button
+        className="w-full"
+        loading={isPending}
         type="submit"
+        variant="destructive"
       >
-        {isPending ? "Rejecting..." : "Reject Payment"}
-      </button>
+        {isPending
+          ? t("kpayVerify.reject.submitting")
+          : t("kpayVerify.reject.submit")}
+      </Button>
     </form>
   );
 }

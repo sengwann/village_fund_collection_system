@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PaymentMethod } from "@prisma/client";
 import { PaymentVerificationDetail } from "../../../../../features/kpay-verification/components/payment-verification-detail";
@@ -84,28 +83,5 @@ export default async function PaymentVerificationPage({
     notFound();
   }
 
-  return (
-    <div className="space-y-6">
-      <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-        <div className="flex items-center justify-between gap-4">
-          <div>
-            <h1 className="text-lg font-semibold text-slate-900">
-              Payment Verification
-            </h1>
-            <p className="mt-1 text-sm text-slate-600">
-              Review KPay transaction details and verify the payment.
-            </p>
-          </div>
-          <Link
-            className="rounded-md border border-slate-300 px-3 py-2 text-xs font-medium text-slate-900 transition hover:bg-slate-100"
-            href="/village/verify-kpay"
-          >
-            Back to queue
-          </Link>
-        </div>
-      </div>
-
-      <PaymentVerificationDetail payment={payment} />
-    </div>
-  );
+  return <PaymentVerificationDetail payment={payment} />;
 }
