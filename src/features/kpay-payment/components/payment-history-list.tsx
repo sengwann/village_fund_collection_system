@@ -1,18 +1,26 @@
+"use client";
+
 import Link from "next/link";
-import { DisputeStatus, PaymentStatus } from "@prisma/client";
-import { EmptyState } from "../../../components/ui/empty-state";
-import { PaymentStatusBadge } from "./payment-status-badge";
+import type { DisputeStatus, PaymentStatus } from "@prisma/client";
+import { Alert } from "@/components/ui/alert";
+import { Badge, type BadgeVariant } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
+import type { TranslationKey } from "@/lib/i18n/en";
+import { useTranslation } from "@/lib/i18n/provider";
 import { formatAmount, formatYangonDateTime } from "@/lib/utils";
+import { fillMessage } from "../lib/fill-message";
+import { PaymentStatusBadge } from "./payment-status-badge";
 
-function formatDisputeStatus(status: DisputeStatus): string {
-  return status.replace(/_/g, " ");
-}
-
-const disputeStatusStyles: Record<DisputeStatus, string> = {
-  [DisputeStatus.OPEN]: "border-amber-200 bg-amber-50 text-amber-700",
-  [DisputeStatus.UNDER_REVIEW]: "border-blue-200 bg-blue-50 text-blue-700",
-  [DisputeStatus.RESOLVED]: "border-emerald-200 bg-emerald-50 text-emerald-700",
-  [DisputeStatus.REJECTED]: "border-red-200 bg-red-50 text-red-700",
+const DISPUTE_STYLES: Record<
+  DisputeStatus,
+  { variant: BadgeVariant; label: TranslationKey }
+> = {
+  OPEN: { variant: "warning", label: "kpayPay.disputeStatus.open" },
+  UNDER_REVIEW: { variant: "info", label: "kpayPay.disputeStatus.underReview" },
+  RESOLVED: { variant: "success", label: "kpayPay.disputeStatus.resolved" },
+  REJECTED: { variant: "danger", label: "kpayPay.disputeStatus.rejected" },
 };
 
 export interface PaymentHistoryItem {
@@ -33,79 +41,85 @@ export function PaymentHistoryList({
 }: {
   payments: PaymentHistoryItem[];
 }) {
+  const { t } = useTranslation();
+
   if (payments.length === 0) {
     return (
       <EmptyState
-        description="You have not submitted any payments yet."
-        title="No payment history"
+        description={t("kpayPay.history.emptyBody")}
+        title={t("kpayPay.history.emptyTitle")}
       />
     );
   }
 
+  function methodLabel(method: string): string {
+    if (method === "KPAY") return t("dashboard.method.kpay");
+    if (method === "CASH") return t("dashboard.method.cash");
+    return method;
+  }
+
   return (
-    <div className="space-y-3">
-      {payments.map((payment) => (
-        <div
-          className="rounded-md border border-slate-200 p-3"
-          key={payment.id}
-        >
-          <div className="flex items-center justify-between gap-3">
-            <div className="min-w-0">
-              <p className="truncate text-sm font-medium text-slate-900">
-                {formatAmount(payment.amount)}
-              </p>
-              <p className="truncate text-xs text-slate-600">
-                {payment.paymentMethod} ·{" "}
-                {formatYangonDateTime(payment.createdAt)}
-              </p>
-            </div>
-            <PaymentStatusBadge status={payment.status} />
-          </div>
+    <ul className="space-y-3">
+      {payments.map((payment) => {
+        const isRejected = payment.status === "REJECTED";
+        const dispute = payment.activeDispute;
 
-          {payment.status === PaymentStatus.REJECTED &&
-          payment.rejectionNote ? (
-            <p className="mt-2 rounded-md border border-red-100 bg-red-50 p-2 text-xs text-red-700">
-              Rejection reason: {payment.rejectionNote}
-            </p>
-          ) : null}
-
-          {payment.status === PaymentStatus.REJECTED &&
-          payment.paymentMethod === "KPAY" ? (
-            payment.activeDispute ? (
-              <div className="mt-2 flex items-center gap-2">
-                <span
-                  className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${disputeStatusStyles[payment.activeDispute.status]}`}
-                >
-                  <svg
-                    className="h-3 w-3"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      d="M12 9v4m0 4h.01M12 3l9.66 16.5H2.34L12 3z"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                    />
-                  </svg>
-                  Dispute {formatDisputeStatus(payment.activeDispute.status)}
-                </span>
-                <span className="text-xs text-slate-500">
-                  Cannot raise another dispute
-                </span>
+        return (
+          <li key={payment.id}>
+            <Card className="space-y-3 p-4 sm:p-5">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="text-lg font-semibold leading-snug tabular-nums">
+                    {formatAmount(payment.amount)}
+                  </p>
+                  <p className="mt-0.5 text-sm text-muted-foreground">
+                    {methodLabel(payment.paymentMethod)} ·{" "}
+                    {formatYangonDateTime(payment.createdAt)}
+                  </p>
+                </div>
+                <PaymentStatusBadge status={payment.status} />
               </div>
-            ) : (
-              <Link
-                className="mt-2 inline-block rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-900 transition hover:bg-slate-100"
-                href={`/village/disputes/new?paymentId=${payment.id}`}
-              >
-                Dispute this payment
-              </Link>
-            )
-          ) : null}
-        </div>
-      ))}
-    </div>
+
+              {isRejected && payment.rejectionNote ? (
+                <Alert
+                  tone="danger"
+                  title={t("kpayPay.history.rejectionReason")}
+                >
+                  {payment.rejectionNote}
+                </Alert>
+              ) : null}
+
+              {isRejected && payment.paymentMethod === "KPAY" ? (
+                dispute ? (
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+                    <Badge dot variant={DISPUTE_STYLES[dispute.status].variant}>
+                      {fillMessage(t("kpayPay.history.disputeLabel"), {
+                        status: t(DISPUTE_STYLES[dispute.status].label),
+                      })}
+                    </Badge>
+                    <span className="text-xs text-muted-foreground">
+                      {t("kpayPay.history.noAnotherDispute")}
+                    </span>
+                  </div>
+                ) : (
+                  <Button
+                    asChild
+                    className="w-full sm:w-auto"
+                    size="sm"
+                    variant="outline"
+                  >
+                    <Link
+                      href={`/village/disputes/new?paymentId=${payment.id}`}
+                    >
+                      {t("kpayPay.history.disputeAction")}
+                    </Link>
+                  </Button>
+                )
+              ) : null}
+            </Card>
+          </li>
+        );
+      })}
+    </ul>
   );
 }

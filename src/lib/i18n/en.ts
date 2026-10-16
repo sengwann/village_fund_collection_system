@@ -802,6 +802,91 @@ export const en = {
   "funds.edit.submitting": "Saving...",
   "funds.edit.errorTitle": "Could not save changes",
   "funds.edit.generic": "Unable to update fund. Please try again.",
+
+  // Member KPay payment (Feature L)
+  "kpayPay.description":
+    "Pay your house's share of the current fund with KPay.",
+  "kpayPay.noFundTitle": "No active fund available",
+  "kpayPay.noFundBody":
+    "There is no active fund in your village right now. Please check back later or contact your village chief.",
+
+  "kpayPay.fund.eyebrow": "Current fund",
+  "kpayPay.fund.amountDue": "Your house pays at least",
+  "kpayPay.fund.amountUnknown":
+    "The amount per house cannot be calculated yet.",
+  "kpayPay.fund.formula": "Total ÷ {count} houses, rounded up",
+  "kpayPay.fund.total": "Total project amount",
+  "kpayPay.fund.collected": "Collected so far",
+  "kpayPay.fund.progress": "Collection progress",
+  "kpayPay.fund.percent": "{percent}% of total",
+  "kpayPay.fund.note":
+    "Overpayment is allowed as an extra contribution. Collected amount includes only accepted payments.",
+
+  "kpayPay.accepted.title": "Payment accepted",
+  "kpayPay.accepted.body":
+    "Your payment for this fund has been accepted. Thank you!",
+  "kpayPay.pending.title": "Waiting for verification",
+  "kpayPay.pending.body":
+    "Your payment is pending verification by the Collector. Please wait for confirmation.",
+  "kpayPay.dispute.title": "Payment under dispute review",
+  "kpayPay.dispute.body":
+    "Your previous payment is currently under review. Please wait until the review is completed before submitting another payment.",
+  "kpayPay.dispute.note":
+    "Once the Chief resolves the dispute, you will be able to resubmit if needed.",
+
+  "kpayPay.steps.title": "How to pay",
+  "kpayPay.steps.send.title": "Send the money in KPay",
+  "kpayPay.steps.send.body":
+    "Send at least {amount}. Sending more is accepted as an extra contribution.",
+  "kpayPay.steps.keep.title": "Keep your KPay receipt",
+  "kpayPay.steps.keep.body":
+    "You will need the transaction ID and account details shown on it.",
+  "kpayPay.steps.submit.title": "Fill in the form and submit",
+  "kpayPay.steps.submit.body":
+    "The Collector will verify your payment after you submit.",
+
+  "kpayPay.form.amountTitle": "Payment amount",
+  "kpayPay.form.amountLabel": "Amount",
+  "kpayPay.form.amountPlaceholder": "Minimum: {amount}",
+  "kpayPay.form.amountHint":
+    "Must be at least {amount} (your house's share). Overpayment is allowed.",
+  "kpayPay.form.detailsTitle": "KPay transaction details",
+  "kpayPay.form.detailsDesc": "Copy these from your KPay receipt.",
+  "kpayPay.form.txnLabel": "KPay transaction ID",
+  "kpayPay.form.txnPlaceholder": "Example: KP466722098854...",
+  "kpayPay.form.txnHint":
+    "Enter the full 18–22 character ID. Spaces and symbols are removed automatically.",
+  "kpayPay.form.senderGroup": "Sender",
+  "kpayPay.form.senderAccount": "Sender's KPay account",
+  "kpayPay.form.senderName": "Sender's KPay name",
+  "kpayPay.form.receiverGroup": "Receiver",
+  "kpayPay.form.receiverAccount": "Receiver's KPay account",
+  "kpayPay.form.submit": "Submit KPay payment",
+  "kpayPay.form.submitting": "Submitting payment...",
+  "kpayPay.form.verifyNote":
+    "The Collector will check your payment after you submit.",
+  "kpayPay.form.errorTitle": "Could not submit your payment",
+  "kpayPay.form.errorGeneric": "Unable to submit payment. Please try again.",
+  "kpayPay.form.fixFields": "Check the highlighted fields and try again.",
+
+  "kpayPay.history.title": "Payment history",
+  "kpayPay.history.desc": "Payments you have submitted.",
+  "kpayPay.history.emptyTitle": "No payment history",
+  "kpayPay.history.emptyBody": "You have not submitted any payments yet.",
+  "kpayPay.history.rejectionReason": "Rejection reason",
+  "kpayPay.history.disputeLabel": "Dispute: {status}",
+  "kpayPay.history.noAnotherDispute":
+    "You cannot raise another dispute for this payment.",
+  "kpayPay.history.disputeAction": "Dispute this payment",
+
+  "kpayPay.status.pending": "Pending",
+  "kpayPay.status.accepted": "Accepted",
+  "kpayPay.status.rejected": "Rejected",
+  "kpayPay.status.voided": "Voided",
+  "kpayPay.disputeStatus.open": "Open",
+  "kpayPay.disputeStatus.underReview": "Under review",
+  "kpayPay.disputeStatus.resolved": "Resolved",
+  "kpayPay.disputeStatus.rejected": "Rejected",
 } as const;
 
 export type TranslationKey = keyof typeof en;

@@ -830,4 +830,90 @@ export const my: Record<TranslationKey, string> = {
   "funds.edit.submitting": "သိမ်းဆည်းနေသည်...",
   "funds.edit.errorTitle": "ပြောင်းလဲမှုများ သိမ်း၍ မရပါ",
   "funds.edit.generic": "ရန်ပုံငွေ ပြင်ဆင်၍ မရပါ။ ထပ်ကြိုးစားပါ။",
+
+  // Member KPay payment (Feature L)
+  "kpayPay.description":
+    "လက်ရှိ ရန်ပုံငွေအတွက် သင့်အိမ်၏ ကျသင့်ငွေကို KPay ဖြင့် ပေးချေပါ။",
+  "kpayPay.noFundTitle": "အသုံးပြုနေသော ရန်ပုံငွေ မရှိပါ",
+  "kpayPay.noFundBody":
+    "သင့်ကျေးရွာတွင် ယခုအချိန် အသုံးပြုနေသော ရန်ပုံငွေ မရှိပါ။ နောက်မှ ပြန်စစ်ကြည့်ပါ သို့မဟုတ် ကျေးရွာ အုပ်ချုပ်ရေးမှူးကို ဆက်သွယ်ပါ။",
+
+  "kpayPay.fund.eyebrow": "လက်ရှိ ရန်ပုံငွေ",
+  "kpayPay.fund.amountDue": "သင့်အိမ်မှ အနည်းဆုံး ပေးရမည့်ငွေ",
+  "kpayPay.fund.amountUnknown": "အိမ်တစ်အိမ်လျှင် ပမာဏကို မတွက်ချက်နိုင်သေးပါ။",
+  "kpayPay.fund.formula":
+    "စုစုပေါင်း ÷ အိမ် {count} လုံး (အပေါ်သို့ ပိုင်းသည်)",
+  "kpayPay.fund.total": "စီမံကိန်း စုစုပေါင်း ငွေပမာဏ",
+  "kpayPay.fund.collected": "ယခုထိ ကောက်ခံပြီး",
+  "kpayPay.fund.progress": "ကောက်ခံမှု တိုးတက်မှု",
+  "kpayPay.fund.percent": "စုစုပေါင်း၏ {percent}%",
+  "kpayPay.fund.note":
+    "ပိုပေးခြင်းကို အပိုထည့်ဝင်ငွေအဖြစ် လက်ခံသည်။ ကောက်ခံပြီး ပမာဏတွင် လက်ခံပြီး ငွေပေးချေမှုများကိုသာ ထည့်သွင်းထားသည်။",
+
+  "kpayPay.accepted.title": "ငွေပေးချေမှု လက်ခံပြီး",
+  "kpayPay.accepted.body":
+    "ဤရန်ပုံငွေအတွက် သင့်ငွေပေးချေမှုကို လက်ခံပြီးဖြစ်သည်။ ကျေးဇူးတင်ပါသည်။",
+  "kpayPay.pending.title": "စစ်ဆေးရန် စောင့်ဆိုင်းနေသည်",
+  "kpayPay.pending.body":
+    "သင့်ငွေပေးချေမှုကို ကောက်ခံသူ စစ်ဆေးရန် စောင့်ဆိုင်းနေသည်။ အတည်ပြုချက်ကို စောင့်ပါ။",
+  "kpayPay.dispute.title": "ငွေပေးချေမှုကို အငြင်းပွားမှုအဖြစ် စစ်ဆေးနေသည်",
+  "kpayPay.dispute.body":
+    "သင့်ယခင် ငွေပေးချေမှုကို လက်ရှိ စစ်ဆေးနေသည်။ စစ်ဆေးမှု ပြီးဆုံးမှသာ နောက်ထပ် ငွေပေးချေမှု တင်သွင်းပါ။",
+  "kpayPay.dispute.note":
+    "အုပ်ချုပ်ရေးမှူးက အငြင်းပွားမှုကို ဖြေရှင်းပြီးပါက လိုအပ်လျှင် ပြန်တင်နိုင်မည်။",
+
+  "kpayPay.steps.title": "ငွေပေးချေပုံ",
+  "kpayPay.steps.send.title": "KPay ဖြင့် ငွေပို့ပါ",
+  "kpayPay.steps.send.body":
+    "အနည်းဆုံး {amount} ပို့ပါ။ ပိုပို့လျှင် အပိုထည့်ဝင်ငွေအဖြစ် လက်ခံသည်။",
+  "kpayPay.steps.keep.title": "KPay ပြေစာကို သိမ်းထားပါ",
+  "kpayPay.steps.keep.body":
+    "ပြေစာပေါ်ရှိ ငွေလွှဲ ID နှင့် အကောင့် အချက်အလက်များ လိုအပ်မည်။",
+  "kpayPay.steps.submit.title": "ပုံစံကို ဖြည့်ပြီး တင်သွင်းပါ",
+  "kpayPay.steps.submit.body":
+    "တင်သွင်းပြီးနောက် ကောက်ခံသူက သင့်ငွေပေးချေမှုကို စစ်ဆေးပါမည်။",
+
+  "kpayPay.form.amountTitle": "ငွေပေးချေမည့် ပမာဏ",
+  "kpayPay.form.amountLabel": "ငွေပမာဏ",
+  "kpayPay.form.amountPlaceholder": "အနည်းဆုံး - {amount}",
+  "kpayPay.form.amountHint":
+    "အနည်းဆုံး {amount} ဖြစ်ရမည် (သင့်အိမ်၏ ကျသင့်ငွေ)။ ပိုပေးခြင်းကို လက်ခံသည်။",
+  "kpayPay.form.detailsTitle": "KPay ငွေလွှဲ အချက်အလက်",
+  "kpayPay.form.detailsDesc": "သင့် KPay ပြေစာမှ ကူးထည့်ပါ။",
+  "kpayPay.form.txnLabel": "KPay ငွေလွှဲ ID",
+  "kpayPay.form.txnPlaceholder": "ဥပမာ - KP466722098854...",
+  "kpayPay.form.txnHint":
+    "အက္ခရာ ၁၈ လုံးမှ ၂၂ လုံး ID အပြည့်အစုံကို ထည့်ပါ။ နေရာလွတ်နှင့် သင်္ကေတများကို အလိုအလျောက် ဖယ်ရှားပေးသည်။",
+  "kpayPay.form.senderGroup": "ငွေပို့သူ",
+  "kpayPay.form.senderAccount": "ငွေပို့သူ၏ KPay အကောင့်",
+  "kpayPay.form.senderName": "ငွေပို့သူ၏ KPay အမည်",
+  "kpayPay.form.receiverGroup": "ငွေလက်ခံသူ",
+  "kpayPay.form.receiverAccount": "ငွေလက်ခံသူ၏ KPay အကောင့်",
+  "kpayPay.form.submit": "KPay ငွေပေးချေမှု တင်သွင်းရန်",
+  "kpayPay.form.submitting": "ငွေပေးချေမှု တင်သွင်းနေသည်...",
+  "kpayPay.form.verifyNote":
+    "တင်သွင်းပြီးနောက် ကောက်ခံသူက သင့်ငွေပေးချေမှုကို စစ်ဆေးပါမည်။",
+  "kpayPay.form.errorTitle": "ငွေပေးချေမှု တင်သွင်း၍ မရပါ",
+  "kpayPay.form.errorGeneric": "ငွေပေးချေမှု တင်သွင်း၍ မရပါ။ ထပ်ကြိုးစားပါ။",
+  "kpayPay.form.fixFields":
+    "အမှတ်အသားပြထားသော အကွက်များကို စစ်ဆေးပြီး ထပ်ကြိုးစားပါ။",
+
+  "kpayPay.history.title": "ငွေပေးချေမှု မှတ်တမ်း",
+  "kpayPay.history.desc": "သင်တင်သွင်းခဲ့သော ငွေပေးချေမှုများ။",
+  "kpayPay.history.emptyTitle": "ငွေပေးချေမှု မှတ်တမ်း မရှိပါ",
+  "kpayPay.history.emptyBody": "ငွေပေးချေမှု မတင်သွင်းရသေးပါ။",
+  "kpayPay.history.rejectionReason": "ပယ်ချရသည့် အကြောင်းရင်း",
+  "kpayPay.history.disputeLabel": "အငြင်းပွားမှု - {status}",
+  "kpayPay.history.noAnotherDispute":
+    "ဤငွေပေးချေမှုအတွက် နောက်ထပ် အငြင်းပွားမှု မတင်နိုင်ပါ။",
+  "kpayPay.history.disputeAction": "ဤငွေပေးချေမှုကို အငြင်းပွားရန်",
+
+  "kpayPay.status.pending": "စောင့်ဆိုင်းဆဲ",
+  "kpayPay.status.accepted": "လက်ခံပြီး",
+  "kpayPay.status.rejected": "ပယ်ချခံရသည်",
+  "kpayPay.status.voided": "ပယ်ဖျက်ပြီး",
+  "kpayPay.disputeStatus.open": "ဖွင့်ထားသည်",
+  "kpayPay.disputeStatus.underReview": "စစ်ဆေးနေသည်",
+  "kpayPay.disputeStatus.resolved": "ဖြေရှင်းပြီး",
+  "kpayPay.disputeStatus.rejected": "ပယ်ချပြီး",
 };

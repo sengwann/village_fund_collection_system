@@ -1,25 +1,50 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import type { FormEvent } from "react";
+import { Alert } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Field, Input } from "@/components/ui/field";
+import { useTranslation } from "@/lib/i18n/provider";
+import { formatAmount } from "@/lib/utils";
 import {
   submitKpayPaymentAction,
   type SubmitKpayPaymentActionResult,
 } from "../actions/submit-kpay-payment.action";
-
-function FieldError({ message }: { message?: string }) {
-  if (!message) return null;
-  return <p className="mt-1 text-xs text-red-600">{message}</p>;
-}
+import { fillMessage } from "../lib/fill-message";
 
 export function KpayPaymentForm({ minimumAmount }: { minimumAmount: number }) {
   const router = useRouter();
+  const { t } = useTranslation();
+  const formRef = useRef<HTMLFormElement>(null);
+  const errorRef = useRef<HTMLDivElement>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<
     Record<string, string | undefined>
   >({});
   const [isPending, startTransition] = useTransition();
+
+  // After a failed submit, move focus to the first invalid field, or to the
+  // error message when there are no field errors.
+  useEffect(() => {
+    if (Object.values(fieldErrors).some(Boolean)) {
+      formRef.current
+        ?.querySelector<HTMLElement>('[aria-invalid="true"]')
+        ?.focus();
+      return;
+    }
+    if (formError) {
+      errorRef.current?.focus();
+    }
+  }, [fieldErrors, formError]);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -35,134 +60,155 @@ export function KpayPaymentForm({ minimumAmount }: { minimumAmount: number }) {
         router.refresh();
         return;
       }
-      setFieldErrors(result.fieldErrors ?? {});
-      setFormError(result.formError ?? "Unable to submit payment.");
+      const nextFieldErrors = result.fieldErrors ?? {};
+      setFieldErrors(nextFieldErrors);
+      setFormError(
+        result.formError ??
+          (Object.values(nextFieldErrors).some(Boolean)
+            ? t("kpayPay.form.fixFields")
+            : t("kpayPay.form.errorGeneric")),
+      );
     });
   }
 
+  const minimumLabel = formatAmount(minimumAmount);
+
   return (
-    <form className="space-y-6" noValidate onSubmit={handleSubmit}>
-      <div className="space-y-4 rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-        <h2 className="text-sm font-medium text-slate-900">Payment amount</h2>
-        <div className="space-y-2">
-          <label
-            className="block text-sm font-medium text-slate-900"
-            htmlFor="amount"
-          >
-            Amount
-          </label>
-          <input
-            aria-describedby="amount-error"
-            className="block w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
+    <form
+      className="space-y-4"
+      noValidate
+      onSubmit={handleSubmit}
+      ref={formRef}
+    >
+      <Card>
+        <CardHeader>
+          <CardTitle as="h2">{t("kpayPay.form.amountTitle")}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Field
+            error={fieldErrors.amount}
+            hint={fillMessage(t("kpayPay.form.amountHint"), {
+              amount: minimumLabel,
+            })}
             id="amount"
-            min={minimumAmount}
-            name="amount"
-            placeholder={`Minimum: ${minimumAmount.toLocaleString()}`}
-            step={1}
-            type="number"
-          />
-          <FieldError message={fieldErrors.amount} />
-          <p className="text-xs text-slate-500">
-            Must be at least {minimumAmount.toLocaleString()} (your house&apos;s
-            share). Overpayment is allowed.
-          </p>
-        </div>
-      </div>
-
-      <div className="space-y-4 rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-        <h2 className="text-sm font-medium text-slate-900">
-          KPay transaction details
-        </h2>
-
-        <div className="space-y-2">
-          <label
-            className="block text-sm font-medium text-slate-900"
-            htmlFor="kpayTransactionId"
+            label={t("kpayPay.form.amountLabel")}
+            required
           >
-            KPay transaction ID
-          </label>
-          <input
-            aria-describedby="kpayTransactionId-error"
-            autoComplete="off"
-            className="block w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
+            <Input
+              autoComplete="off"
+              enterKeyHint="next"
+              inputMode="numeric"
+              name="amount"
+              placeholder={fillMessage(t("kpayPay.form.amountPlaceholder"), {
+                amount: minimumLabel,
+              })}
+              required
+              type="text"
+            />
+          </Field>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle as="h2">{t("kpayPay.form.detailsTitle")}</CardTitle>
+          <CardDescription>{t("kpayPay.form.detailsDesc")}</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <Field
+            error={fieldErrors.kpayTransactionId}
+            hint={t("kpayPay.form.txnHint")}
             id="kpayTransactionId"
-            maxLength={22}
-            name="kpayTransactionId"
-            placeholder="Example: KP466722098854...."
-            type="text"
-          />
-          <FieldError message={fieldErrors.kpayTransactionId} />
-          <p className="text-xs text-slate-500">
-            Enter the full 18-22 character ID. Spaces/symbols are removed
-            automatically.
-          </p>
-        </div>
-
-        <div className="space-y-2">
-          <label
-            className="block text-sm font-medium text-slate-900"
-            htmlFor="kpaySenderAccount"
+            label={t("kpayPay.form.txnLabel")}
+            required
           >
-            Sender&apos;s KPay account
-          </label>
-          <input
-            aria-describedby="kpaySenderAccount-error"
-            className="block w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
-            id="kpaySenderAccount"
-            name="kpaySenderAccount"
-            type="text"
-          />
-          <FieldError message={fieldErrors.kpaySenderAccount} />
-        </div>
+            <Input
+              autoCapitalize="characters"
+              autoComplete="off"
+              autoCorrect="off"
+              className="font-mono uppercase"
+              enterKeyHint="next"
+              maxLength={22}
+              name="kpayTransactionId"
+              placeholder={t("kpayPay.form.txnPlaceholder")}
+              required
+              spellCheck={false}
+              type="text"
+            />
+          </Field>
 
-        <div className="space-y-2">
-          <label
-            className="block text-sm font-medium text-slate-900"
-            htmlFor="kpaySenderName"
-          >
-            Sender&apos;s KPay name
-          </label>
-          <input
-            aria-describedby="kpaySenderName-error"
-            className="block w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
-            id="kpaySenderName"
-            name="kpaySenderName"
-            type="text"
-          />
-          <FieldError message={fieldErrors.kpaySenderName} />
-        </div>
+          <fieldset className="min-w-0 space-y-4 border-t pt-5">
+            <legend className="mb-3 text-sm font-semibold text-foreground">
+              {t("kpayPay.form.senderGroup")}
+            </legend>
+            <Field
+              error={fieldErrors.kpaySenderAccount}
+              id="kpaySenderAccount"
+              label={t("kpayPay.form.senderAccount")}
+              required
+            >
+              <Input
+                autoComplete="off"
+                enterKeyHint="next"
+                name="kpaySenderAccount"
+                required
+                type="text"
+              />
+            </Field>
+            <Field
+              error={fieldErrors.kpaySenderName}
+              id="kpaySenderName"
+              label={t("kpayPay.form.senderName")}
+              required
+            >
+              <Input
+                autoComplete="off"
+                enterKeyHint="next"
+                name="kpaySenderName"
+                required
+                type="text"
+              />
+            </Field>
+          </fieldset>
 
-        <div className="space-y-2">
-          <label
-            className="block text-sm font-medium text-slate-900"
-            htmlFor="kpayReceiverAccount"
-          >
-            Receiver&apos;s KPay account
-          </label>
-          <input
-            aria-describedby="kpayReceiverAccount-error"
-            className="block w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
-            id="kpayReceiverAccount"
-            name="kpayReceiverAccount"
-            type="text"
-          />
-          <FieldError message={fieldErrors.kpayReceiverAccount} />
-        </div>
-      </div>
+          <fieldset className="min-w-0 space-y-4 border-t pt-5">
+            <legend className="mb-3 text-sm font-semibold text-foreground">
+              {t("kpayPay.form.receiverGroup")}
+            </legend>
+            <Field
+              error={fieldErrors.kpayReceiverAccount}
+              id="kpayReceiverAccount"
+              label={t("kpayPay.form.receiverAccount")}
+              required
+            >
+              <Input
+                autoComplete="off"
+                enterKeyHint="done"
+                name="kpayReceiverAccount"
+                required
+                type="text"
+              />
+            </Field>
+          </fieldset>
+        </CardContent>
+      </Card>
 
       {formError ? (
-        <p className="text-sm text-red-600" role="alert">
-          {formError}
-        </p>
+        <div className="rounded-lg" ref={errorRef} tabIndex={-1}>
+          <Alert tone="danger" title={t("kpayPay.form.errorTitle")}>
+            {formError}
+          </Alert>
+        </div>
       ) : null}
 
-      <button
-        className="w-full rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-60"
-        disabled={isPending}
-        type="submit"
-      >
-        {isPending ? "Submitting payment..." : "Submit KPay payment"}
-      </button>
+      <div className="space-y-2">
+        <Button className="w-full" loading={isPending} size="lg" type="submit">
+          {isPending ? t("kpayPay.form.submitting") : t("kpayPay.form.submit")}
+        </Button>
+        <p className="text-center text-xs text-muted-foreground">
+          {t("kpayPay.form.verifyNote")}
+        </p>
+      </div>
     </form>
   );
 }
