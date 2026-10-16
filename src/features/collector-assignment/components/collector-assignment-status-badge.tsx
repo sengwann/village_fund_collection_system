@@ -1,18 +1,26 @@
+"use client";
+
+import { Badge } from "@/components/ui/badge";
+import { useTranslation } from "@/lib/i18n/provider";
+
 export function CollectorAssignmentStatusBadge({
   isActive,
 }: {
   isActive: boolean;
 }) {
+  const { t } = useTranslation();
+
   if (isActive) {
     return (
-      <span className="inline-flex rounded-full border border-emerald-200 bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-700">
-        Active
-      </span>
+      <Badge className="shrink-0" dot variant="success">
+        {t("collectors.status.active")}
+      </Badge>
     );
   }
+
   return (
-    <span className="inline-flex rounded-full border border-slate-200 bg-slate-100 px-2 py-1 text-xs font-medium text-slate-600">
-      Inactive
-    </span>
+    <Badge className="shrink-0" dot variant="neutral">
+      {t("collectors.status.inactive")}
+    </Badge>
   );
 }

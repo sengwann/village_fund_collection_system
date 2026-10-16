@@ -582,7 +582,7 @@ export const en = {
     "There are no rejected or removed members in this house.",
   "household.history.note":
     "Rejected and removed people stay on record and cannot be switched back to active. They must send a new join request to return.",
-  
+
   // House management (Feature H)
   "houses.back": "Back to houses",
   "houses.list.title": "Houses",
@@ -638,7 +638,8 @@ export const en = {
   "houses.form.hint":
     "Letters, numbers, spaces, hyphens, slashes and dots are allowed (2–30 characters).",
   "houses.create.title": "Create house",
-  "houses.create.description": "Add a new official house number to your village.",
+  "houses.create.description":
+    "Add a new official house number to your village.",
   "houses.create.cardTitle": "House details",
   "houses.create.placeholder": "Example: A-12 or 101",
   "houses.create.submit": "Create house",
@@ -652,6 +653,59 @@ export const en = {
   "houses.editPage.submitting": "Saving...",
   "houses.editPage.errorTitle": "Could not update the house number",
   "houses.editPage.generic": "Unable to update house number. Please try again.",
+
+  // Collector assignments (Feature J)
+  "collectors.title": "Collector assignments",
+  "collectors.description":
+    "Assign a village member as Collector for each month.",
+  "collectors.current.title": "Current period",
+  "collectors.current.activeCollector": "Active Collector",
+  "collectors.current.assignNow": "Assign a Collector",
+  "collectors.period.upcoming": "Upcoming",
+  "collectors.status.active": "Active",
+  "collectors.status.inactive": "Inactive",
+  "collectors.form.title": "Assign a Collector",
+  "collectors.form.description":
+    "Choose a member and the month they will collect for.",
+  "collectors.form.member": "Village member",
+  "collectors.form.memberPlaceholder": "Select a member",
+  "collectors.form.memberHint": "Only active village members are listed.",
+  "collectors.form.year": "Year",
+  "collectors.form.month": "Month",
+  "collectors.form.monthHint": "Past months are not available.",
+  "collectors.form.submit": "Assign Collector",
+  "collectors.form.submitting": "Assigning...",
+  "collectors.form.errorTitle": "Could not assign the Collector",
+  "collectors.form.generic": "Unable to assign collector. Please try again.",
+  "collectors.form.success": "Collector assigned.",
+  "collectors.form.noMembersTitle": "No active members to assign",
+  "collectors.form.noMembersBody":
+    "A Collector must be an active village member.",
+  "collectors.history.title": "Assignment history",
+  "collectors.history.description":
+    "All Collector assignments, newest period first.",
+  "collectors.history.emptyTitle": "No assignments",
+  "collectors.history.emptyBody":
+    "No collector assignments have been created yet.",
+  "collectors.history.assigned": "Assigned {date}",
+  "collectors.deactivate.button": "Deactivate",
+  "collectors.deactivate.confirmTitle": "Deactivate this assignment?",
+  "collectors.deactivate.confirmBody":
+    "{name} will no longer be the active Collector for {period}.",
+  "collectors.deactivate.confirm": "Yes, deactivate",
+  "collectors.deactivate.working": "Deactivating...",
+  "collectors.month.1": "January",
+  "collectors.month.2": "February",
+  "collectors.month.3": "March",
+  "collectors.month.4": "April",
+  "collectors.month.5": "May",
+  "collectors.month.6": "June",
+  "collectors.month.7": "July",
+  "collectors.month.8": "August",
+  "collectors.month.9": "September",
+  "collectors.month.10": "October",
+  "collectors.month.11": "November",
+  "collectors.month.12": "December",
 } as const;
 
 export type TranslationKey = keyof typeof en;

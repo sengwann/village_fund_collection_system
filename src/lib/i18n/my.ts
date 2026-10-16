@@ -367,7 +367,7 @@ export const my: Record<TranslationKey, string> = {
   "adminVillages.statusDesc.active":
     "ဤကျေးရွာသည် လက်ရှိ ပုံမှန် အသုံးပြုနေဆဲ ဖြစ်သည်။",
   "adminVillages.statusDesc.suspended":
-    "ဤကျေးရွာကို ယာယီ ရပ်ဆိုင်းထားသည်။ မည်သည့်အချိန်တွင်မဆို ပြန်ဖွင့်နိုင်သည်။",
+    "ဤကျေးရွာကို ယာယီ ရပ်ဆိုင်းထားသည်။ မည်သည့်အချိန်တွင်မဆို ပြန်ဖ: �င့်နိုင်သည်။",
   "adminVillages.statusDesc.deactivated":
     "ဤကျေးရွာကို ပိတ်သိမ်းထားသည်။ စီမံနိုင်သော လုပ်ဆောင်ချက် မရှိတော့ပါ။ ကျေးရွာ မှတ်တမ်းနှင့် သမိုင်းကြောင်း ဒေတာများကို ဆက်လက် သိမ်းဆည်းထားသည်။",
   "adminVillages.suspend.button": "ကျေးရွာ ယာယီ ရပ်ဆိုင်းရန်",
@@ -665,7 +665,8 @@ export const my: Record<TranslationKey, string> = {
   "houses.form.hint":
     "စာလုံး၊ ဂဏန်း၊ နေရာလွတ်၊ တုံးတို၊ ဆလက်ရှ်နှင့် အစက်များ ထည့်နိုင်သည် (၂ လုံးမှ ၃၀ လုံး)။",
   "houses.create.title": "အိမ် ဖန်တီးရန်",
-  "houses.create.description": "သင့်ကျေးရွာအတွက် တရားဝင် အိမ်နံပါတ် အသစ် ထည့်ပါ။",
+  "houses.create.description":
+    "သင့်ကျေးရွာအတွက် တရားဝင် အိမ်နံပါတ် အသစ် ထည့်ပါ။",
   "houses.create.cardTitle": "အိမ် အချက်အလက်",
   "houses.create.placeholder": "ဥပမာ - A-12 သို့မဟုတ် 101",
   "houses.create.submit": "အိမ် ဖန်တီးရန်",
@@ -679,4 +680,56 @@ export const my: Record<TranslationKey, string> = {
   "houses.editPage.submitting": "သိမ်းဆည်းနေသည်...",
   "houses.editPage.errorTitle": "အိမ်နံပါတ် ပြင်ဆင်၍ မရပါ",
   "houses.editPage.generic": "အိမ်နံပါတ် ပြင်ဆင်၍ မရပါ။ ထပ်ကြိုးစားပါ။",
+
+  // Collector assignments (Feature J)
+  "collectors.title": "ကောက်ခံသူ တာဝန်ပေးမှုများ",
+  "collectors.description":
+    "လတစ်လချင်းစီအတွက် ကျေးရွာသားတစ်ဦးကို ကောက်ခံသူအဖြစ် တာဝန်ပေးပါ။",
+  "collectors.current.title": "လက်ရှိ ကာလ",
+  "collectors.current.activeCollector": "လက်ရှိ ကောက်ခံသူ",
+  "collectors.current.assignNow": "ကောက်ခံသူ တာဝန်ပေးရန်",
+  "collectors.period.upcoming": "လာမည့် ကာလ",
+  "collectors.status.active": "လက်ရှိ အသုံးပြုနေသည်",
+  "collectors.status.inactive": "ပိတ်ထားသည်",
+  "collectors.form.title": "ကောက်ခံသူ တာဝန်ပေးရန်",
+  "collectors.form.description": "ကောက်ခံမည့်သူနှင့် ကောက်ခံမည့် လကို ရွေးပါ။",
+  "collectors.form.member": "ကျေးရွာသား",
+  "collectors.form.memberPlaceholder": "ကျေးရွာသား ရွေးပါ",
+  "collectors.form.memberHint":
+    "လက်ရှိ အဖွဲ့ဝင်ဖြစ်သော ကျေးရွာသားများကိုသာ ပြထားသည်။",
+  "collectors.form.year": "နှစ်",
+  "collectors.form.month": "လ",
+  "collectors.form.monthHint": "ကျော်လွန်သွားသော လများကို ရွေး၍ မရပါ။",
+  "collectors.form.submit": "ကောက်ခံသူ တာဝန်ပေးမည်",
+  "collectors.form.submitting": "တာဝန်ပေးနေသည်...",
+  "collectors.form.errorTitle": "ကောက်ခံသူ တာဝန်ပေး၍ မရပါ",
+  "collectors.form.generic": "ကောက်ခံသူ တာဝန်ပေး၍ မရပါ။ ထပ်ကြိုးစားပါ။",
+  "collectors.form.success": "ကောက်ခံသူ တာဝန်ပေးပြီးပါပြီ။",
+  "collectors.form.noMembersTitle": "တာဝန်ပေးနိုင်သော အဖွဲ့ဝင် မရှိပါ",
+  "collectors.form.noMembersBody":
+    "ကောက်ခံသူသည် လက်ရှိ အဖွဲ့ဝင် ကျေးရွာသား ဖြစ်ရပါမည်။",
+  "collectors.history.title": "တာဝန်ပေးမှု မှတ်တမ်း",
+  "collectors.history.description":
+    "ကောက်ခံသူ တာဝန်ပေးမှုအားလုံး၊ နောက်ဆုံးကာလကို ရှေ့ဆုံးတွင် ပြထားသည်။",
+  "collectors.history.emptyTitle": "တာဝန်ပေးမှု မရှိပါ",
+  "collectors.history.emptyBody": "ကောက်ခံသူ တာဝန်ပေးမှု မဖန်တီးရသေးပါ။",
+  "collectors.history.assigned": "တာဝန်ပေးသည့်ရက် {date}",
+  "collectors.deactivate.button": "ပိတ်ရန်",
+  "collectors.deactivate.confirmTitle": "ဤတာဝန်ပေးမှုကို ပိတ်မလား။",
+  "collectors.deactivate.confirmBody":
+    "{name} သည် {period} အတွက် လက်ရှိ ကောက်ခံသူ မဟုတ်တော့ပါ။",
+  "collectors.deactivate.confirm": "ဟုတ်ကဲ့၊ ပိတ်မည်",
+  "collectors.deactivate.working": "ပိတ်နေသည်...",
+  "collectors.month.1": "ဇန်နဝါရီ",
+  "collectors.month.2": "ဖေဖော်ဝါရီ",
+  "collectors.month.3": "မတ်",
+  "collectors.month.4": "ဧပြီ",
+  "collectors.month.5": "မေ",
+  "collectors.month.6": "ဇွန်",
+  "collectors.month.7": "ဇူလိုင်",
+  "collectors.month.8": "ဩဂုတ်",
+  "collectors.month.9": "စက်တင်ဘာ",
+  "collectors.month.10": "အောက်တိုဘာ",
+  "collectors.month.11": "နိုဝင်ဘာ",
+  "collectors.month.12": "ဒီဇင်ဘာ",
 };
