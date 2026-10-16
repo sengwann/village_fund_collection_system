@@ -732,4 +732,102 @@ export const my: Record<TranslationKey, string> = {
   "collectors.month.10": "အောက်တိုဘာ",
   "collectors.month.11": "နိုဝင်ဘာ",
   "collectors.month.12": "ဒီဇင်ဘာ",
+
+  // Fund management (Feature I)
+  "funds.back": "ရန်ပုံငွေများသို့ ပြန်ရန်",
+  "funds.backToFund": "ရန်ပုံငွေသို့ ပြန်ရန်",
+  "funds.period": "{start} မှ {end} အထိ",
+  "funds.status.draft": "မူကြမ်း",
+  "funds.status.active": "အသုံးပြုနေသည်",
+  "funds.status.closed": "ပိတ်ပြီး",
+  "funds.progress.label": "ကောက်ခံမှု တိုးတက်မှု",
+  "funds.filter.all": "အားလုံး",
+
+  "funds.list.title": "ရန်ပုံငွေများ",
+  "funds.list.description":
+    "သင့်ကျေးရွာ ကောက်ခံမည့် ရန်ပုံငွေများကို ဖန်တီး၊ စတင်၊ ပိတ်သိမ်းပါ။",
+  "funds.list.create": "ရန်ပုံငွေ ဖန်တီးရန်",
+  "funds.list.filterLabel": "အခြေအနေအလိုက် စစ်ထုတ်ရန်",
+  "funds.list.countOne": "ရန်ပုံငွေ {count} ခု",
+  "funds.list.countOther": "ရန်ပုံငွေ {count} ခု",
+  "funds.list.emptyTitle": "ရန်ပုံငွေ မရှိသေးပါ",
+  "funds.list.emptyBody": "ကျေးရွာမှ ငွေကောက်ခံရန် ရန်ပုံငွေတစ်ခု ဖန်တီးပါ။",
+  "funds.list.emptyAction": "ပထမဆုံး ရန်ပုံငွေ ဖန်တီးရန်",
+  "funds.list.noMatchTitle": "ကိုက်ညီသော ရန်ပုံငွေ မတွေ့ပါ",
+  "funds.list.noMatchBody": "ဤအခြေအနေရှိ ရန်ပုံငွေ မရှိပါ။",
+  "funds.list.showAll": "ရန်ပုံငွေ အားလုံး ပြရန်",
+  "funds.card.collected": "ကောက်ခံပြီး",
+  "funds.card.target": "ပစ်မှတ်",
+  "funds.card.progress": "ပစ်မှတ်၏ {percent}%",
+
+  "funds.summary.title": "ကောက်ခံမှု အနှစ်ချုပ်",
+  "funds.summary.collected": "ကောက်ခံပြီး",
+  "funds.summary.ofTarget": "ပစ်မှတ် {target} အနက်",
+  "funds.summary.remaining": "ကျန်ရှိ",
+  "funds.summary.accepted": "လက်ခံပြီး ငွေပေးချေမှုများ",
+  "funds.summary.reached": "ပစ်မှတ် ပြည့်မီပြီ",
+  "funds.summary.note":
+    "ကောက်ခံပြီး ပမာဏတွင် လက်ခံပြီး ငွေပေးချေမှုများကိုသာ ထည့်သွင်းထားသည်။",
+
+  "funds.info.title": "ရန်ပုံငွေ အချက်အလက်",
+  "funds.info.start": "စတင်သည့်ရက်",
+  "funds.info.end": "ပြီးဆုံးသည့်ရက်",
+  "funds.info.created": "ဖန်တီးသည့်ရက်",
+  "funds.info.updated": "နောက်ဆုံး ပြင်ဆင်သည့်ရက်",
+  "funds.info.description": "ဖော်ပြချက်",
+  "funds.info.noDescription": "ဖော်ပြချက် မရှိပါ။",
+
+  "funds.lifecycle.title": "အခြေအနေနှင့် လုပ်ဆောင်ချက်များ",
+  "funds.lifecycle.closedNote":
+    "ဤရန်ပုံငွေကို ပိတ်ပြီးဖြစ်သည်။ ဆက်လက်လုပ်ဆောင်စရာ မရှိတော့ပါ။ ငွေပေးချေမှု မှတ်တမ်းများကို ဆက်လက် သိမ်းထားသည်။",
+  "funds.lifecycle.edit": "ရန်ပုံငွေ ပြင်ဆင်ရန်",
+  "funds.lifecycle.editHint": "မူကြမ်း ရန်ပုံငွေများကိုသာ ပြင်ဆင်နိုင်သည်။",
+  "funds.lifecycle.activate": "ရန်ပုံငွေ စတင်ရန်",
+  "funds.lifecycle.activateHint":
+    "ကျေးရွာတစ်ခုတွင် ရန်ပုံငွေ တစ်ခုသာ အသုံးပြုနေနိုင်သည်။ စတင်ပြီးသော ရန်ပုံငွေကို ပြင်ဆင်၍ မရတော့ပါ။",
+  "funds.lifecycle.activateBlockedTitle": "အခြား ရန်ပုံငွေ အသုံးပြုနေပြီ",
+  "funds.lifecycle.activateBlockedBody":
+    "ဤရန်ပုံငွေကို မစတင်မီ လက်ရှိ ရန်ပုံငွေကို ပိတ်ပါ။",
+  "funds.lifecycle.activateConfirmTitle": "ဤရန်ပုံငွေကို စတင်မလား။",
+  "funds.lifecycle.activateConfirmBody":
+    "စတင်ပြီးနောက် ငွေကောက်ခံနိုင်မည်။ နောက်ပိုင်း ပြင်ဆင်၍ မရတော့ပါ။",
+  "funds.lifecycle.activateConfirm": "ဟုတ်ကဲ့၊ စတင်မည်",
+  "funds.lifecycle.close": "ရန်ပုံငွေ ပိတ်ရန်",
+  "funds.lifecycle.closeHint":
+    "ပိတ်ခြင်းဖြင့် ရန်ပုံငွေနှင့် ငွေပေးချေမှု မှတ်တမ်းများကို ဆက်လက် သိမ်းထားသည်။",
+  "funds.lifecycle.closeConfirmTitle": "ဤရန်ပုံငွေကို ပိတ်မလား။",
+  "funds.lifecycle.closeConfirmBody":
+    "ပိတ်ခြင်းဖြင့် ရန်ပုံငွေနှင့် ငွေပေးချေမှု မှတ်တမ်းများကို ဆက်လက် သိမ်းထားသော်လည်း ပိတ်ပြီးသော ရန်ပုံငွေကို ပြန်ဖွင့်၍ မရပါ။",
+  "funds.lifecycle.closeConfirm": "ဟုတ်ကဲ့၊ ပိတ်မည်",
+
+  "funds.form.sectionDetails": "ရန်ပုံငွေ အချက်အလက်",
+  "funds.form.sectionTarget": "ပစ်မှတ်နှင့် ကောက်ခံမည့် ကာလ",
+  "funds.form.name": "ရန်ပုံငွေ အမည်",
+  "funds.form.namePlaceholder": "ဥပမာ - ရေအရင်းအမြစ် ရန်ပုံငွေ",
+  "funds.form.nameHint": "အက္ခရာ ၂ လုံးမှ ၁၀၀ လုံးအတွင်း။",
+  "funds.form.description": "ဖော်ပြချက်",
+  "funds.form.descriptionHint": "မဖြည့်လည်းရ။ အက္ခရာ ၅၀၀ လုံးအထိ။",
+  "funds.form.targetAmount": "ပစ်မှတ် ငွေပမာဏ (ကျေးရွာတစ်ခုလုံး)",
+  "funds.form.targetHint": "ကိန်းပြည့်သာ ထည့်ပါ။",
+  "funds.form.startDate": "စတင်သည့်ရက်",
+  "funds.form.endDate": "ပြီးဆုံးသည့်ရက်",
+  "funds.form.periodHint":
+    "ပြီးဆုံးသည့်ရက်သည် စတင်သည့်ရက်နှင့် တူညီရမည် သို့မဟုတ် နောက်ကျရမည်။",
+  "funds.form.fixFields":
+    "အမှတ်အသားပြထားသော အကွက်များကို စစ်ဆေးပြီး ထပ်ကြိုးစားပါ။",
+  "funds.create.title": "ရန်ပုံငွေ ဖန်တီးရန်",
+  "funds.create.description":
+    "သင့်ကျေးရွာအတွက် မူကြမ်း ရန်ပုံငွေ အသစ်တစ်ခု ဖန်တီးပါ။ မစတင်မချင်း ပြင်ဆင်နိုင်သည်။",
+  "funds.create.amountHint":
+    "အိမ်တစ်အိမ်လျှင် ပစ်မှတ်ကို အလိုအလျောက် တွက်ချက်ပါသည် - စုစုပေါင်း ÷ လက်ရှိ အသုံးပြုနေသော အိမ်အရေအတွက် (အပေါ်သို့ ပိုင်းသည်)။",
+  "funds.create.submit": "ရန်ပုံငွေ ဖန်တီးရန်",
+  "funds.create.submitting": "ရန်ပုံငွေ ဖန်တီးနေသည်...",
+  "funds.create.errorTitle": "ရန်ပုံငွေ ဖန်တီး၍ မရပါ",
+  "funds.create.generic": "ရန်ပုံငွေ ဖန်တီး၍ မရပါ။ ထပ်ကြိုးစားပါ။",
+  "funds.edit.title": "ရန်ပုံငွေ ပြင်ဆင်ရန်",
+  "funds.edit.description": "မူကြမ်း ရန်ပုံငွေများကိုသာ ပြင်ဆင်နိုင်သည်။",
+  "funds.edit.submit": "ပြောင်းလဲမှုများ သိမ်းရန်",
+  "funds.edit.submitting": "သိမ်းဆည်းနေသည်...",
+  "funds.edit.errorTitle": "ပြောင်းလဲမှုများ သိမ်း၍ မရပါ",
+  "funds.edit.generic": "ရန်ပုံငွေ ပြင်ဆင်၍ မရပါ။ ထပ်ကြိုးစားပါ။",
 };

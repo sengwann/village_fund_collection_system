@@ -1,17 +1,28 @@
-import { FundStatus } from "@prisma/client";
+"use client";
+
+import type { FundStatus } from "@prisma/client";
+import { Badge, type BadgeVariant } from "@/components/ui/badge";
+import type { TranslationKey } from "@/lib/i18n/en";
+import { useTranslation } from "@/lib/i18n/provider";
+
+const VARIANTS: Record<FundStatus, BadgeVariant> = {
+  DRAFT: "info",
+  ACTIVE: "success",
+  CLOSED: "neutral",
+};
+
+const LABELS: Record<FundStatus, TranslationKey> = {
+  DRAFT: "funds.status.draft",
+  ACTIVE: "funds.status.active",
+  CLOSED: "funds.status.closed",
+};
 
 export function FundStatusBadge({ status }: { status: FundStatus }) {
-  const stylesByStatus: Record<FundStatus, string> = {
-    [FundStatus.DRAFT]: "border-amber-200 bg-amber-50 text-amber-700",
-    [FundStatus.ACTIVE]: "border-emerald-200 bg-emerald-50 text-emerald-700",
-    [FundStatus.CLOSED]: "border-slate-200 bg-slate-100 text-slate-600",
-  };
+  const { t } = useTranslation();
 
   return (
-    <span
-      className={`inline-flex rounded-full border px-2 py-1 text-xs font-medium ${stylesByStatus[status]}`}
-    >
-      {status}
-    </span>
+    <Badge dot variant={VARIANTS[status]}>
+      {t(LABELS[status])}
+    </Badge>
   );
 }

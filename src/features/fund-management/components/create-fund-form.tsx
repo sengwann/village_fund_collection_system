@@ -3,17 +3,19 @@
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import type { FormEvent } from "react";
+import { Alert } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Field, Input, Textarea } from "@/components/ui/field";
+import { PageHeader } from "@/components/ui/page-header";
+import { useTranslation } from "@/lib/i18n/provider";
 import {
   createFundAction,
   type CreateFundActionResult,
 } from "../actions/create-fund.action";
 
-function FieldError({ message }: { message?: string }) {
-  if (!message) return null;
-  return <p className="mt-1 text-xs text-red-600">{message}</p>;
-}
-
 export function CreateFundForm() {
+  const { t } = useTranslation();
   const router = useRouter();
   const [formError, setFormError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<
@@ -34,123 +36,123 @@ export function CreateFundForm() {
         router.refresh();
         return;
       }
-      setFieldErrors(result.fieldErrors ?? {});
-      setFormError(result.formError ?? "Unable to create fund.");
+      const errors = result.fieldErrors ?? {};
+      setFieldErrors(errors);
+      setFormError(
+        result.formError ??
+          (Object.keys(errors).length > 0
+            ? t("funds.form.fixFields")
+            : t("funds.create.generic")),
+      );
     });
   }
 
   return (
-    <form className="space-y-6" noValidate onSubmit={handleSubmit}>
-      <div className="space-y-4 rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-        <h2 className="text-sm font-medium text-slate-900">Fund details</h2>
+    <div className="space-y-6">
+      <PageHeader
+        backHref="/village/funds"
+        backLabel={t("funds.back")}
+        description={t("funds.create.description")}
+        title={t("funds.create.title")}
+      />
 
-        <div className="space-y-2">
-          <label
-            className="block text-sm font-medium text-slate-900"
-            htmlFor="name"
-          >
-            Fund name
-          </label>
-          <input
-            aria-describedby="name-error"
-            className="block w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
-            id="name"
-            name="name"
-            placeholder="Example: Water Project Fund"
-            type="text"
-          />
-          <FieldError message={fieldErrors.name} />
-        </div>
-
-        <div className="space-y-2">
-          <label
-            className="block text-sm font-medium text-slate-900"
-            htmlFor="description"
-          >
-            Description
-          </label>
-          <textarea
-            aria-describedby="description-error"
-            className="block w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
-            id="description"
-            name="description"
-            rows={3}
-          />
-          <FieldError message={fieldErrors.description} />
-        </div>
-
-        <div className="space-y-2">
-          <label
-            className="block text-sm font-medium text-slate-900"
-            htmlFor="totalAmount"
-          >
-            Total amount (village-wide)
-          </label>
-          <input
-            aria-describedby="totalAmount-error"
-            className="block w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
-            id="totalAmount"
-            min={1}
-            name="totalAmount"
-            step={1}
-            type="number"
-          />
-          <FieldError message={fieldErrors.totalAmount} />
-          <p className="text-xs text-slate-500">
-            The per-house target is calculated automatically: total ÷ number of
-            active houses, rounded up.
-          </p>
-        </div>
-
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-2">
-            <label
-              className="block text-sm font-medium text-slate-900"
-              htmlFor="startDate"
+      <form className="space-y-4" noValidate onSubmit={handleSubmit}>
+        <Card>
+          <CardHeader>
+            <CardTitle as="h2">{t("funds.form.sectionDetails")}</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-5">
+            <Field
+              error={fieldErrors.name}
+              hint={t("funds.form.nameHint")}
+              id="name"
+              label={t("funds.form.name")}
+              required
             >
-              Start date
-            </label>
-            <input
-              aria-describedby="startDate-error"
-              className="block w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
-              id="startDate"
-              name="startDate"
-              type="date"
-            />
-            <FieldError message={fieldErrors.startDate} />
-          </div>
-          <div className="space-y-2">
-            <label
-              className="block text-sm font-medium text-slate-900"
-              htmlFor="endDate"
+              <Input
+                autoComplete="off"
+                name="name"
+                placeholder={t("funds.form.namePlaceholder")}
+                required
+                type="text"
+              />
+            </Field>
+
+            <Field
+              error={fieldErrors.description}
+              hint={t("funds.form.descriptionHint")}
+              id="description"
+              label={t("funds.form.description")}
             >
-              End date
-            </label>
-            <input
-              aria-describedby="endDate-error"
-              className="block w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
-              id="endDate"
-              name="endDate"
-              type="date"
-            />
-            <FieldError message={fieldErrors.endDate} />
-          </div>
+              <Textarea name="description" rows={3} />
+            </Field>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle as="h2">{t("funds.form.sectionTarget")}</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-5">
+            <Field
+              error={fieldErrors.totalAmount}
+              hint={t("funds.create.amountHint")}
+              id="totalAmount"
+              label={t("funds.form.targetAmount")}
+              required
+            >
+              <Input
+                inputMode="numeric"
+                min={1}
+                name="totalAmount"
+                required
+                step={1}
+                type="number"
+              />
+            </Field>
+
+            <div className="grid gap-5 sm:grid-cols-2">
+              <Field
+                error={fieldErrors.startDate}
+                id="startDate"
+                label={t("funds.form.startDate")}
+                required
+              >
+                <Input name="startDate" required type="date" />
+              </Field>
+              <Field
+                error={fieldErrors.endDate}
+                id="endDate"
+                label={t("funds.form.endDate")}
+                required
+              >
+                <Input name="endDate" required type="date" />
+              </Field>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              {t("funds.form.periodHint")}
+            </p>
+          </CardContent>
+        </Card>
+
+        {formError ? (
+          <Alert title={t("funds.create.errorTitle")} tone="danger">
+            {formError}
+          </Alert>
+        ) : null}
+
+        <div className="flex sm:justify-end">
+          <Button
+            className="w-full sm:w-auto"
+            loading={isPending}
+            type="submit"
+          >
+            {isPending
+              ? t("funds.create.submitting")
+              : t("funds.create.submit")}
+          </Button>
         </div>
-      </div>
-
-      {formError ? (
-        <p className="text-sm text-red-600" role="alert">
-          {formError}
-        </p>
-      ) : null}
-
-      <button
-        className="w-full rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-60"
-        disabled={isPending}
-        type="submit"
-      >
-        {isPending ? "Creating fund..." : "Create fund"}
-      </button>
-    </form>
+      </form>
+    </div>
   );
 }

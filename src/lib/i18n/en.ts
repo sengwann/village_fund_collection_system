@@ -706,6 +706,102 @@ export const en = {
   "collectors.month.10": "October",
   "collectors.month.11": "November",
   "collectors.month.12": "December",
+
+  // Fund management (Feature I)
+  "funds.back": "Back to funds",
+  "funds.backToFund": "Back to fund",
+  "funds.period": "{start} to {end}",
+  "funds.status.draft": "Draft",
+  "funds.status.active": "Active",
+  "funds.status.closed": "Closed",
+  "funds.progress.label": "Collection progress",
+  "funds.filter.all": "All",
+
+  "funds.list.title": "Funds",
+  "funds.list.description":
+    "Create, activate and close the funds your village collects.",
+  "funds.list.create": "Create fund",
+  "funds.list.filterLabel": "Filter by status",
+  "funds.list.countOne": "{count} fund",
+  "funds.list.countOther": "{count} funds",
+  "funds.list.emptyTitle": "No funds yet",
+  "funds.list.emptyBody":
+    "Create a fund to start collecting from your village.",
+  "funds.list.emptyAction": "Create first fund",
+  "funds.list.noMatchTitle": "No funds match",
+  "funds.list.noMatchBody": "There are no funds with this status.",
+  "funds.list.showAll": "Show all funds",
+  "funds.card.collected": "Collected",
+  "funds.card.target": "Target",
+  "funds.card.progress": "{percent}% of target",
+
+  "funds.summary.title": "Collection summary",
+  "funds.summary.collected": "Collected",
+  "funds.summary.ofTarget": "of {target} target",
+  "funds.summary.remaining": "Remaining",
+  "funds.summary.accepted": "Accepted payments",
+  "funds.summary.reached": "Target reached",
+  "funds.summary.note": "Collected amount includes only accepted payments.",
+
+  "funds.info.title": "Fund information",
+  "funds.info.start": "Start date",
+  "funds.info.end": "End date",
+  "funds.info.created": "Created",
+  "funds.info.updated": "Last updated",
+  "funds.info.description": "Description",
+  "funds.info.noDescription": "No description.",
+
+  "funds.lifecycle.title": "Status and actions",
+  "funds.lifecycle.closedNote":
+    "This fund is closed. No further actions are available. Its payment history is preserved.",
+  "funds.lifecycle.edit": "Edit fund",
+  "funds.lifecycle.editHint": "Only draft funds can be edited.",
+  "funds.lifecycle.activate": "Activate fund",
+  "funds.lifecycle.activateHint":
+    "Only one fund can be active per village. An active fund can no longer be edited.",
+  "funds.lifecycle.activateBlockedTitle": "Another fund is already active",
+  "funds.lifecycle.activateBlockedBody":
+    "Close the active fund before activating this one.",
+  "funds.lifecycle.activateConfirmTitle": "Activate this fund?",
+  "funds.lifecycle.activateConfirmBody":
+    "Collection can begin once the fund is active. You will not be able to edit it afterwards.",
+  "funds.lifecycle.activateConfirm": "Yes, activate",
+  "funds.lifecycle.close": "Close fund",
+  "funds.lifecycle.closeHint":
+    "Closing preserves the fund and its payment history.",
+  "funds.lifecycle.closeConfirmTitle": "Close this fund?",
+  "funds.lifecycle.closeConfirmBody":
+    "Closing preserves the fund and its payment history, but a closed fund cannot be reopened.",
+  "funds.lifecycle.closeConfirm": "Yes, close fund",
+
+  "funds.form.sectionDetails": "Fund details",
+  "funds.form.sectionTarget": "Target and collection period",
+  "funds.form.name": "Fund name",
+  "funds.form.namePlaceholder": "Example: Water Project Fund",
+  "funds.form.nameHint": "2–100 characters.",
+  "funds.form.description": "Description",
+  "funds.form.descriptionHint": "Optional. Up to 500 characters.",
+  "funds.form.targetAmount": "Target amount (village-wide)",
+  "funds.form.targetHint": "Whole numbers only.",
+  "funds.form.startDate": "Start date",
+  "funds.form.endDate": "End date",
+  "funds.form.periodHint": "The end date must be on or after the start date.",
+  "funds.form.fixFields": "Check the highlighted fields and try again.",
+  "funds.create.title": "Create fund",
+  "funds.create.description":
+    "Create a new draft fund for your village. You can edit it until it is activated.",
+  "funds.create.amountHint":
+    "The per-house target is calculated automatically: total ÷ number of active houses, rounded up.",
+  "funds.create.submit": "Create fund",
+  "funds.create.submitting": "Creating fund...",
+  "funds.create.errorTitle": "Could not create the fund",
+  "funds.create.generic": "Unable to create fund. Please try again.",
+  "funds.edit.title": "Edit fund",
+  "funds.edit.description": "Only draft funds can be edited.",
+  "funds.edit.submit": "Save changes",
+  "funds.edit.submitting": "Saving...",
+  "funds.edit.errorTitle": "Could not save changes",
+  "funds.edit.generic": "Unable to update fund. Please try again.",
 } as const;
 
 export type TranslationKey = keyof typeof en;
