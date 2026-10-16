@@ -1,6 +1,14 @@
-import { PaymentMethod, ReceiptStatus } from "@prisma/client";
+"use client";
+
+import type { ReactNode } from "react";
+import type { PaymentMethod, ReceiptStatus } from "@prisma/client";
+import { Alert } from "@/components/ui/alert";
+import { Card } from "@/components/ui/card";
+import { Section } from "@/components/ui/section";
+import { useTranslation } from "@/lib/i18n/provider";
+import { cn, formatAmount, formatYangonDateTime } from "@/lib/utils";
+import { ReceiptMethodLabel } from "./receipt-method-label";
 import { ReceiptStatusBadge } from "./receipt-status-badge";
-import { formatYangonDateTime, formatAmount } from "@/lib/utils";
 
 export interface ReceiptDetailData {
   id: string;
@@ -22,106 +30,141 @@ export interface ReceiptDetailData {
   };
 }
 
+function DetailRow({
+  label,
+  children,
+  mono = false,
+}: {
+  label: string;
+  children: ReactNode;
+  mono?: boolean;
+}) {
+  return (
+    <div className="flex flex-col gap-1 py-3 sm:flex-row sm:items-baseline sm:justify-between sm:gap-6">
+      <dt className="text-sm text-muted-foreground">{label}</dt>
+      <dd
+        className={cn(
+          "min-w-0 text-sm font-medium text-foreground sm:text-end",
+          mono && "break-all font-mono",
+        )}
+      >
+        {children}
+      </dd>
+    </div>
+  );
+}
+
+function Missing() {
+  const { t } = useTranslation();
+  return (
+    <>
+      <span aria-hidden="true">—</span>
+      <span className="sr-only">{t("receipts.notProvided")}</span>
+    </>
+  );
+}
+
 export function ReceiptDetailCard({ receipt }: { receipt: ReceiptDetailData }) {
-  const isKpay = receipt.payment.paymentMethod === PaymentMethod.KPAY;
-  const isVoided = receipt.status === ReceiptStatus.VOIDED;
+  const { t } = useTranslation();
+  const { payment } = receipt;
+  const isKpay = payment.paymentMethod === "KPAY";
+  const isVoided = receipt.status === "VOIDED";
 
   return (
-    <div className="space-y-6">
-      <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-        <h2 className="text-sm font-medium text-slate-900">
-          Receipt information
-        </h2>
-        <dl className="mt-3 space-y-3 text-sm">
-          <div className="flex items-center justify-between gap-3">
-            <dt className="font-medium text-slate-700">Receipt number</dt>
-            <dd className="font-mono text-slate-900">
-              {receipt.receiptNumber}
-            </dd>
-          </div>
-          <div className="flex items-center justify-between gap-3">
-            <dt className="font-medium text-slate-700">Status</dt>
-            <dd>
+    <div className="grid gap-6 lg:grid-cols-5 lg:items-start">
+      <div className="space-y-4 lg:col-span-2">
+        {isVoided ? (
+          <Alert tone="warning" title={t("receipts.void.title")}>
+            <p>{t("receipts.void.body")}</p>
+            {payment.voidReason ? (
+              <p className="mt-2">
+                <span className="font-semibold">
+                  {t("receipts.void.reason")}:{" "}
+                </span>
+                {payment.voidReason}
+              </p>
+            ) : null}
+          </Alert>
+        ) : null}
+
+        <Card className="overflow-hidden">
+          <div className="space-y-4 p-5 text-center sm:p-6">
+            <div className="flex justify-center">
               <ReceiptStatusBadge status={receipt.status} />
-            </dd>
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">
+                {t("receipts.hero.label")}
+              </p>
+              <p
+                className={cn(
+                  "mt-1 text-3xl font-semibold tracking-tight tabular-nums sm:text-4xl",
+                  isVoided && "text-muted-foreground line-through",
+                )}
+              >
+                {formatAmount(payment.amount)}
+              </p>
+            </div>
+            <p className="text-sm font-medium">{payment.fund.name}</p>
           </div>
-          <div className="flex items-center justify-between gap-3">
-            <dt className="font-medium text-slate-700">Payment date</dt>
-            <dd className="text-slate-900">
-              {formatYangonDateTime(receipt.payment.createdAt)}
-            </dd>
+
+          <div className="border-t border-dashed border-border-strong bg-muted/60 px-5 py-4 text-center sm:px-6">
+            <p className="text-xs font-medium text-muted-foreground">
+              {t("receipts.field.receiptNumber")}
+            </p>
+            <p className="mt-0.5 break-all font-mono text-sm font-semibold">
+              {receipt.receiptNumber}
+            </p>
           </div>
-          <div className="flex items-center justify-between gap-3">
-            <dt className="font-medium text-slate-700">Amount</dt>
-            <dd className="text-slate-900">
-              {formatAmount(receipt.payment.amount)}
-            </dd>
-          </div>
-          <div className="flex items-center justify-between gap-3">
-            <dt className="font-medium text-slate-700">Payment method</dt>
-            <dd className="text-slate-900">{receipt.payment.paymentMethod}</dd>
-          </div>
-          <div className="flex items-center justify-between gap-3">
-            <dt className="font-medium text-slate-700">Fund</dt>
-            <dd className="text-slate-900">{receipt.payment.fund.name}</dd>
-          </div>
-          <div className="flex items-center justify-between gap-3">
-            <dt className="font-medium text-slate-700">House</dt>
-            <dd className="text-slate-900">
-              {receipt.payment.house.houseNumber}
-            </dd>
-          </div>
-          <div className="flex items-center justify-between gap-3">
-            <dt className="font-medium text-slate-700">Payer</dt>
-            <dd className="text-slate-900">{receipt.payment.payer.name}</dd>
-          </div>
-          <div className="flex items-center justify-between gap-3">
-            <dt className="font-medium text-slate-700">Collector</dt>
-            <dd className="text-slate-900">
-              {receipt.payment.collector?.name ?? "—"}
-            </dd>
-          </div>
-        </dl>
+        </Card>
       </div>
 
-      {isKpay ? (
-        <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-          <h2 className="text-sm font-medium text-slate-900">
-            KPay transaction
-          </h2>
-          <dl className="mt-3 space-y-3 text-sm">
-            <div className="flex items-center justify-between gap-3">
-              <dt className="font-medium text-slate-700">
-                Transaction last 10 digits
-              </dt>
-              <dd className="font-mono text-slate-900">
-                {receipt.payment.kpayTransactionId ?? "—"}
-              </dd>
-            </div>
-            <div className="flex items-center justify-between gap-3">
-              <dt className="font-medium text-slate-700">
-                Receiver KPay account
-              </dt>
-              <dd className="font-mono text-slate-900">
-                {receipt.payment.kpayReceiverAccount ?? "—"}
-              </dd>
-            </div>
-          </dl>
-          <p className="mt-3 text-xs text-slate-500">
-            Sender KPay details are kept private. Only the transaction&apos;s
-            last 10 digits and the receiver account are shown.
-          </p>
-        </div>
-      ) : null}
+      <div className="space-y-6 lg:col-span-3">
+        <Section title={t("receipts.details.title")}>
+          <Card>
+            <dl className="divide-y px-4 sm:px-6">
+              <DetailRow label={t("receipts.field.date")}>
+                <time dateTime={payment.createdAt.toISOString()}>
+                  {formatYangonDateTime(payment.createdAt)}
+                </time>
+              </DetailRow>
+              <DetailRow label={t("receipts.field.method")}>
+                <ReceiptMethodLabel method={payment.paymentMethod} />
+              </DetailRow>
+              <DetailRow label={t("receipts.field.fund")}>
+                {payment.fund.name}
+              </DetailRow>
+              <DetailRow label={t("receipts.field.house")}>
+                {payment.house.houseNumber}
+              </DetailRow>
+              <DetailRow label={t("receipts.field.payer")}>
+                {payment.payer.name}
+              </DetailRow>
+              <DetailRow label={t("receipts.field.collector")}>
+                {payment.collector?.name ?? <Missing />}
+              </DetailRow>
+            </dl>
+          </Card>
+        </Section>
 
-      {isVoided && receipt.payment.voidReason ? (
-        <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 shadow-sm">
-          <h2 className="text-sm font-medium text-slate-700">Void reason</h2>
-          <p className="mt-2 text-sm text-slate-600">
-            {receipt.payment.voidReason}
-          </p>
-        </div>
-      ) : null}
+        {isKpay ? (
+          <Section title={t("receipts.kpay.title")}>
+            <Card>
+              <dl className="divide-y px-4 sm:px-6">
+                <DetailRow label={t("receipts.kpay.txn")} mono>
+                  {payment.kpayTransactionId ?? <Missing />}
+                </DetailRow>
+                <DetailRow label={t("receipts.kpay.receiver")} mono>
+                  {payment.kpayReceiverAccount ?? <Missing />}
+                </DetailRow>
+              </dl>
+              <p className="border-t px-4 py-3 text-sm text-muted-foreground sm:px-6">
+                {t("receipts.kpay.privacy")}
+              </p>
+            </Card>
+          </Section>
+        ) : null}
+      </div>
     </div>
   );
 }

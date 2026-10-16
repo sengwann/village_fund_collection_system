@@ -1,13 +1,16 @@
+import { Skeleton } from "@/components/ui/skeleton";
+
 export default function ReceiptsLoading() {
   return (
-    <div className="space-y-4">
-      <div className="h-24 animate-pulse rounded-lg bg-slate-200" />
+    <div aria-busy="true" className="space-y-6">
+      <div className="space-y-2">
+        <Skeleton className="h-7 w-40" />
+        <Skeleton className="h-4 w-full max-w-sm" />
+      </div>
       <div className="space-y-3">
+        <Skeleton className="h-4 w-32" />
         {Array.from({ length: 5 }).map((_, index) => (
-          <div
-            className="h-20 animate-pulse rounded-lg bg-slate-200"
-            key={index}
-          />
+          <Skeleton className="h-28 rounded-xl" key={index} />
         ))}
       </div>
     </div>

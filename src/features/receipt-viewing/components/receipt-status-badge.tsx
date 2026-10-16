@@ -1,17 +1,23 @@
-import { ReceiptStatus } from "@prisma/client";
+"use client";
+
+import type { ReceiptStatus } from "@prisma/client";
+import { Badge } from "@/components/ui/badge";
+import { useTranslation } from "@/lib/i18n/provider";
 
 export function ReceiptStatusBadge({ status }: { status: ReceiptStatus }) {
-  if (status === ReceiptStatus.ACTIVE) {
+  const { t } = useTranslation();
+
+  if (status === "ACTIVE") {
     return (
-      <span className="inline-flex rounded-full border border-emerald-200 bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-700">
-        ACTIVE
-      </span>
+      <Badge dot variant="success">
+        {t("receipts.status.active")}
+      </Badge>
     );
   }
 
   return (
-    <span className="inline-flex rounded-full border border-slate-200 bg-slate-100 px-2 py-1 text-xs font-medium text-slate-600">
-      VOIDED
-    </span>
+    <Badge dot variant="neutral">
+      {t("receipts.status.voided")}
+    </Badge>
   );
 }

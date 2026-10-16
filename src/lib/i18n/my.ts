@@ -1039,4 +1039,46 @@ export const my: Record<TranslationKey, string> = {
   "kpayVerify.done.body":
     "ဤငွေပေးချေမှုသည် {status} ဖြစ်သည်။ ဆက်လက်လုပ်ဆောင်စရာ မရှိတော့ပါ။",
   "kpayVerify.done.rejectionReason": "ပယ်ချရသည့် အကြောင်းရင်း",
+
+  // Receipts (Feature N)
+  "receipts.back": "ပြေစာများသို့ ပြန်ရန်",
+  "receipts.list.title": "ပြေစာများ",
+  "receipts.list.description.village":
+    "သင့်ကျေးရွာရှိ ငွေပေးချေမှု ပြေစာအားလုံး၊ အသစ်ဆုံးကို ရှေ့ဆုံးတွင် ပြထားသည်။",
+  "receipts.list.description.collector":
+    "သင်ကောက်ခံခဲ့သော သို့မဟုတ် ပေးချေခဲ့သော ငွေပေးချေမှုများ၏ ပြေစာများ၊ အသစ်ဆုံးကို ရှေ့ဆုံးတွင် ပြထားသည်။",
+  "receipts.list.description.own":
+    "သင့်ကိုယ်ပိုင် ငွေပေးချေမှုများ၏ ပြေစာများ၊ အသစ်ဆုံးကို ရှေ့ဆုံးတွင် ပြထားသည်။",
+  "receipts.list.aria": "ပြေစာများ",
+  "receipts.list.countOne": "ပြေစာ {count} ခု ပြသနေသည်",
+  "receipts.list.countOther": "ပြေစာ {count} ခု ပြသနေသည်",
+  "receipts.list.limitNote": "နောက်ဆုံး ပြေစာ {count} ခုကိုသာ ပြသထားသည်။",
+  "receipts.list.emptyTitle": "ပြေစာ မရှိသေးပါ",
+  "receipts.list.emptyBody":
+    "ငွေပေးချေမှု လက်ခံသည့်အခါတိုင်း ပြေစာ ဖန်တီးပါသည်။",
+  "receipts.detail.title": "ပြေစာ အသေးစိတ်",
+  "receipts.detail.description": "ငွေပေးချေမှု ပြေစာ အချက်အလက်။",
+  "receipts.status.active": "တရားဝင်",
+  "receipts.status.voided": "ပယ်ဖျက်ပြီး",
+  "receipts.method.kpay": "KPay",
+  "receipts.method.cash": "ငွေသား",
+  "receipts.hero.label": "ငွေပေးချေမှု ပမာဏ",
+  "receipts.details.title": "ငွေပေးချေမှု အသေးစိတ်",
+  "receipts.field.receiptNumber": "ပြေစာ နံပါတ်",
+  "receipts.field.amount": "ငွေပမာဏ",
+  "receipts.field.date": "ငွေပေးချေသည့်ရက်",
+  "receipts.field.method": "ပေးချေပုံ",
+  "receipts.field.fund": "ရန်ပုံငွေ",
+  "receipts.field.house": "အိမ်",
+  "receipts.field.payer": "ငွေပေးသူ",
+  "receipts.field.collector": "ကောက်ခံသူ",
+  "receipts.notProvided": "မဖော်ပြထားပါ",
+  "receipts.kpay.title": "KPay ငွေလွှဲမှု",
+  "receipts.kpay.txn": "ငွေလွှဲ ID နောက်ဆုံး ဂဏန်း ၁၀ လုံး",
+  "receipts.kpay.receiver": "ငွေလက်ခံသူ၏ KPay အကောင့်",
+  "receipts.kpay.privacy":
+    "ငွေပို့သူ၏ KPay အချက်အလက်များကို ကိုယ်ရေးလုံခြုံစွာ သိမ်းထားသည်။ ငွေလွှဲ ID နောက်ဆုံး ဂဏန်း ၁၀ လုံးနှင့် ငွေလက်ခံသူ အကောင့်ကိုသာ ပြသထားသည်။",
+  "receipts.void.title": "ဤပြေစာကို ပယ်ဖျက်ပြီးဖြစ်သည်",
+  "receipts.void.body": "သမိုင်းကြောင်း မှတ်တမ်းအဖြစ် ဆက်လက် သိမ်းထားသည်။",
+  "receipts.void.reason": "ပယ်ဖျက်ရသည့် အကြောင်းရင်း",
 };

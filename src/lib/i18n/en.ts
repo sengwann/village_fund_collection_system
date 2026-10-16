@@ -1005,6 +1005,48 @@ export const en = {
   "kpayVerify.done.body":
     "This payment is {status}. No further actions are available.",
   "kpayVerify.done.rejectionReason": "Rejection reason",
+
+  // Receipts (Feature N)
+  "receipts.back": "Back to receipts",
+  "receipts.list.title": "Receipts",
+  "receipts.list.description.village":
+    "Every payment receipt in your village, newest first.",
+  "receipts.list.description.collector":
+    "Receipts for payments you collected or paid, newest first.",
+  "receipts.list.description.own":
+    "Receipts for your own payments, newest first.",
+  "receipts.list.aria": "Receipts",
+  "receipts.list.countOne": "Showing {count} receipt",
+  "receipts.list.countOther": "Showing {count} receipts",
+  "receipts.list.limitNote": "Only the latest {count} receipts are shown.",
+  "receipts.list.emptyTitle": "No receipts yet",
+  "receipts.list.emptyBody":
+    "A receipt is created each time a payment is accepted.",
+  "receipts.detail.title": "Receipt details",
+  "receipts.detail.description": "Payment receipt information.",
+  "receipts.status.active": "Active",
+  "receipts.status.voided": "Voided",
+  "receipts.method.kpay": "KPay",
+  "receipts.method.cash": "Cash",
+  "receipts.hero.label": "Payment amount",
+  "receipts.details.title": "Payment details",
+  "receipts.field.receiptNumber": "Receipt number",
+  "receipts.field.amount": "Amount",
+  "receipts.field.date": "Payment date",
+  "receipts.field.method": "Payment method",
+  "receipts.field.fund": "Fund",
+  "receipts.field.house": "House",
+  "receipts.field.payer": "Payer",
+  "receipts.field.collector": "Collector",
+  "receipts.notProvided": "Not provided",
+  "receipts.kpay.title": "KPay transaction",
+  "receipts.kpay.txn": "Transaction last 10 digits",
+  "receipts.kpay.receiver": "Receiver KPay account",
+  "receipts.kpay.privacy":
+    "Sender KPay details are kept private. Only the transaction's last 10 digits and the receiver account are shown.",
+  "receipts.void.title": "This receipt has been voided",
+  "receipts.void.body": "It is kept as a historical record.",
+  "receipts.void.reason": "Void reason",
 } as const;
 
 export type TranslationKey = keyof typeof en;
