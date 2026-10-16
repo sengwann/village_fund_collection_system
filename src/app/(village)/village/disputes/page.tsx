@@ -1,6 +1,5 @@
-import Link from "next/link";
 import { DisputeStatus } from "@prisma/client";
-import { DisputeList } from "@/features/dispute-management/components/dispute-list";
+import { DisputesView } from "@/features/dispute-management/components/disputes-view";
 import { requireDisputeAccess } from "@/features/dispute-management/lib/dispute-access";
 import { prisma } from "@/lib/prisma";
 
@@ -62,55 +61,11 @@ export default async function DisputesPage({
     },
   });
 
-  const filters = [
-    {
-      label: "All",
-      href: "/village/disputes",
-      active: !statusFilter,
-    },
-    {
-      label: "Open",
-      href: "/village/disputes?status=OPEN",
-      active: statusFilter === DisputeStatus.OPEN,
-    },
-    {
-      label: "Under Review",
-      href: "/village/disputes?status=UNDER_REVIEW",
-      active: statusFilter === DisputeStatus.UNDER_REVIEW,
-    },
-    {
-      label: "Resolved",
-      href: "/village/disputes?status=RESOLVED",
-      active: statusFilter === DisputeStatus.RESOLVED,
-    },
-    {
-      label: "Rejected",
-      href: "/village/disputes?status=REJECTED",
-      active: statusFilter === DisputeStatus.REJECTED,
-    },
-  ];
-
   return (
-    <div className="space-y-6">
-      {/* ...your existing UI... */}
-
-      <div className="flex flex-wrap gap-2">
-        {filters.map((f) => (
-          <Link
-            key={f.label}
-            href={f.href}
-            className={`rounded-full border px-3 py-1 text-xs font-medium ${
-              f.active
-                ? "border-slate-900 bg-slate-900 text-white"
-                : "border-slate-300 bg-white text-slate-700"
-            }`}
-          >
-            {f.label}
-          </Link>
-        ))}
-      </div>
-
-      <DisputeList disputes={disputes} showRaiser={isChief} />
-    </div>
+    <DisputesView
+      activeStatus={statusFilter}
+      disputes={disputes}
+      isChief={isChief}
+    />
   );
 }

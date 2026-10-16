@@ -1047,6 +1047,111 @@ export const en = {
   "receipts.void.title": "This receipt has been voided",
   "receipts.void.body": "It is kept as a historical record.",
   "receipts.void.reason": "Void reason",
+
+  // Payment disputes (Feature O)
+  "disputes.back": "Back to disputes",
+  "disputes.list.title": "Disputes",
+  "disputes.list.description.chief":
+    "Review disputes villagers raised about rejected KPay payments.",
+  "disputes.list.description.own":
+    "Track the disputes you raised about rejected KPay payments.",
+  "disputes.list.filterLabel": "Filter by status",
+  "disputes.list.countOne": "{count} dispute",
+  "disputes.list.countOther": "{count} disputes",
+  "disputes.list.emptyTitle": "No disputes yet",
+  "disputes.list.emptyBody.chief": "No villager has raised a dispute.",
+  "disputes.list.emptyBody.own":
+    "If a KPay payment is rejected, you can dispute it from your payment history.",
+  "disputes.list.emptyAction": "Go to payments",
+  "disputes.list.noMatchTitle": "No disputes match",
+  "disputes.list.noMatchBody": "There are no disputes with this status.",
+  "disputes.list.showAll": "Show all disputes",
+  "disputes.filter.all": "All",
+  "disputes.card.house": "House {number}",
+  "disputes.card.raisedBy": "Raised by {name}",
+  "disputes.detail.title": "Dispute details",
+  "disputes.detail.description.chief":
+    "Compare the villager's statement with the KPay details, then decide.",
+  "disputes.detail.description.own":
+    "Follow the progress of your dispute and see the Chief's decision.",
+  "disputes.progress.label": "Dispute progress",
+  "disputes.progress.raised": "Raised",
+  "disputes.progress.decision": "Decision",
+  "disputes.next.title": "What happens next",
+  "disputes.next.open":
+    "Your dispute is waiting. The Chief will start a review soon.",
+  "disputes.next.underReview":
+    "The Chief is reviewing your statement and the KPay details.",
+  "disputes.next.resolved":
+    "The Chief resolved this dispute in your favor. The payment record is separate, so you may resubmit your payment if appropriate.",
+  "disputes.next.rejected":
+    "The Chief upheld the original rejection. The Chief's note is shown on this page.",
+  "disputes.closed.title": "Decision recorded",
+  "disputes.closed.body":
+    "This dispute has been decided. No further actions are available.",
+  "disputes.field.raisedBy": "Raised by",
+  "disputes.field.date": "Date raised",
+  "disputes.statement.title": "Statement",
+  "disputes.note.title": "Chief's resolution note",
+  "disputes.payment.title": "Disputed payment",
+  "disputes.payment.rejectionTitle": "Why the payment was rejected",
+  "disputes.payment.fund": "Fund",
+  "disputes.payment.amount": "Amount",
+  "disputes.payment.house": "House",
+  "disputes.payment.payer": "Payer",
+  "disputes.payment.date": "Payment date",
+  "disputes.proof.title": "KPay proof",
+  "disputes.proof.note": "Taken automatically from the payment record.",
+  "disputes.proof.txn": "Transaction ID",
+  "disputes.proof.receiver": "Receiver account",
+  "disputes.proof.collector": "Receiver (Collector)",
+  "disputes.proof.unknown": "Unknown",
+  "disputes.notProvided": "Not provided",
+  "disputes.actions.title": "Your decision",
+  "disputes.review.title": "Start review",
+  "disputes.review.body":
+    "Mark this dispute as under review before resolving or rejecting it.",
+  "disputes.review.submit": "Start review",
+  "disputes.review.submitting": "Starting review...",
+  "disputes.resolve.title": "Resolve in villager's favor",
+  "disputes.resolve.body":
+    "Resolving marks the dispute as addressed. The payment status stays separate, and the villager may resubmit if appropriate.",
+  "disputes.resolve.label": "Resolution note",
+  "disputes.resolve.placeholder": "How was this resolved?",
+  "disputes.resolve.hint":
+    "At least 5 characters. The villager will see this note.",
+  "disputes.resolve.submit": "Resolve dispute",
+  "disputes.resolve.submitting": "Resolving...",
+  "disputes.reject.title": "Reject dispute",
+  "disputes.reject.body": "Rejecting upholds the original payment rejection.",
+  "disputes.reject.label": "Reason for rejecting",
+  "disputes.reject.placeholder": "Why is the original rejection upheld?",
+  "disputes.reject.hint":
+    "At least 5 characters. The villager will see this reason.",
+  "disputes.reject.submit": "Reject dispute",
+  "disputes.reject.submitting": "Rejecting...",
+  "disputes.decision.errorTitle": "Could not save your decision",
+  "disputes.form.fixFields": "Check the highlighted fields and try again.",
+  "disputes.create.title": "Raise a dispute",
+  "disputes.create.description":
+    "Ask the Chief to review a KPay payment that was rejected.",
+  "disputes.create.paymentTitle": "Payment you are disputing",
+  "disputes.create.stepsTitle": "How it works",
+  "disputes.create.step1.title": "Explain your side",
+  "disputes.create.step1.body": "Tell the Chief why the rejection was wrong.",
+  "disputes.create.step2.title": "The Chief reviews",
+  "disputes.create.step2.body":
+    "The Chief checks your explanation together with the KPay transaction details.",
+  "disputes.create.step3.title": "You get a decision",
+  "disputes.create.step3.body":
+    "You will see the result and any note on this page.",
+  "disputes.create.label": "Why was this payment incorrectly rejected?",
+  "disputes.create.hint": "Minimum 10 characters.",
+  "disputes.create.placeholder":
+    "Explain your side. The Chief will review this alongside the KPay transaction details.",
+  "disputes.create.submit": "Submit dispute",
+  "disputes.create.submitting": "Submitting...",
+  "disputes.create.errorTitle": "Could not submit your dispute",
 } as const;
 
 export type TranslationKey = keyof typeof en;

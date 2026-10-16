@@ -1,5 +1,10 @@
-import { DisputeStatus } from "@prisma/client";
-import { DisputeStatusBadge } from "./dispute-status-badge";
+"use client";
+
+import type { ReactNode } from "react";
+import type { DisputeStatus } from "@prisma/client";
+import { Alert } from "@/components/ui/alert";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useTranslation } from "@/lib/i18n/provider";
 import { formatYangonDateTime, formatAmount } from "@/lib/utils";
 
 export interface DisputeDetailData {
@@ -23,120 +28,119 @@ export interface DisputeDetailData {
   };
 }
 
-export function DisputeDetailCard({ dispute }: { dispute: DisputeDetailData }) {
+function Row({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <div className="space-y-6">
-      <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-        <h2 className="text-sm font-medium text-slate-900">
-          Dispute information
-        </h2>
-        <dl className="mt-3 space-y-3 text-sm">
-          <div className="flex justify-between">
-            <dt className="font-medium text-slate-700">Status</dt>
-            <dd>
-              <DisputeStatusBadge status={dispute.status} />
-            </dd>
-          </div>
-          <div className="flex justify-between">
-            <dt className="font-medium text-slate-700">Raised by</dt>
-            <dd className="text-slate-900">{dispute.raisedBy.name}</dd>
-          </div>
-          <div className="flex justify-between">
-            <dt className="font-medium text-slate-700">Date</dt>
-            <dd className="text-slate-900">
+    <div className="flex flex-col gap-0.5 py-3 first:pt-0 last:pb-0 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
+      <dt className="text-sm text-muted-foreground">{label}</dt>
+      <dd className="min-w-0 break-words text-sm font-medium text-foreground sm:text-right">
+        {children}
+      </dd>
+    </div>
+  );
+}
+
+export function DisputeDetailCard({ dispute }: { dispute: DisputeDetailData }) {
+  const { t } = useTranslation();
+  const { payment } = dispute;
+
+  return (
+    <div className="space-y-4">
+      <Card>
+        <CardHeader>
+          <CardTitle as="h2">{t("disputes.statement.title")}</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <dl className="divide-y">
+            <Row label={t("disputes.field.raisedBy")}>
+              {dispute.raisedBy.name}
+            </Row>
+            <Row label={t("disputes.field.date")}>
               {formatYangonDateTime(dispute.createdAt)}
-            </dd>
-          </div>
-        </dl>
-        <div className="mt-4 border-t pt-4">
-          <h3 className="text-sm font-medium text-slate-900">
-            Villager&apos;s Description
-          </h3>
-          <p className="mt-2 whitespace-pre-wrap text-sm text-slate-600">
+            </Row>
+          </dl>
+          <p className="whitespace-pre-wrap break-words rounded-lg bg-muted p-3 text-sm text-foreground">
             {dispute.description}
           </p>
-        </div>
-        {dispute.resolutionNote && (
-          <div className="mt-4 border-t pt-4">
-            <h3 className="text-sm font-medium text-slate-900">
-              Chief&apos;s Resolution Note
-            </h3>
-            <p className="mt-2 whitespace-pre-wrap text-sm text-slate-600">
+        </CardContent>
+      </Card>
+
+      {dispute.resolutionNote ? (
+        <Card variant="muted">
+          <CardHeader>
+            <CardTitle as="h2">{t("disputes.note.title")}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="whitespace-pre-wrap break-words text-sm text-foreground">
               {dispute.resolutionNote}
             </p>
-          </div>
-        )}
-      </div>
+          </CardContent>
+        </Card>
+      ) : null}
 
-      <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-        <h2 className="text-sm font-medium text-slate-900">
-          Original Payment & KPay Proof
-        </h2>
-        <dl className="mt-3 space-y-3 text-sm">
-          <div className="flex justify-between">
-            <dt className="font-medium text-slate-700">Amount</dt>
-            <dd className="text-slate-900">
-              {formatAmount(dispute.payment.amount)}
-            </dd>
-          </div>
-          <div className="flex justify-between">
-            <dt className="font-medium text-slate-700">Fund</dt>
-            <dd className="text-slate-900">{dispute.payment.fund.name}</dd>
-          </div>
-          <div className="flex justify-between">
-            <dt className="font-medium text-slate-700">House</dt>
-            <dd className="text-slate-900">
-              {dispute.payment.house.houseNumber}
-            </dd>
-          </div>
-          <div className="flex justify-between">
-            <dt className="font-medium text-slate-700">Payer</dt>
-            <dd className="text-slate-900">{dispute.payment.payer.name}</dd>
-          </div>
-          <div className="flex justify-between">
-            <dt className="font-medium text-slate-700">Date</dt>
-            <dd className="text-slate-900">
-              {formatYangonDateTime(dispute.payment.createdAt)}
-            </dd>
-          </div>
-
-          <div className="mt-3 border-t pt-3">
-            <p className="mb-2 text-xs font-semibold uppercase text-slate-500">
-              KPay Details (Auto-derived)
+      <Card>
+        <CardHeader>
+          <CardTitle as="h2">{t("disputes.payment.title")}</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="rounded-lg bg-muted p-4">
+            <p className="text-xs text-muted-foreground">
+              {t("disputes.payment.amount")}
             </p>
-            <div className="flex justify-between">
-              <dt className="font-medium text-slate-700">Transaction ID</dt>
-              <dd className="font-mono text-slate-900">
-                {dispute.payment.kpayTransactionId ?? "—"}
-              </dd>
-            </div>
-            <div className="mt-1 flex justify-between">
-              <dt className="font-medium text-slate-700">Receiver Account</dt>
-              <dd className="text-slate-900">
-                {dispute.payment.kpayReceiverAccount ?? "—"}
-              </dd>
-            </div>
-            <div className="mt-1 flex justify-between">
-              <dt className="font-medium text-slate-700">
-                Receiver Name (Collector)
-              </dt>
-              <dd className="text-slate-900">
-                {dispute.payment.collector?.name ?? "Unknown"}
-              </dd>
-            </div>
-          </div>
-        </dl>
-        {dispute.payment.rejectionNote && (
-          <div className="mt-4 border-t pt-4">
-            <h3 className="text-sm font-medium text-red-900">
-              Original Rejection Reason
-            </h3>
-            <p className="mt-2 whitespace-pre-wrap text-sm text-red-700">
-              {dispute.payment.rejectionNote}
+            <p className="mt-1 text-2xl font-semibold tabular-nums text-foreground">
+              {formatAmount(payment.amount)}
+            </p>
+            <p className="mt-0.5 break-words text-sm text-muted-foreground">
+              {payment.fund.name}
             </p>
           </div>
-        )}
-      </div>
+
+          <dl className="divide-y">
+            <Row label={t("disputes.payment.house")}>
+              {payment.house.houseNumber}
+            </Row>
+            <Row label={t("disputes.payment.payer")}>{payment.payer.name}</Row>
+            <Row label={t("disputes.payment.date")}>
+              {formatYangonDateTime(payment.createdAt)}
+            </Row>
+          </dl>
+
+          {payment.rejectionNote ? (
+            <Alert
+              role="note"
+              title={t("disputes.payment.rejectionTitle")}
+              tone="danger"
+            >
+              <p className="whitespace-pre-wrap break-words">
+                {payment.rejectionNote}
+              </p>
+            </Alert>
+          ) : null}
+
+          <div className="space-y-3 border-t pt-4">
+            <div className="space-y-0.5">
+              <h3 className="text-sm font-semibold">
+                {t("disputes.proof.title")}
+              </h3>
+              <p className="text-xs text-muted-foreground">
+                {t("disputes.proof.note")}
+              </p>
+            </div>
+            <dl className="divide-y">
+              <Row label={t("disputes.proof.txn")}>
+                <span className="break-all font-mono">
+                  {payment.kpayTransactionId ?? t("disputes.notProvided")}
+                </span>
+              </Row>
+              <Row label={t("disputes.proof.receiver")}>
+                {payment.kpayReceiverAccount ?? t("disputes.notProvided")}
+              </Row>
+              <Row label={t("disputes.proof.collector")}>
+                {payment.collector?.name ?? t("disputes.proof.unknown")}
+              </Row>
+            </dl>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

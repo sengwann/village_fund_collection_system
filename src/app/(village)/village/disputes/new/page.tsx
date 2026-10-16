@@ -1,7 +1,6 @@
-import { DisputeStatus } from "@prisma/client";
+import { DisputeStatus, PaymentMethod, PaymentStatus } from "@prisma/client";
 import { redirect } from "next/navigation";
-import { PaymentMethod, PaymentStatus } from "@prisma/client";
-import { CreateDisputeForm } from "@/features/dispute-management/components/create-dispute-form";
+import { NewDisputeView } from "@/features/dispute-management/components/new-dispute-view";
 import { requireCreateDisputeAccess } from "@/features/dispute-management/lib/dispute-access";
 import { prisma } from "@/lib/prisma";
 
@@ -59,19 +58,10 @@ export default async function NewDisputePage({
   }
 
   return (
-    <div className="space-y-6">
-      <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-        <h1 className="text-lg font-semibold text-slate-900">
-          Raise a dispute
-        </h1>
-        <p className="mt-1 text-sm text-slate-600">
-          Disputing {payment.fund.name} payment of{" "}
-          {new Intl.NumberFormat("en").format(payment.amount)}.
-        </p>
-      </div>
-      <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-        <CreateDisputeForm paymentId={payment.id} />
-      </div>
-    </div>
+    <NewDisputeView
+      amount={payment.amount}
+      fundName={payment.fund.name}
+      paymentId={payment.id}
+    />
   );
 }

@@ -1081,4 +1081,114 @@ export const my: Record<TranslationKey, string> = {
   "receipts.void.title": "ဤပြေစာကို ပယ်ဖျက်ပြီးဖြစ်သည်",
   "receipts.void.body": "သမိုင်းကြောင်း မှတ်တမ်းအဖြစ် ဆက်လက် သိမ်းထားသည်။",
   "receipts.void.reason": "ပယ်ဖျက်ရသည့် အကြောင်းရင်း",
+
+  // Payment disputes (Feature O)
+  "disputes.back": "အငြင်းပွားမှုများသို့ ပြန်ရန်",
+  "disputes.list.title": "အငြင်းပွားမှုများ",
+  "disputes.list.description.chief":
+    "ပယ်ချခံရသော KPay ငွေပေးချေမှုများအတွက် ကျေးရွာသားများ တင်ပြထားသော အငြင်းပွားမှုများကို စစ်ဆေးပါ။",
+  "disputes.list.description.own":
+    "ပယ်ချခံရသော KPay ငွေပေးချေမှုများအတွက် သင်တင်ပြထားသော အငြင်းပွားမှုများကို ခြေရာခံကြည့်ရှုပါ။",
+  "disputes.list.filterLabel": "အခြေအနေအလိုက် စစ်ထုတ်ရန်",
+  "disputes.list.countOne": "အငြင်းပွားမှု {count} ခု",
+  "disputes.list.countOther": "အငြင်းပွားမှု {count} ခု",
+  "disputes.list.emptyTitle": "အငြင်းပွားမှု မရှိသေးပါ",
+  "disputes.list.emptyBody.chief":
+    "ကျေးရွာသားများထံမှ တင်ပြထားသော အငြင်းပွားမှု မရှိပါ။",
+  "disputes.list.emptyBody.own":
+    "KPay ငွေပေးချေမှု ပယ်ချခံရပါက ငွေပေးချေမှု မှတ်တမ်းမှ အငြင်းပွားနိုင်သည်။",
+  "disputes.list.emptyAction": "ငွေပေးချေမှုများသို့ သွားရန်",
+  "disputes.list.noMatchTitle": "ကိုက်ညီသော အငြင်းပွားမှု မတွေ့ပါ",
+  "disputes.list.noMatchBody": "ဤအခြေအနေရှိ အငြင်းပွားမှု မရှိပါ။",
+  "disputes.list.showAll": "အငြင်းပွားမှု အားလုံး ပြရန်",
+  "disputes.filter.all": "အားလုံး",
+  "disputes.card.house": "အိမ်နံပါတ် {number}",
+  "disputes.card.raisedBy": "{name} က တင်ပြသည်",
+  "disputes.detail.title": "အငြင်းပွားမှု အသေးစိတ်",
+  "disputes.detail.description.chief":
+    "ကျေးရွာသား၏ ရှင်းလင်းချက်ကို KPay အချက်အလက်များနှင့် နှိုင်းယှဉ်ပြီး ဆုံးဖြတ်ပါ။",
+  "disputes.detail.description.own":
+    "သင့်အငြင်းပွားမှု၏ တိုးတက်မှုနှင့် အုပ်ချုပ်ရေးမှူး၏ ဆုံးဖြတ်ချက်ကို ကြည့်ရှုပါ။",
+  "disputes.progress.label": "အငြင်းပွားမှု တိုးတက်မှု",
+  "disputes.progress.raised": "တင်ပြပြီး",
+  "disputes.progress.decision": "ဆုံးဖြတ်ချက်",
+  "disputes.next.title": "နောက်ဆက်တွဲ ဖြစ်မည့်အရာ",
+  "disputes.next.open":
+    "သင့်အငြင်းပွားမှုကို စောင့်ဆိုင်းနေသည်။ အုပ်ချုပ်ရေးမှူးက မကြာမီ စစ်ဆေးမှု စတင်မည်။",
+  "disputes.next.underReview":
+    "အုပ်ချုပ်ရေးမှူးက သင့်ရှင်းလင်းချက်နှင့် KPay အချက်အလက်များကို စစ်ဆေးနေသည်။",
+  "disputes.next.resolved":
+    "အုပ်ချုပ်ရေးမှူးက ဤအငြင်းပွားမှုကို သင့်ဘက်မှ ဖြေရှင်းပေးခဲ့သည်။ ငွေပေးချေမှု မှတ်တမ်းမှာ သီးခြားဖြစ်သောကြောင့် သင့်တော်ပါက ငွေပေးချေမှုကို ပြန်တင်နိုင်သည်။",
+  "disputes.next.rejected":
+    "အုပ်ချုပ်ရေးမှူးက မူလ ပယ်ချမှုကို ထိန်းသိမ်းခဲ့သည်။ အုပ်ချုပ်ရေးမှူး၏ မှတ်ချက်ကို ဤစာမျက်နှာတွင် ကြည့်နိုင်သည်။",
+  "disputes.closed.title": "ဆုံးဖြတ်ချက် မှတ်တမ်းတင်ပြီး",
+  "disputes.closed.body":
+    "ဤအငြင်းပွားမှုကို ဆုံးဖြတ်ပြီးဖြစ်သည်။ ဆက်လက်လုပ်ဆောင်စရာ မရှိတော့ပါ။",
+  "disputes.field.raisedBy": "တင်ပြသူ",
+  "disputes.field.date": "တင်ပြသည့်ရက်",
+  "disputes.statement.title": "ရှင်းလင်းချက်",
+  "disputes.note.title": "အုပ်ချုပ်ရေးမှူး၏ ဖြေရှင်းချက် မှတ်ချက်",
+  "disputes.payment.title": "အငြင်းပွားသော ငွေပေးချေမှု",
+  "disputes.payment.rejectionTitle": "ငွေပေးချေမှုကို ပယ်ချရသည့် အကြောင်းရင်း",
+  "disputes.payment.fund": "ရန်ပုံငွေ",
+  "disputes.payment.amount": "ငွေပမာဏ",
+  "disputes.payment.house": "အိမ်",
+  "disputes.payment.payer": "ငွေပေးသူ",
+  "disputes.payment.date": "ငွေပေးချေသည့်ရက်",
+  "disputes.proof.title": "KPay အထောက်အထား",
+  "disputes.proof.note": "ငွေပေးချေမှု မှတ်တမ်းမှ အလိုအလျောက် ယူထားသည်။",
+  "disputes.proof.txn": "ငွေလွှဲ ID",
+  "disputes.proof.receiver": "ငွေလက်ခံသူ၏ အကောင့်",
+  "disputes.proof.collector": "ငွေလက်ခံသူ (ကောက်ခံသူ)",
+  "disputes.proof.unknown": "မသိရပါ",
+  "disputes.notProvided": "မဖော်ပြထားပါ",
+  "disputes.actions.title": "သင်၏ ဆုံးဖြတ်ချက်",
+  "disputes.review.title": "စစ်ဆေးမှု စတင်ရန်",
+  "disputes.review.body":
+    "ဖြေရှင်းခြင်း သို့မဟုတ် ပယ်ချခြင်း မပြုမီ ဤအငြင်းပွားမှုကို စစ်ဆေးနေသည်ဟု အမှတ်အသားပြုပါ။",
+  "disputes.review.submit": "စစ်ဆေးမှု စတင်ရန်",
+  "disputes.review.submitting": "စတင်နေသည်...",
+  "disputes.resolve.title": "ကျေးရွာသားဘက်မှ ဖြေရှင်းရန်",
+  "disputes.resolve.body":
+    "ဖြေရှင်းခြင်းသည် အငြင်းပွားမှုကို ကိုင်တွယ်ပြီးဟု အမှတ်အသားပြုသည်။ ငွေပေးချေမှု အခြေအနေမှာ သီးခြားဖြစ်ပြီး သင့်တော်ပါက ကျေးရွာသားက ပြန်တင်နိုင်သည်။",
+  "disputes.resolve.label": "ဖြေရှင်းချက် မှတ်ချက်",
+  "disputes.resolve.placeholder": "မည်သို့ ဖြေရှင်းခဲ့သနည်း။",
+  "disputes.resolve.hint":
+    "အနည်းဆုံး အက္ခရာ ၅ လုံး။ ကျေးရွာသားက ဤမှတ်ချက်ကို မြင်ရမည်။",
+  "disputes.resolve.submit": "အငြင်းပွားမှု ဖြေရှင်းရန်",
+  "disputes.resolve.submitting": "ဖြေရှင်းနေသည်...",
+  "disputes.reject.title": "အငြင်းပွားမှု ပယ်ချရန်",
+  "disputes.reject.body":
+    "ပယ်ချခြင်းသည် မူလ ငွေပေးချေမှု ပယ်ချမှုကို ထိန်းသိမ်းသည်။",
+  "disputes.reject.label": "ပယ်ချရသည့် အကြောင်းရင်း",
+  "disputes.reject.placeholder": "မူလ ပယ်ချမှုကို အဘယ်ကြောင့် ထိန်းသိမ်းသနည်း။",
+  "disputes.reject.hint":
+    "အနည်းဆုံး အက္ခရာ ၅ လုံး။ ကျေးရွာသားက ဤအကြောင်းရင်းကို မြင်ရမည်။",
+  "disputes.reject.submit": "အငြင်းပွားမှု ပယ်ချရန်",
+  "disputes.reject.submitting": "ပယ်ချနေသည်...",
+  "disputes.decision.errorTitle": "ဆုံးဖြတ်ချက် သိမ်း၍ မရပါ",
+  "disputes.form.fixFields":
+    "အမှတ်အသားပြထားသော အကွက်များကို စစ်ဆေးပြီး ထပ်ကြိုးစားပါ။",
+  "disputes.create.title": "အငြင်းပွားမှု တင်ပြရန်",
+  "disputes.create.description":
+    "ပယ်ချခံရသော KPay ငွေပေးချေမှုကို အုပ်ချုပ်ရေးမှူးအား ပြန်လည်စစ်ဆေးရန် တောင်းဆိုပါ။",
+  "disputes.create.paymentTitle": "အငြင်းပွားမည့် ငွေပေးချေမှု",
+  "disputes.create.stepsTitle": "လုပ်ငန်းစဉ်",
+  "disputes.create.step1.title": "သင့်ဘက်မှ ရှင်းပြပါ",
+  "disputes.create.step1.body":
+    "ပယ်ချမှု မမှန်ကန်ကြောင်း အုပ်ချုပ်ရေးမှူးအား ပြောပြပါ။",
+  "disputes.create.step2.title": "အုပ်ချုပ်ရေးမှူး စစ်ဆေးမည်",
+  "disputes.create.step2.body":
+    "အုပ်ချုပ်ရေးမှူးက သင့်ရှင်းလင်းချက်ကို KPay ငွေလွှဲ အချက်အလက်များနှင့်အတူ စစ်ဆေးမည်။",
+  "disputes.create.step3.title": "ဆုံးဖြတ်ချက် ရရှိမည်",
+  "disputes.create.step3.body":
+    "ရလဒ်နှင့် မှတ်ချက်များကို ဤစာမျက်နှာတွင် ကြည့်နိုင်မည်။",
+  "disputes.create.label":
+    "ဤငွေပေးချေမှုကို အဘယ်ကြောင့် မှားယွင်းစွာ ပယ်ချခဲ့သနည်း။",
+  "disputes.create.hint": "အနည်းဆုံး အက္ခရာ ၁၀ လုံး။",
+  "disputes.create.placeholder":
+    "သင့်ဘက်မှ ရှင်းပြပါ။ အုပ်ချုပ်ရေးမှူးက KPay ငွေလွှဲ အချက်အလက်များနှင့်အတူ စစ်ဆေးမည်။",
+  "disputes.create.submit": "အငြင်းပွားမှု တင်ပြရန်",
+  "disputes.create.submitting": "တင်ပြနေသည်...",
+  "disputes.create.errorTitle": "အငြင်းပွားမှု တင်ပြ၍ မရပါ",
 };
