@@ -7,6 +7,7 @@ import { logoutAction } from "../../auth/actions/logout.action";
 import type { SessionUser } from "../../../lib/auth/auth.types";
 import { useTranslation } from "../../../lib/i18n/provider";
 import { Button, buttonVariants } from "../../../components/ui/button";
+import { ThemeToggle } from "../../../components/ui/theme-toggle";
 import type { NavItem } from "../lib/navigation";
 import { findActiveItem, getInitials, getRoleLabel } from "../lib/shell-labels";
 import { BrandMark } from "./brand-mark";
@@ -15,7 +16,8 @@ import { BrandMark } from "./brand-mark";
  * Phones: brand mark + current section on the left, avatar (links to settings)
  * on the right. Log out lives in the Menu sheet of the bottom bar.
  * md+: the brand moves to the sidebar; the header shows the current section on
- * the left and the account area (name, Settings, Log out) on the right.
+ * the left and the account area (name, theme, Settings, Log out) on the right.
+ * On phones the theme choice lives in the Menu sheet of the bottom bar.
  */
 export function AppHeader({
   user,
@@ -87,6 +89,7 @@ export function AppHeader({
           >
             {initials}
           </span>
+          <ThemeToggle variant="icon" />
           <Link
             aria-label={t("nav.settings")}
             className={buttonVariants({ variant: "ghost", size: "sm" })}

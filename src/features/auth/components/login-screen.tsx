@@ -6,12 +6,13 @@ import { Landmark, Receipt, Users, Wallet } from "lucide-react";
 
 import { Alert } from "../../../components/ui/alert";
 import { buttonVariants } from "../../../components/ui/button";
-import { TranslationProvider, useTranslation } from "../../../lib/i18n/provider";
-import { LoginForm } from "./login-form";
+import { ThemeToggle } from "../../../components/ui/theme-toggle";
 import {
-  LoginLanguageSwitch,
-  useLoginLanguage,
-} from "./login-language-switch";
+  TranslationProvider,
+  useTranslation,
+} from "../../../lib/i18n/provider";
+import { LoginForm } from "./login-form";
+import { LoginLanguageSwitch, useLoginLanguage } from "./login-language-switch";
 
 function BrandMark() {
   return (
@@ -131,6 +132,10 @@ function LoginContent({ registered }: { registered: boolean }) {
             >
               {t("login.createAccount")}
             </Link>
+          </div>
+
+          <div className="mt-6 flex justify-center">
+            <ThemeToggle variant="icon" />
           </div>
         </div>
       </main>

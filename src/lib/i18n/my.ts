@@ -86,6 +86,8 @@ export const my: Record<TranslationKey, string> = {
   "settings.changePassword": "စကားဝှက် ပြောင်းရန်",
   "settings.preferences": "ဦးစားပေးများ",
   "settings.appearance": "အသွင်အပြင်",
+  "settings.appearanceHint":
+    "ချက်ချင်း ပြောင်းလဲပြီး ဤစက်တွင်သာ သိမ်းဆည်းထားသည်။",
   "settings.language": "ဘာသာစကား",
   "settings.saveSettings": "ဆက်တင်များ သိမ်းရန်",
   "settings.saving": "သိမ်းဆည်းနေသည်...",

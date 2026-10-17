@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import { Check, Landmark, Receipt, Users, Wallet } from "lucide-react";
 
 import { buttonVariants } from "../../../components/ui/button";
+import { ThemeToggle } from "../../../components/ui/theme-toggle";
 import { useTranslation } from "../../../lib/i18n/provider";
 import { cn } from "../../../lib/utils";
 import { LoginLanguageSwitch } from "../../auth/components/login-language-switch";
@@ -199,6 +200,10 @@ export function RegistrationShell({
             >
               {t("signup.signIn")}
             </Link>
+          </div>
+
+          <div className="mt-6 flex justify-center">
+            <ThemeToggle variant="icon" />
           </div>
         </div>
       </main>

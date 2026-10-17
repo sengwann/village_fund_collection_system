@@ -75,6 +75,8 @@ export const en = {
   "settings.changePassword": "Change password",
   "settings.preferences": "Preferences",
   "settings.appearance": "Appearance",
+  "settings.appearanceHint":
+    "Applies right away and is saved on this device only.",
   "settings.language": "Language",
   "settings.saveSettings": "Save settings",
   "settings.saving": "Saving...",

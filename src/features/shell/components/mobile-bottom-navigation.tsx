@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LogOut, Menu, Settings, X } from "lucide-react";
@@ -8,6 +8,7 @@ import { logoutAction } from "../../auth/actions/logout.action";
 import type { SessionUser } from "../../../lib/auth/auth.types";
 import { useTranslation } from "../../../lib/i18n/provider";
 import { Button, buttonVariants } from "../../../components/ui/button";
+import { ThemeToggle } from "../../../components/ui/theme-toggle";
 import { cn } from "../../../lib/utils";
 import type { NavItem } from "../lib/navigation";
 import { isNavActive } from "../lib/shell-labels";
@@ -68,6 +69,7 @@ function MobileMenu({
   const { t } = useTranslation();
   const pathname = usePathname();
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const themeLabelId = useId();
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -191,6 +193,15 @@ function MobileMenu({
           </div>
 
           <div className="grid gap-2 border-t p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+            <div className="space-y-2">
+              <p
+                className="text-xs font-semibold text-muted-foreground"
+                id={themeLabelId}
+              >
+                {t("settings.appearance")}
+              </p>
+              <ThemeToggle aria-labelledby={themeLabelId} />
+            </div>
             <Link
               className={buttonVariants({ variant: "outline" })}
               href="/settings"

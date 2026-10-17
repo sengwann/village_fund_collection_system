@@ -5,6 +5,7 @@ import { LanguagePreference } from "@prisma/client";
 import { Home, LogOut, Lock, Settings, UserCircle, Wallet } from "lucide-react";
 import { ChangePasswordForm } from "@/features/user-settings/components/change-password-form";
 import { EditProfileForm } from "@/features/user-settings/components/edit-profile-form";
+import { AppearanceSetting } from "@/features/user-settings/components/appearance-setting";
 import { SettingsSection } from "@/features/user-settings/components/settings-section";
 import { UpdateSettingsForm } from "@/features/user-settings/components/update-settings-form";
 import {
@@ -157,7 +158,12 @@ export default async function SettingsPage() {
             id="settings-preferences"
             title={t("settings.preferences")}
           >
-            <UpdateSettingsForm initialLanguage={language} />
+            <div className="space-y-6">
+              <AppearanceSetting />
+              <div className="border-t pt-6">
+                <UpdateSettingsForm initialLanguage={language} />
+              </div>
+            </div>
           </SettingsSection>
 
           {/* Edit Profile */}

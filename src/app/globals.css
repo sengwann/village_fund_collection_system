@@ -8,11 +8,12 @@
  * Every text/background pair below was measured against WCAG AA (4.5:1 text,
  * 3:1 for control borders, focus rings and status dots).
  *
- * Dark mode: Tailwind v4 ignores tailwind.config.ts, and nothing in the app
- * toggles a `.dark` class yet. The dark tokens below therefore only apply if
- * something adds `class="dark"` to <html>. `dark:` utilities are tied to that
- * same class (see @custom-variant) so they no longer follow the OS setting
- * while the rest of the page stays light.
+ * Dark mode: Tailwind v4 ignores tailwind.config.ts. The dark tokens below
+ * apply when <html> has the `dark` class. That class is set before first paint
+ * by the inline script in src/app/layout.tsx and kept in sync by
+ * src/lib/theme/ (Light / Dark / System, saved per device in localStorage).
+ * `dark:` utilities are tied to that same class (see @custom-variant), so
+ * every surface follows the one switch.
  */
 
 @custom-variant dark (&:where(.dark, .dark *));
