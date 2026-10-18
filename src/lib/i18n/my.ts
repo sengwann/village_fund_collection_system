@@ -359,6 +359,29 @@ export const my: Record<TranslationKey, string> = {
     "ဤဖုန်းနံပါတ်ဖြင့် အုပ်ချုပ်ရေးမှူး အကောင့် ရှိပြီးသား ဖြစ်သည်။",
   "adminVillages.err.exists":
     "ဤအချက်အလက်များဖြင့် ကျေးရွာ သို့မဟုတ် အုပ်ချုပ်ရေးမှူး အကောင့် ရှိပြီးသား ဖြစ်သည်။",
+  "adminVillages.err.codeInvalid":
+    "ကျေးရွာကုဒ်သည် အက္ခရာ သို့မဟုတ် ဂဏန်း 3 လုံးမှ 20 လုံးအတွင်း ဖြစ်ရမည်။",
+  "adminVillages.err.nameLength":
+    "ကျေးရွာအမည်သည် စာလုံး 2 လုံးမှ 100 အတွင်း ဖြစ်ရမည်။",
+  "adminVillages.err.chiefNameLength":
+    "အုပ်ချုပ်ရေးမှူး အမည်သည် စာလုံး 2 လုံးမှ 100 အတွင်း ဖြစ်ရမည်။",
+  "adminVillages.err.emailInvalid":
+    "အုပ်ချုပ်ရေးမှူး၏ အီးမေးလ် မမှန်ကန်ပါ။",
+  "adminVillages.err.phoneInvalid":
+    "အုပ်ချုပ်ရေးမှူး၏ ဖုန်းနံပါတ် မမှန်ကန်ပါ။",
+  "adminVillages.err.identifierRequired":
+    "အုပ်ချုပ်ရေးမှူး ဝင်ရောက်ရန် အီးမေးလ် သို့မဟုတ် ဖုန်းနံပါတ် အနည်းဆုံး တစ်ခု ထည့်ပါ။",
+  "adminVillages.err.passwordLength":
+    "စကားဝှက်သည် စာလုံး 8 လုံးမှ 72 အတွင်း ဖြစ်ရမည်။",
+  "adminVillages.err.passwordBytes":
+    "စကားဝှက် ရှည်လွန်းသည်။ 72 ဘိုက်ထက် မပိုရပါ။ မြန်မာအက္ခရာ တစ်လုံးလျှင် 3 ဘိုက် ယူသည်။",
+  "adminVillages.err.retry":
+    "စနစ် အလုပ်များနေသည်။ ခဏစောင့်ပြီး ထပ်ကြိုးစားပါ။",
+  "adminVillages.err.reasonTooLong":
+    "အကြောင်းပြချက်သည် စာလုံး 200 ထက် မပိုရပါ။ တိုအောင်ပြင်ပြီး ထပ်ကြိုးစားပါ။",
+  "adminVillages.reason.label": "အကြောင်းပြချက် (မဖြည့်လည်းရသည်)",
+  "adminVillages.reason.hint":
+    "စာရင်းစစ် မှတ်တမ်းတွင် သိမ်းထားမည်။ စာလုံး 200 အထိ။",
   "adminVillages.detail.infoTitle": "ကျေးရွာ အချက်အလက်",
   "adminVillages.detail.code": "ကျေးရွာကုဒ်",
   "adminVillages.detail.name": "ကျေးရွာအမည်",

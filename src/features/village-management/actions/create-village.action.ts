@@ -5,14 +5,16 @@ import {
   MembershipStatus,
   UserRole,
   VillageStatus,
+  type Prisma,
 } from "@prisma/client";
 import { prisma } from "../../../lib/prisma";
 import { requireSystemAdmin } from "../../../lib/authz";
 import { hashPassword } from "../../../lib/auth/password";
 import {
   validateCreateVillageInput,
-  type CreateVillageField,
+  type CreateVillageFieldErrors,
 } from "../lib/village-validators";
+import type { CreateVillageFormErrorCode } from "../lib/village-validation-rules";
 import { AuditEntityType, createAuditLog } from "../../../lib/audit";
 import { withSerializableRetry } from "../../../lib/db/transaction";
 
@@ -23,9 +25,144 @@ export type CreateVillageActionResult =
     }
   | {
       success: false;
-      formError?: string;
-      fieldErrors?: Partial<Record<CreateVillageField, string>>;
+      formError?: CreateVillageFormErrorCode;
+      fieldErrors?: CreateVillageFieldErrors;
     };
+
+type CreateVillageTransactionResult =
+  | {
+      ok: true;
+      villageId: string;
+    }
+  | {
+      ok: false;
+      fieldErrors: CreateVillageFieldErrors;
+    };
+
+/*
+ * Reads inside the same transaction, so duplicates are reported per field
+ * without depending on the shape of the database driver's unique-violation
+ * error. The P2002 handling below remains as the fallback for a race.
+ */
+async function findConflicts(
+  tx: Prisma.TransactionClient,
+  input: {
+    villageCode: string;
+    chiefEmail: string | null;
+    chiefPhone: string | null;
+  },
+): Promise<CreateVillageFieldErrors> {
+  const fieldErrors: CreateVillageFieldErrors = {};
+
+  const village = await tx.village.findUnique({
+    where: { villageCode: input.villageCode },
+    select: { id: true },
+  });
+
+  if (village) {
+    fieldErrors.villageCode = "CODE_EXISTS";
+  }
+
+  if (input.chiefEmail) {
+    const user = await tx.user.findUnique({
+      where: { email: input.chiefEmail },
+      select: { id: true },
+    });
+
+    if (user) {
+      fieldErrors.chiefEmail = "EMAIL_EXISTS";
+    }
+  }
+
+  if (input.chiefPhone) {
+    const user = await tx.user.findUnique({
+      where: { phone: input.chiefPhone },
+      select: { id: true },
+    });
+
+    if (user) {
+      fieldErrors.chiefPhone = "PHONE_EXISTS";
+    }
+  }
+
+  return fieldErrors;
+}
+
+function getErrorCode(error: unknown): string | undefined {
+  if (typeof error === "object" && error !== null && "code" in error) {
+    const code = (error as { code?: unknown }).code;
+
+    return typeof code === "string" ? code : undefined;
+  }
+
+  return undefined;
+}
+
+/*
+ * Text used to work out which unique constraint fired. Only the `meta` object
+ * and the final "Unique constraint failed ..." sentence are used: the earlier
+ * part of a Prisma message echoes the whole `create()` call, which names every
+ * column and would match the wrong field.
+ */
+function getUniqueViolationText(error: unknown): string {
+  const parts: string[] = [];
+
+  if (error instanceof Error) {
+    const message = error.message;
+    const marker = message.toLowerCase().lastIndexOf("unique constraint failed");
+
+    if (marker >= 0) {
+      parts.push(message.slice(marker));
+    }
+  }
+
+  const meta = (error as { meta?: unknown } | null)?.meta;
+
+  if (meta !== undefined) {
+    try {
+      parts.push(JSON.stringify(meta));
+    } catch {
+      // Ignore a meta value that cannot be serialized.
+    }
+  }
+
+  return parts.join(" ").toLowerCase();
+}
+
+function mapUniqueViolation(error: unknown): CreateVillageActionResult {
+  const text = getUniqueViolationText(error);
+
+  if (text.includes("villagecode")) {
+    return { success: false, fieldErrors: { villageCode: "CODE_EXISTS" } };
+  }
+
+  if (text.includes("email")) {
+    return { success: false, fieldErrors: { chiefEmail: "EMAIL_EXISTS" } };
+  }
+
+  if (text.includes("phone")) {
+    return { success: false, fieldErrors: { chiefPhone: "PHONE_EXISTS" } };
+  }
+
+  return { success: false, formError: "EXISTS" };
+}
+
+/*
+ * Server-side log without the full Prisma message: a failed create() echoes
+ * its arguments, which include the password hash.
+ */
+function logUnexpectedError(error: unknown): void {
+  const lastLine =
+    error instanceof Error
+      ? error.message.trim().split("\n").pop()?.slice(0, 200)
+      : undefined;
+
+  console.error("[createVillageAction] failed", {
+    name: error instanceof Error ? error.name : typeof error,
+    code: getErrorCode(error),
+    detail: lastLine,
+  });
+}
 
 export async function createVillageAction(
   formData: FormData,
@@ -38,7 +175,6 @@ export async function createVillageAction(
     return {
       success: false,
       fieldErrors: validation.fieldErrors,
-      formError: validation.formError,
     };
   }
 
@@ -54,9 +190,19 @@ export async function createVillageAction(
   const passwordHash = await hashPassword(chiefPassword);
 
   try {
-    const village = await withSerializableRetry(() =>
+    const result = await withSerializableRetry(() =>
       prisma.$transaction(
-        async (tx) => {
+        async (tx): Promise<CreateVillageTransactionResult> => {
+          const conflicts = await findConflicts(tx, {
+            villageCode,
+            chiefEmail,
+            chiefPhone,
+          });
+
+          if (Object.keys(conflicts).length > 0) {
+            return { ok: false, fieldErrors: conflicts };
+          }
+
           const newVillage = await tx.village.create({
             data: {
               villageCode,
@@ -65,7 +211,7 @@ export async function createVillageAction(
             },
           });
 
-          await tx.user.create({
+          const chief = await tx.user.create({
             data: {
               name: chiefName,
               email: chiefEmail,
@@ -75,6 +221,9 @@ export async function createVillageAction(
               villageId: newVillage.id,
               houseId: null,
               membershipStatus: MembershipStatus.ACTIVE,
+            },
+            select: {
+              id: true,
             },
           });
 
@@ -88,10 +237,25 @@ export async function createVillageAction(
               villageCode,
               name: villageName,
               newStatus: VillageStatus.ACTIVE,
+              chiefUserId: chief.id,
             },
           });
 
-          return newVillage;
+          // No email or phone here: audit entries are visible to the village.
+          await createAuditLog(tx, {
+            actionType: AuditActionType.CREATE,
+            entityType: AuditEntityType.USER,
+            entityId: chief.id,
+            villageId: newVillage.id,
+            actorUserId: admin.id,
+            metadata: {
+              name: chiefName,
+              role: UserRole.CHIEF,
+              newMembershipStatus: MembershipStatus.ACTIVE,
+            },
+          });
+
+          return { ok: true, villageId: newVillage.id };
         },
         {
           isolationLevel: "Serializable",
@@ -99,58 +263,30 @@ export async function createVillageAction(
       ),
     );
 
-    return {
-      success: true,
-      villageId: village.id,
-    };
-  } catch (error) {
-    const prismaError = error as {
-      code?: string;
-      meta?: {
-        target?: unknown;
-      };
-    };
-
-    if (prismaError.code === "P2002") {
-      const targetInfo = JSON.stringify(prismaError.meta?.target ?? "");
-
-      if (targetInfo.includes("villageCode")) {
-        return {
-          success: false,
-          fieldErrors: {
-            villageCode: "Village code already exists.",
-          },
-        };
-      }
-
-      if (targetInfo.includes("email")) {
-        return {
-          success: false,
-          fieldErrors: {
-            chiefEmail: "Chief email already exists.",
-          },
-        };
-      }
-
-      if (targetInfo.includes("phone")) {
-        return {
-          success: false,
-          fieldErrors: {
-            chiefPhone: "Chief phone already exists.",
-          },
-        };
-      }
-
+    if (!result.ok) {
       return {
         success: false,
-        formError:
-          "A village or chief account with those details already exists.",
+        fieldErrors: result.fieldErrors,
       };
     }
 
     return {
-      success: false,
-      formError: "Unable to create village. Please try again.",
+      success: true,
+      villageId: result.villageId,
     };
+  } catch (error) {
+    const code = getErrorCode(error);
+
+    if (code === "P2002") {
+      return mapUniqueViolation(error);
+    }
+
+    logUnexpectedError(error);
+
+    if (code === "P2034") {
+      return { success: false, formError: "RETRY" };
+    }
+
+    return { success: false, formError: "GENERIC" };
   }
 }

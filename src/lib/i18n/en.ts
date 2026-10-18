@@ -338,6 +338,26 @@ export const en = {
     "A Chief account with this phone number already exists.",
   "adminVillages.err.exists":
     "A village or Chief account with those details already exists.",
+  "adminVillages.err.codeInvalid":
+    "Village code must be 3 to 20 characters and use letters or numbers only.",
+  "adminVillages.err.nameLength":
+    "Village name must be between 2 and 100 characters.",
+  "adminVillages.err.chiefNameLength":
+    "Chief name must be between 2 and 100 characters.",
+  "adminVillages.err.emailInvalid": "Chief email is invalid.",
+  "adminVillages.err.phoneInvalid": "Chief phone number is invalid.",
+  "adminVillages.err.identifierRequired":
+    "Provide at least one Chief login identifier: email or phone.",
+  "adminVillages.err.passwordLength":
+    "Password must be between 8 and 72 characters.",
+  "adminVillages.err.passwordBytes":
+    "Password is too long. It can be at most 72 bytes, and each Burmese character uses 3 bytes.",
+  "adminVillages.err.retry":
+    "The system is busy. Please wait a moment and try again.",
+  "adminVillages.err.reasonTooLong":
+    "The reason must be 200 characters or fewer. Shorten it and try again.",
+  "adminVillages.reason.label": "Reason (optional)",
+  "adminVillages.reason.hint": "Saved in the audit log. Up to 200 characters.",
   "adminVillages.detail.infoTitle": "Village information",
   "adminVillages.detail.code": "Village code",
   "adminVillages.detail.name": "Village name",

@@ -1,12 +1,14 @@
 import "server-only";
 
-const VILLAGE_CODE_REGEX = /^[A-Z0-9]{3,20}$/;
-
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-const PHONE_ALLOWED_CHARACTERS_REGEX = /^[0-9+\-\s()]+$/;
-
-const PHONE_NORMALIZED_REGEX = /^\+?\d{5,15}$/;
+import { normalizeIdentifier } from "../../../lib/auth/validators";
+import {
+  normalizeVillageCode,
+  validateChiefName,
+  validatePassword,
+  validateVillageCode,
+  validateVillageName,
+  type CreateVillageFieldErrorCode,
+} from "./village-validation-rules";
 
 export type CreateVillageField =
   | "villageCode"
@@ -16,6 +18,10 @@ export type CreateVillageField =
   | "chiefPhone"
   | "chiefIdentifier"
   | "chiefPassword";
+
+export type CreateVillageFieldErrors = Partial<
+  Record<CreateVillageField, CreateVillageFieldErrorCode>
+>;
 
 export interface NormalizedCreateVillageInput {
   villageCode: string;
@@ -33,8 +39,7 @@ export type CreateVillageValidationResult =
     }
   | {
       ok: false;
-      fieldErrors: Partial<Record<CreateVillageField, string>>;
-      formError?: string;
+      fieldErrors: CreateVillageFieldErrors;
     };
 
 function getFormDataString(formData: FormData, key: string): string {
@@ -50,7 +55,7 @@ function getFormDataString(formData: FormData, key: string): string {
 export function validateCreateVillageInput(
   formData: FormData,
 ): CreateVillageValidationResult {
-  const fieldErrors: Partial<Record<CreateVillageField, string>> = {};
+  const fieldErrors: CreateVillageFieldErrors = {};
 
   const rawVillageCode = getFormDataString(formData, "villageCode");
   const rawVillageName = getFormDataString(formData, "villageName");
@@ -59,61 +64,60 @@ export function validateCreateVillageInput(
   const rawChiefPhone = getFormDataString(formData, "chiefPhone").trim();
   const rawChiefPassword = getFormDataString(formData, "chiefPassword");
 
-  const villageCode = rawVillageCode.trim().toUpperCase().replace(/\s+/g, "");
+  const villageCode = normalizeVillageCode(rawVillageCode);
+  const villageCodeError = validateVillageCode(villageCode);
 
-  if (!VILLAGE_CODE_REGEX.test(villageCode)) {
-    fieldErrors.villageCode =
-      "Village code must be 3 to 20 characters and use letters or numbers only.";
+  if (villageCodeError) {
+    fieldErrors.villageCode = villageCodeError;
   }
 
   const villageName = rawVillageName.trim();
+  const villageNameError = validateVillageName(villageName);
 
-  if (villageName.length < 2 || villageName.length > 100) {
-    fieldErrors.villageName =
-      "Village name must be between 2 and 100 characters.";
+  if (villageNameError) {
+    fieldErrors.villageName = villageNameError;
   }
 
   const chiefName = rawChiefName.trim();
+  const chiefNameError = validateChiefName(chiefName);
 
-  if (chiefName.length < 2 || chiefName.length > 100) {
-    fieldErrors.chiefName = "Chief name must be between 2 and 100 characters.";
+  if (chiefNameError) {
+    fieldErrors.chiefName = chiefNameError;
   }
 
   let chiefEmail: string | null = null;
   let chiefPhone: string | null = null;
 
+  // normalizeIdentifier() is the same function login uses, so the stored value
+  // is exactly what the Chief will be looked up by.
   if (rawChiefEmail) {
-    const email = rawChiefEmail.toLowerCase();
+    const identifier = normalizeIdentifier(rawChiefEmail);
 
-    if (!EMAIL_REGEX.test(email)) {
-      fieldErrors.chiefEmail = "Chief email is invalid.";
+    if (identifier?.type === "email") {
+      chiefEmail = identifier.value;
     } else {
-      chiefEmail = email;
+      fieldErrors.chiefEmail = "EMAIL_INVALID";
     }
   }
 
   if (rawChiefPhone) {
-    if (!PHONE_ALLOWED_CHARACTERS_REGEX.test(rawChiefPhone)) {
-      fieldErrors.chiefPhone = "Chief phone number is invalid.";
-    } else {
-      const phone = rawChiefPhone.replace(/[\s\-().]/g, "");
+    const identifier = normalizeIdentifier(rawChiefPhone);
 
-      if (!PHONE_NORMALIZED_REGEX.test(phone)) {
-        fieldErrors.chiefPhone = "Chief phone number is invalid.";
-      } else {
-        chiefPhone = phone;
-      }
+    if (identifier?.type === "phone") {
+      chiefPhone = identifier.value;
+    } else {
+      fieldErrors.chiefPhone = "PHONE_INVALID";
     }
   }
 
   if (!rawChiefEmail && !rawChiefPhone) {
-    fieldErrors.chiefIdentifier =
-      "Provide at least one Chief login identifier: email or phone.";
+    fieldErrors.chiefIdentifier = "IDENTIFIER_REQUIRED";
   }
 
-  if (rawChiefPassword.length < 8 || rawChiefPassword.length > 72) {
-    fieldErrors.chiefPassword =
-      "Chief password must be between 8 and 72 characters.";
+  const passwordError = validatePassword(rawChiefPassword);
+
+  if (passwordError) {
+    fieldErrors.chiefPassword = passwordError;
   }
 
   if (Object.keys(fieldErrors).length > 0) {

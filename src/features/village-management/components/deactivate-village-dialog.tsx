@@ -4,15 +4,18 @@ import { useEffect, useId, useRef, useState } from "react";
 import { AlertTriangle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { Field, Textarea } from "@/components/ui/field";
 import { deactivateVillageAction } from "../actions/deactivate-village.action";
+import { REASON_MAX_LENGTH } from "../lib/lifecycle-input";
 import { LifecycleSubmitButton } from "./lifecycle-submit-button";
 
 /*
  * Confirmation step for the final "Deactivate" action. Uses the native
  * <dialog> element (focus trap, Escape to close, inert background), the same
  * technique as the mobile menu. The form still posts the same villageId to the
- * same server action. Cancel is auto-focused so Enter does not confirm by
- * accident. All text arrives already translated.
+ * same server action, plus an optional `reason` that is saved in the audit
+ * entry. Cancel is auto-focused so Enter does not confirm by accident. All text
+ * arrives already translated.
  */
 export function DeactivateVillageDialog({
   villageId,
@@ -25,10 +28,14 @@ export function DeactivateVillageDialog({
     body: string;
     confirm: string;
     cancel: string;
+    reasonLabel: string;
+    reasonHint: string;
   };
 }) {
   const titleId = useId();
+  const reasonId = useId();
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -68,12 +75,17 @@ export function DeactivateVillageDialog({
           // A click on the backdrop lands on the <dialog> element itself.
           if (event.target === event.currentTarget) closeDialog();
         }}
-        onClose={() => setOpen(false)}
+        onClose={() => {
+          setOpen(false);
+          // Do not keep a half-typed reason around after Cancel or Escape.
+          formRef.current?.reset();
+        }}
         ref={dialogRef}
       >
         <form
           action={deactivateVillageAction}
           className="space-y-5 p-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:p-6"
+          ref={formRef}
         >
           <input name="villageId" type="hidden" value={villageId} />
 
@@ -93,6 +105,14 @@ export function DeactivateVillageDialog({
               </p>
             </div>
           </div>
+
+          <Field
+            hint={labels.reasonHint}
+            id={reasonId}
+            label={labels.reasonLabel}
+          >
+            <Textarea maxLength={REASON_MAX_LENGTH} name="reason" rows={3} />
+          </Field>
 
           <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
             <Button

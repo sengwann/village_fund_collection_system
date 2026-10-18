@@ -21,19 +21,34 @@ import {
   createVillageAction,
   type CreateVillageActionResult,
 } from "../actions/create-village.action";
+import type {
+  CreateVillageFieldErrorCode,
+  CreateVillageFormErrorCode,
+} from "../lib/village-validation-rules";
 
 /*
- * The action returns some messages as English text. Known ones are mapped to
- * translation keys here (presentation only); anything else, such as validator
- * messages, is shown exactly as returned.
+ * The action returns error CODES, not text. They are mapped to translation
+ * keys here (presentation only). Typing the maps as Records means a new code
+ * cannot be added to the action without adding its message here.
  */
-const SERVER_MESSAGE_KEYS: Record<string, TranslationKey> = {
-  "Village code already exists.": "adminVillages.err.codeExists",
-  "Chief email already exists.": "adminVillages.err.emailExists",
-  "Chief phone already exists.": "adminVillages.err.phoneExists",
-  "A village or chief account with those details already exists.":
-    "adminVillages.err.exists",
-  "Unable to create village. Please try again.": "adminVillages.form.generic",
+const FIELD_ERROR_KEYS: Record<CreateVillageFieldErrorCode, TranslationKey> = {
+  CODE_INVALID: "adminVillages.err.codeInvalid",
+  CODE_EXISTS: "adminVillages.err.codeExists",
+  NAME_LENGTH: "adminVillages.err.nameLength",
+  CHIEF_NAME_LENGTH: "adminVillages.err.chiefNameLength",
+  EMAIL_INVALID: "adminVillages.err.emailInvalid",
+  EMAIL_EXISTS: "adminVillages.err.emailExists",
+  PHONE_INVALID: "adminVillages.err.phoneInvalid",
+  PHONE_EXISTS: "adminVillages.err.phoneExists",
+  IDENTIFIER_REQUIRED: "adminVillages.err.identifierRequired",
+  PASSWORD_LENGTH: "adminVillages.err.passwordLength",
+  PASSWORD_TOO_LONG: "adminVillages.err.passwordBytes",
+};
+
+const FORM_ERROR_KEYS: Record<CreateVillageFormErrorCode, TranslationKey> = {
+  EXISTS: "adminVillages.err.exists",
+  RETRY: "adminVillages.err.retry",
+  GENERIC: "adminVillages.form.generic",
 };
 
 export function CreateVillageForm() {
@@ -56,9 +71,16 @@ export function CreateVillageForm() {
     }
   }, [failureCount]);
 
-  function translateMessage(message: string): string {
-    const key = SERVER_MESSAGE_KEYS[message];
-    return key ? t(key) : message;
+  // A code this build does not know (for example during a deploy) falls back
+  // to the generic message instead of rendering nothing.
+  function translateFieldError(code: CreateVillageFieldErrorCode): string {
+    const key = FIELD_ERROR_KEYS[code];
+    return key ? t(key) : t("adminVillages.form.generic");
+  }
+
+  function translateFormError(code: CreateVillageFormErrorCode): string {
+    const key = FORM_ERROR_KEYS[code];
+    return key ? t(key) : t("adminVillages.form.generic");
   }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -80,8 +102,8 @@ export function CreateVillageForm() {
       }
 
       const translated: Record<string, string | undefined> = {};
-      for (const [field, message] of Object.entries(result.fieldErrors ?? {})) {
-        translated[field] = message ? translateMessage(message) : undefined;
+      for (const [field, code] of Object.entries(result.fieldErrors ?? {})) {
+        translated[field] = code ? translateFieldError(code) : undefined;
       }
 
       const hasFieldErrors = Object.values(translated).some(Boolean);
@@ -89,7 +111,7 @@ export function CreateVillageForm() {
       setFieldErrors(translated);
       setFormError(
         result.formError
-          ? translateMessage(result.formError)
+          ? translateFormError(result.formError)
           : hasFieldErrors
             ? t("adminVillages.form.fixFields")
             : t("adminVillages.form.generic"),
