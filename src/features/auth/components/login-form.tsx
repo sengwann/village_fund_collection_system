@@ -7,7 +7,11 @@ import { Eye, EyeOff } from "lucide-react";
 
 import { Alert } from "../../../components/ui/alert";
 import { Button } from "../../../components/ui/button";
-import { Field, Input, fieldControlClasses } from "../../../components/ui/field";
+import {
+  Field,
+  Input,
+  fieldControlClasses,
+} from "../../../components/ui/field";
 import { useTranslation } from "../../../lib/i18n/provider";
 import { cn } from "../../../lib/utils";
 import { loginAction } from "../actions/login.action";
@@ -15,7 +19,7 @@ import { loginAction } from "../actions/login.action";
 /** The one generic message the server action returns for any failed sign-in. */
 const SERVER_INVALID_CREDENTIALS = "Invalid credentials.";
 
-export function LoginForm() {
+export function LoginForm({ redirectTo }: { redirectTo?: string }) {
   const router = useRouter();
   const { t } = useTranslation();
   const passwordId = useId();
@@ -55,11 +59,15 @@ export function LoginForm() {
   }
 
   return (
-    <form className="space-y-5" onSubmit={handleSubmit}>
+    <form className="space-y-5" method="post" onSubmit={handleSubmit}>
       {error ? (
         <Alert tone="danger" title={t("login.errorTitle")}>
           {error}
         </Alert>
+      ) : null}
+
+      {redirectTo ? (
+        <input name="redirectTo" type="hidden" value={redirectTo} />
       ) : null}
 
       <Field id="identifier" label={t("login.identifier")} required>

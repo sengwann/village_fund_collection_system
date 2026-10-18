@@ -12,20 +12,24 @@ import { prisma } from "../../../lib/prisma";
 import { AuditEntityType, tryCreateAuditLog } from "../../../lib/audit";
 
 export async function logoutAction(): Promise<void> {
-  const user = await getCurrentUser();
+  try {
+    const user = await getCurrentUser();
 
-  if (user) {
-    await revokeUserSessions(user.id);
-    await tryCreateAuditLog(prisma, {
-      actionType: AuditActionType.LOGOUT,
-      entityType: AuditEntityType.SESSION,
-      entityId: user.id,
-      villageId: user.villageId ?? null,
-      actorUserId: user.id,
-      metadata: { userRole: user.role, villageId: user.villageId },
-    });
+    if (user) {
+      await revokeUserSessions(user.id);
+      await tryCreateAuditLog(prisma, {
+        actionType: AuditActionType.LOGOUT,
+        entityType: AuditEntityType.SESSION,
+        entityId: user.id,
+        villageId: user.villageId ?? null,
+        actorUserId: user.id,
+        metadata: { userRole: user.role, villageId: user.villageId },
+      });
+    }
+  } finally {
+    // Always drop the browser cookie, even if revocation or auditing threw.
+    await destroySession();
   }
 
-  await destroySession();
   redirect(LOGIN_ROUTE);
 }

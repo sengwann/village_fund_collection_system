@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { LoginScreen } from "@/features/auth/components/login-screen";
-import { DEFAULT_POST_LOGIN_ROUTE } from "@/lib/auth/auth.constants";
 import { getCurrentUser } from "@/lib/auth/session";
+import { getSafeRedirectPath } from "@/lib/auth/validators";
 
 export const metadata = {
   title: "Login | Village Fund Collection System",
@@ -43,12 +43,15 @@ export default async function LoginPage({
 }) {
   const user = await getCurrentUser();
 
+  const params = await resolveSearchParams(searchParams);
+  // Only same-origin paths survive; anything else falls back to the default.
+  const redirectTo = getSafeRedirectPath(getFirstStringValue(params.redirect));
+
   if (user) {
-    redirect(DEFAULT_POST_LOGIN_ROUTE);
+    redirect(redirectTo);
   }
 
-  const params = await resolveSearchParams(searchParams);
   const registered = getFirstStringValue(params.registered) === "1";
 
-  return <LoginScreen registered={registered} />;
+  return <LoginScreen redirectTo={redirectTo} registered={registered} />;
 }

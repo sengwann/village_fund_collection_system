@@ -71,7 +71,13 @@ function BrandPanel() {
   );
 }
 
-function LoginContent({ registered }: { registered: boolean }) {
+function LoginContent({
+  redirectTo,
+  registered,
+}: {
+  redirectTo: string;
+  registered: boolean;
+}) {
   const { t, language } = useTranslation();
 
   return (
@@ -116,7 +122,7 @@ function LoginContent({ registered }: { registered: boolean }) {
           ) : null}
 
           <div className="mt-6 sm:rounded-2xl sm:border sm:bg-card sm:p-6 sm:shadow-sm">
-            <LoginForm />
+            <LoginForm redirectTo={redirectTo} />
           </div>
 
           <div className="mt-8 space-y-3 border-t pt-6 text-center">
@@ -148,12 +154,18 @@ function LoginContent({ registered }: { registered: boolean }) {
  * "registered" notice; the sign-in screens have no signed-in user yet, so the
  * language is a browser-only choice made with the switch in the corner.
  */
-export function LoginScreen({ registered }: { registered: boolean }) {
+export function LoginScreen({
+  redirectTo,
+  registered,
+}: {
+  redirectTo: string;
+  registered: boolean;
+}) {
   const language = useLoginLanguage();
 
   return (
     <TranslationProvider language={language}>
-      <LoginContent registered={registered} />
+      <LoginContent redirectTo={redirectTo} registered={registered} />
     </TranslationProvider>
   );
 }

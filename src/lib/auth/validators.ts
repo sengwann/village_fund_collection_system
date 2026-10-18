@@ -1,6 +1,7 @@
 import "server-only";
 
 import { DEFAULT_POST_LOGIN_ROUTE } from "./auth.constants";
+import { sanitizeRedirectPath } from "./safe-redirect";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -115,27 +116,5 @@ export function validateLoginInput(input: {
 }
 
 export function getSafeRedirectPath(rawRedirect?: string): string {
-  if (!rawRedirect) {
-    return DEFAULT_POST_LOGIN_ROUTE;
-  }
-
-  const path = rawRedirect.trim();
-
-  if (!path.startsWith("/")) {
-    return DEFAULT_POST_LOGIN_ROUTE;
-  }
-
-  if (path.startsWith("//")) {
-    return DEFAULT_POST_LOGIN_ROUTE;
-  }
-
-  if (path.includes("\\")) {
-    return DEFAULT_POST_LOGIN_ROUTE;
-  }
-
-  if (path.toLowerCase() === "/login") {
-    return DEFAULT_POST_LOGIN_ROUTE;
-  }
-
-  return path;
+  return sanitizeRedirectPath(rawRedirect, DEFAULT_POST_LOGIN_ROUTE);
 }
