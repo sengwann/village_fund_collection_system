@@ -2,7 +2,6 @@ import { notFound, redirect } from "next/navigation";
 import { requireChief } from "@/lib/authz";
 import { requireSameVillage } from "@/lib/authz/tenant";
 import { prisma } from "@/lib/prisma";
-import { MembershipStatus } from "@prisma/client";
 import { EditHouseNumberForm } from "@/features/house-management/components/edit-house-number-form";
 import { canEditHouseNumber } from "@/features/house-management/lib/house-rules";
 
@@ -37,30 +36,13 @@ export default async function EditHousePage({ params }: { params: unknown }) {
       id: true,
       villageId: true,
       houseNumber: true,
-      isActive: true,
-      _count: {
-        select: {
-          payments: true,
-          members: {
-            where: {
-              membershipStatus: {
-                in: [MembershipStatus.ACTIVE, MembershipStatus.PENDING],
-              },
-            },
-          },
-        },
-      },
     },
   });
 
   if (!house) return notFound();
   requireSameVillage(ctx, house.villageId);
 
-  const rules = canEditHouseNumber({
-    isActive: house.isActive,
-    hasActiveOrPendingMembers: house._count.members > 0,
-    hasPayments: house._count.payments > 0,
-  });
+  const rules = canEditHouseNumber();
 
   if (!rules.allowed) {
     redirect(`/village/houses/${houseId}`);

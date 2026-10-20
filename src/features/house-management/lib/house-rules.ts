@@ -3,20 +3,17 @@ import "server-only";
 export interface HouseRuleContext {
   isActive: boolean;
   hasActiveOrPendingMembers: boolean;
-  hasPayments: boolean;
 }
 
-export function canEditHouseNumber(ctx: HouseRuleContext): {
+/*
+ * Payment history no longer blocks a rename (owner decision). The house keeps
+ * its stable ID, so payments stay linked, and every rename is audited.
+ * Kept as a function so callers and the UI keep one place to ask.
+ */
+export function canEditHouseNumber(): {
   allowed: boolean;
   reason?: string;
 } {
-  if (ctx.hasPayments) {
-    return {
-      allowed: false,
-      reason:
-        "House number cannot be edited because this house has payment records.",
-    };
-  }
   return { allowed: true };
 }
 
@@ -33,16 +30,10 @@ export function canDeactivateHouse(ctx: HouseRuleContext): {
       reason: "A house with active or pending members cannot be deactivated.",
     };
   }
-  if (ctx.hasPayments) {
-    return {
-      allowed: false,
-      reason: "A house with payment records cannot be deactivated.",
-    };
-  }
   return { allowed: true };
 }
 
-export function canReactivateHouse(ctx: HouseRuleContext): {
+export function canReactivateHouse(ctx: Pick<HouseRuleContext, "isActive">): {
   allowed: boolean;
   reason?: string;
 } {

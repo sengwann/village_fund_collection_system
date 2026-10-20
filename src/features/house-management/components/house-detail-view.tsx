@@ -120,11 +120,7 @@ export function HouseDetailView({
               <CardTitle as="h2">{t("houses.detail.actionsTitle")}</CardTitle>
             </CardHeader>
             <CardContent>
-              <EditHouseLink
-                editRules={rules.edit}
-                flags={rules.flags}
-                houseId={house.id}
-              />
+              <EditHouseLink editRules={rules.edit} houseId={house.id} />
             </CardContent>
           </Card>
 

@@ -4,7 +4,6 @@ import { notFound } from "next/navigation";
 import { AuditActionType } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { requireChief } from "@/lib/authz";
-import { requireSameVillage } from "@/lib/authz/tenant";
 import { validateHouseNumber, type HouseField } from "../lib/house-validators";
 import { canEditHouseNumber } from "../lib/house-rules";
 import { AuditEntityType, createAuditLog } from "@/lib/audit";
@@ -23,34 +22,7 @@ export async function updateHouseNumberAction(
 ): Promise<UpdateHouseActionResult> {
   const { user, villageId } = await requireChief();
 
-  const house = await prisma.house.findUnique({
-    where: { id: houseId },
-    select: {
-      id: true,
-      villageId: true,
-      houseNumber: true,
-      isActive: true,
-      members: {
-        where: {
-          membershipStatus: { in: ["ACTIVE", "PENDING"] },
-        },
-        select: { id: true },
-      },
-      _count: {
-        select: { payments: true },
-      },
-    },
-  });
-
-  if (!house) return notFound();
-  requireSameVillage({ user, villageId }, house.villageId);
-
-  const rules = canEditHouseNumber({
-    isActive: house.isActive,
-    hasActiveOrPendingMembers: house.members.length > 0,
-    hasPayments: house._count.payments > 0,
-  });
-
+  const rules = canEditHouseNumber();
   if (!rules.allowed) {
     return { success: false, formError: rules.reason };
   }
@@ -70,21 +42,28 @@ export async function updateHouseNumberAction(
 
   const { houseNumber } = validation.data;
 
-  if (houseNumber === house.houseNumber) {
-    return { success: true };
-  }
+  let outcome: "updated" | "unchanged" | "not_found";
 
   try {
-    await prisma.$transaction(async (tx) => {
+    outcome = await prisma.$transaction(async (tx) => {
+      // Scoped by village: a house from another village looks like "not found".
+      const house = await tx.house.findFirst({
+        where: { id: houseId, villageId },
+        select: { id: true, houseNumber: true },
+      });
+
+      if (!house) return "not_found" as const;
+      if (house.houseNumber === houseNumber) return "unchanged" as const;
+
       await tx.house.update({
-        where: { id: houseId },
+        where: { id: house.id, villageId },
         data: { houseNumber },
       });
 
       await createAuditLog(tx, {
         actionType: AuditActionType.UPDATE,
         entityType: AuditEntityType.HOUSE,
-        entityId: houseId,
+        entityId: house.id,
         villageId,
         actorUserId: user.id,
         metadata: {
@@ -92,11 +71,12 @@ export async function updateHouseNumberAction(
           previousHouseNumber: house.houseNumber,
         },
       });
-    });
 
-    return { success: true };
+      return "updated" as const;
+    });
   } catch (error) {
     const prismaError = error as { code?: string };
+
     if (prismaError.code === "P2002") {
       return {
         success: false,
@@ -105,9 +85,19 @@ export async function updateHouseNumberAction(
         },
       };
     }
+
+    // Row disappeared between the read and the write.
+    if (prismaError.code === "P2025") {
+      return notFound();
+    }
+
     return {
       success: false,
       formError: "Unable to update house number. Please try again.",
     };
   }
+
+  if (outcome === "not_found") return notFound();
+
+  return { success: true };
 }

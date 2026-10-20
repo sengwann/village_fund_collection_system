@@ -1,60 +1,40 @@
 "use server";
 
 import { redirect, notFound } from "next/navigation";
-import { AuditActionType, MembershipStatus } from "@prisma/client";
+import { AuditActionType } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { requireChief } from "@/lib/authz";
-import { requireSameVillage } from "@/lib/authz/tenant";
 import { canReactivateHouse } from "../lib/house-rules";
 import { AuditEntityType, createAuditLog } from "@/lib/audit";
 
 export async function reactivateHouseAction(houseId: string): Promise<void> {
   const { user, villageId } = await requireChief();
 
-  const house = await prisma.house.findUnique({
-    where: { id: houseId },
-    select: {
-      id: true,
-      villageId: true,
-      houseNumber: true,
-      isActive: true,
-      members: {
-        where: {
-          membershipStatus: {
-            in: [MembershipStatus.ACTIVE, MembershipStatus.PENDING],
-          },
-        },
-        select: { id: true },
-      },
-      _count: {
-        select: { payments: true },
-      },
-    },
-  });
+  const outcome = await prisma.$transaction(async (tx) => {
+    // Scoped by village: a house from another village looks like "not found".
+    const house = await tx.house.findFirst({
+      where: { id: houseId, villageId },
+      select: { id: true, houseNumber: true, isActive: true },
+    });
 
-  if (!house) return notFound();
-  requireSameVillage({ user, villageId }, house.villageId);
+    if (!house) return "not_found" as const;
 
-  const rules = canReactivateHouse({
-    isActive: house.isActive,
-    hasActiveOrPendingMembers: house.members.length > 0,
-    hasPayments: house._count.payments > 0,
-  });
+    const rules = canReactivateHouse({ isActive: house.isActive });
+    if (!rules.allowed) return "noop" as const;
 
-  if (!rules.allowed) {
-    redirect(`/village/houses/${houseId}`);
-  }
-
-  await prisma.$transaction(async (tx) => {
-    await tx.house.update({
-      where: { id: houseId },
+    // Guarded write: a double submit changes nothing the second time, so only
+    // the request that really flipped the flag writes an audit entry.
+    const { count } = await tx.house.updateMany({
+      where: { id: house.id, villageId, isActive: false },
       data: { isActive: true },
     });
+
+    if (count !== 1) return "noop" as const;
 
     await createAuditLog(tx, {
       actionType: AuditActionType.STATUS_CHANGE,
       entityType: AuditEntityType.HOUSE,
-      entityId: houseId,
+      entityId: house.id,
       villageId,
       actorUserId: user.id,
       metadata: {
@@ -62,7 +42,13 @@ export async function reactivateHouseAction(houseId: string): Promise<void> {
         isActive: true,
       },
     });
+
+    return "done" as const;
   });
+
+  if (outcome === "not_found") {
+    return notFound();
+  }
 
   redirect(`/village/houses/${houseId}`);
 }

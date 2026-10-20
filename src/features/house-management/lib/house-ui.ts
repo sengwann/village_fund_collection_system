@@ -12,7 +12,6 @@ export interface RuleResult {
 export interface HouseRuleFlags {
   isActive: boolean;
   hasActiveOrPendingMembers: boolean;
-  hasPayments: boolean;
 }
 
 export interface HouseDetailData {
@@ -52,17 +51,11 @@ export function interpolate(
   );
 }
 
-/** Translation key explaining why editing is blocked, or null if unknown. */
-export function getEditBlockedKey(flags: HouseRuleFlags): TranslationKey | null {
-  if (flags.hasPayments) return "houses.edit.blockedPayments";
-  return null;
-}
-
 /** Translation key explaining why deactivation is blocked (active house). */
 export function getDeactivateBlockedKey(
   flags: HouseRuleFlags,
 ): TranslationKey | null {
-  if (flags.hasActiveOrPendingMembers) return "houses.deactivate.blockedMembers";
-  if (flags.hasPayments) return "houses.deactivate.blockedPayments";
+  if (flags.hasActiveOrPendingMembers)
+    return "houses.deactivate.blockedMembers";
   return null;
 }

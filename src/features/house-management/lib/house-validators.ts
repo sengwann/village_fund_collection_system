@@ -14,12 +14,17 @@ export type HouseValidationResult =
       formError?: string;
     };
 
+// Latin letters, digits, Myanmar / Myanmar Extended-A / Extended-B blocks,
+// whitespace and the separators - / . ( )
 const ALLOWED_CHARS_REGEX =
   /^[A-Z0-9\u1000-\u109F\uA9E0-\uA9FF\uAA60-\uAA7F\s\-\/\.\(\)]+$/i;
-const MEANINGFUL_CONTENT_REGEX = /[A-Z0-9]/;
+
+// At least one letter or digit in any script (covers Myanmar letters and
+// Myanmar digits U+1040-1049). Marks and punctuation alone do not count.
+const MEANINGFUL_CONTENT_REGEX = /[\p{L}\p{N}]/u;
 
 export function normalizeHouseNumber(raw: string): string {
-  return raw.trim().replace(/\s+/g, " ").toUpperCase();
+  return raw.normalize("NFC").trim().replace(/\s+/g, " ").toUpperCase();
 }
 
 export function validateHouseNumber(raw: string): HouseValidationResult {
@@ -46,7 +51,7 @@ export function validateHouseNumber(raw: string): HouseValidationResult {
       ok: false,
       fieldErrors: {
         houseNumber:
-          "House number can only contain letters, numbers, spaces, hyphens, slashes, and dots.",
+          "House number can only contain letters, numbers, spaces, hyphens, slashes, dots, and parentheses.",
       },
     };
   }

@@ -69,11 +69,10 @@ export default async function HouseDetailPage({ params }: { params: unknown }) {
   requireSameVillage(ctx, house.villageId);
 
   // Rules are evaluated on the server (house-rules.ts is server-only); the
-  // view only receives the results.
+  // view only receives the results. Payment history does not affect them.
   const flags = {
     isActive: house.isActive,
     hasActiveOrPendingMembers: house._count.members > 0,
-    hasPayments: house._count.payments > 0,
   };
 
   // A house with no head has its pending members decided by the Chief, oldest
@@ -121,7 +120,7 @@ export default async function HouseDetailPage({ params }: { params: unknown }) {
       pendingHeadCandidates={pendingHeadCandidates}
       rules={{
         flags,
-        edit: canEditHouseNumber(flags),
+        edit: canEditHouseNumber(),
         deactivate: canDeactivateHouse(flags),
         reactivate: canReactivateHouse(flags),
       }}

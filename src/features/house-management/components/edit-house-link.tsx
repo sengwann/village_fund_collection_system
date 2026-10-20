@@ -5,24 +5,14 @@ import { Lock, Pencil } from "lucide-react";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/lib/i18n/provider";
-import {
-  getEditBlockedKey,
-  type HouseRuleFlags,
-  type RuleResult,
-} from "../lib/house-ui";
+import type { RuleResult } from "../lib/house-ui";
 
 interface EditHouseLinkProps {
   houseId: string;
   editRules: RuleResult;
-  /** Used only to pick a translated explanation when editing is blocked. */
-  flags: HouseRuleFlags;
 }
 
-export function EditHouseLink({
-  houseId,
-  editRules,
-  flags,
-}: EditHouseLinkProps) {
+export function EditHouseLink({ houseId, editRules }: EditHouseLinkProps) {
   const { t } = useTranslation();
 
   if (editRules.allowed) {
@@ -40,16 +30,13 @@ export function EditHouseLink({
   }
 
   // Blocked: a real disabled button (not a fake link) plus a visible reason.
-  const key = getEditBlockedKey(flags);
-  const message = key ? t(key) : editRules.reason;
-
   return (
     <div className="space-y-3">
       <Button className="w-full" disabled variant="outline">
         <Lock aria-hidden />
         {t("houses.edit.button")}
       </Button>
-      {message ? <Alert tone="info">{message}</Alert> : null}
+      {editRules.reason ? <Alert tone="info">{editRules.reason}</Alert> : null}
     </div>
   );
 }
