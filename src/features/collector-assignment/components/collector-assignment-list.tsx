@@ -95,6 +95,7 @@ export function CollectorAssignmentList({
                     </div>
                     <CollectorAssignmentStatusBadge
                       isActive={assignment.isActive}
+                      periodStatus={periodStatus}
                     />
                   </div>
 

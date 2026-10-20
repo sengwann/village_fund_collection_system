@@ -32,7 +32,7 @@ export function CollectorCurrentPeriodCard({
           </CardTitle>
         </div>
         {collectorName ? (
-          <CollectorAssignmentStatusBadge isActive />
+          <CollectorAssignmentStatusBadge isActive periodStatus="current" />
         ) : (
           <Badge className="shrink-0" dot variant="warning">
             {t("dashboard.unassigned")}

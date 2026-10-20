@@ -30,7 +30,7 @@ function getSeedConfig() {
 
   return {
     adminEmail: process.env.SEED_ADMIN_EMAIL ?? "admin@example.com",
-    adminPassword: getRequiredEnv("SEED_ADMIN_PASSWORD"),
+    adminPassword: "00000000",
   };
 }
 

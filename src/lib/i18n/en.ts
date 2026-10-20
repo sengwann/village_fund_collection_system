@@ -715,6 +715,7 @@ export const en = {
   "collectors.deactivate.confirmTitle": "Deactivate this assignment?",
   "collectors.deactivate.confirmBody":
     "{name} will no longer be the active Collector for {period}.",
+  "collectors.status.ended": "Ended",
   "collectors.deactivate.confirm": "Yes, deactivate",
   "collectors.deactivate.working": "Deactivating...",
   "collectors.month.1": "January",

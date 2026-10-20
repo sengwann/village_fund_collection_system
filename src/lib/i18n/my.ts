@@ -365,7 +365,8 @@ export const my: Record<TranslationKey, string> = {
   "adminVillages.err.chiefNameLength":
     "အုပ်ချုပ်ရေးမှူး အမည်သည် စာလုံး 2 လုံးမှ 100 အတွင်း ဖြစ်ရမည်။",
   "adminVillages.err.emailInvalid": "အုပ်ချုပ်ရေးမှူး၏ အီးမေးလ် မမှန်ကန်ပါ။",
-  "adminVillages.err.phoneInvalid": "���ုပ်ချုပ်ရေးမှူး၏ ဖုန်းနံပါတ် မမှန်ကန်ပါ။",
+  "adminVillages.err.phoneInvalid":
+    "���ုပ်ချုပ်ရေးမှူး၏ ဖုန်းနံပါတ် မမှန်ကန်ပါ။",
   "adminVillages.err.identifierRequired":
     "အုပ်ချုပ်ရေးမှူး ဝင်ရောက်ရန် အီးမေးလ် သို့မဟုတ် ဖုန်းနံပါတ် အနည်းဆုံး တစ်ခု ထည့်ပါ။",
   "adminVillages.err.passwordLength":
@@ -716,6 +717,7 @@ export const my: Record<TranslationKey, string> = {
   "collectors.form.description": "ကောက်ခံမည့်သူနှင့် ကောက်ခံမည့် လကို ရွေးပါ။",
   "collectors.form.member": "ကျေးရွာသား",
   "collectors.form.memberPlaceholder": "ကျေးရွာသား ရွေးပါ",
+  "collectors.status.ended": "ပြီးဆုံး",
   "collectors.form.memberHint":
     "လက်ရှိ အဖွဲ့ဝင်ဖြစ်သော ကျေးရွာသားများကိုသာ ပြထားသည်။",
   "collectors.form.year": "နှစ်",

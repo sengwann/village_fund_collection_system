@@ -1,6 +1,11 @@
 "use server";
 
-import { AuditActionType, MembershipStatus, Prisma } from "@prisma/client";
+import {
+  AuditActionType,
+  MembershipStatus,
+  Prisma,
+  UserRole,
+} from "@prisma/client";
 import { withSerializableRetry } from "../../../lib/db/transaction";
 import { prisma } from "../../../lib/prisma";
 import { requireChief, getCurrentPeriod } from "../../../lib/authz";
@@ -11,14 +16,15 @@ import {
 import { AuditEntityType, createAuditLog } from "../../../lib/audit";
 
 export type AssignCollectorActionResult =
-  | {
-      success: true;
-    }
+  | { success: true }
   | {
       success: false;
       formError?: string;
       fieldErrors?: Partial<Record<AssignCollectorField, string>>;
     };
+
+// Chiefs are not eligible collectors (owner decision).
+const NOT_CHIEF = { not: UserRole.CHIEF } as const;
 
 export async function assignCollectorAction(
   formData: FormData,
@@ -42,6 +48,7 @@ export async function assignCollectorAction(
       id: userId,
       villageId,
       membershipStatus: MembershipStatus.ACTIVE,
+      role: NOT_CHIEF,
     },
     select: {
       id: true,
@@ -69,6 +76,7 @@ export async function assignCollectorAction(
               id: userId,
               villageId,
               membershipStatus: MembershipStatus.ACTIVE,
+              role: NOT_CHIEF,
             },
             select: { id: true },
           });
@@ -76,6 +84,7 @@ export async function assignCollectorAction(
           if (!activeTarget) {
             throw new Error("TARGET_USER_NOT_ELIGIBLE");
           }
+
           const existingActiveAssignment =
             await tx.collectorAssignment.findFirst({
               where: {
@@ -117,16 +126,21 @@ export async function assignCollectorAction(
           let createdAssignmentId: string;
 
           if (existingInactiveAssignment) {
-            const updated = await tx.collectorAssignment.update({
+            const reactivated = await tx.collectorAssignment.updateMany({
               where: {
                 id: existingInactiveAssignment.id,
+                isActive: false, // <-- ဒီ guard က အဓိက
               },
-              data: {
-                isActive: true,
-              },
+              data: { isActive: true },
             });
 
-            createdAssignmentId = updated.id;
+            // တခြား request က အရင် reactivate လုပ်ပြီးသား (သို့) တခြား user
+            // အတွက် active row တစ်ခု ဖြစ်နေပြီ။
+            if (reactivated.count === 0) {
+              throw new Error("ACTIVE_COLLECTOR_ALREADY_EXISTS");
+            }
+
+            createdAssignmentId = existingInactiveAssignment.id;
           } else {
             const created = await tx.collectorAssignment.create({
               data: {
@@ -153,6 +167,7 @@ export async function assignCollectorAction(
               year,
               month,
               isActive: true,
+              assignedUserId: userId,
               assignedUserName: targetUser.name,
             },
           });
@@ -164,6 +179,15 @@ export async function assignCollectorAction(
     );
   } catch (error) {
     if (error instanceof Error) {
+      if (error.message === "TARGET_USER_NOT_ELIGIBLE") {
+        return {
+          success: false,
+          fieldErrors: {
+            userId: "Selected user is not an active member of this village.",
+          },
+        };
+      }
+
       if (error.message === "SAME_USER_ALREADY_ACTIVE_COLLECTOR") {
         return {
           success: false,
@@ -181,6 +205,18 @@ export async function assignCollectorAction(
       }
     }
 
+    // P2002 = unique constraint violation. With the partial index
+    // (villageId, year, month) WHERE isActive = true, this means another
+    // request created an active assignment for the same period in parallel.
+    const prismaError = error as { code?: string };
+    if (prismaError?.code === "P2002") {
+      return {
+        success: false,
+        formError:
+          "An active Collector already exists for the selected period. Deactivate the existing assignment first.",
+      };
+    }
+
     return {
       success: false,
       formError: "Unable to assign collector. Please try again.",
@@ -194,7 +230,5 @@ export async function assignCollectorAction(
     };
   }
 
-  return {
-    success: true,
-  };
+  return { success: true };
 }

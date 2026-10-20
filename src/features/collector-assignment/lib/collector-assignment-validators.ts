@@ -2,6 +2,8 @@ import "server-only";
 
 export type AssignCollectorField = "userId" | "year" | "month";
 
+const YEAR_MIN = 2020;
+
 export interface NormalizedAssignCollectorInput {
   userId: string;
   year: number;
@@ -9,10 +11,7 @@ export interface NormalizedAssignCollectorInput {
 }
 
 export type AssignCollectorValidationResult =
-  | {
-      ok: true;
-      data: NormalizedAssignCollectorInput;
-    }
+  | { ok: true; data: NormalizedAssignCollectorInput }
   | {
       ok: false;
       fieldErrors: Partial<Record<AssignCollectorField, string>>;
@@ -21,10 +20,16 @@ export type AssignCollectorValidationResult =
 
 function getFormDataString(formData: FormData, key: string): string {
   const value = formData.get(key);
-  if (typeof value === "string") {
-    return value;
+  return typeof value === "string" ? value : "";
+}
+
+/** Strict integer: rejects "12abc", "1.5", "-1", "" etc. */
+function parseStrictInteger(raw: string): number | null {
+  if (!/^\d+$/.test(raw)) {
+    return null;
   }
-  return "";
+  const parsed = Number.parseInt(raw, 10);
+  return Number.isNaN(parsed) ? null : parsed;
 }
 
 export function validateAssignCollectorInput(
@@ -41,18 +46,25 @@ export function validateAssignCollectorInput(
     fieldErrors.userId = "Select a village member to assign as Collector.";
   }
 
-  const year = parseInt(rawYear, 10);
-  const month = parseInt(rawMonth, 10);
+  const year = parseStrictInteger(rawYear);
+  const month = parseStrictInteger(rawMonth);
 
-  if (isNaN(year) || year < 2020 || year > 2100) {
-    fieldErrors.year = "Select a valid year.";
+  const maxYear = currentPeriod.year + 1;
+
+  if (year === null || year < YEAR_MIN || year > maxYear) {
+    fieldErrors.year = `Select a valid year between ${YEAR_MIN} and ${maxYear}.`;
   }
 
-  if (isNaN(month) || month < 1 || month > 12) {
+  if (month === null || month < 1 || month > 12) {
     fieldErrors.month = "Select a valid month.";
   }
 
-  if (!fieldErrors.year && !fieldErrors.month) {
+  if (
+    year !== null &&
+    month !== null &&
+    !fieldErrors.year &&
+    !fieldErrors.month
+  ) {
     const isPast =
       year < currentPeriod.year ||
       (year === currentPeriod.year && month < currentPeriod.month);
@@ -63,18 +75,15 @@ export function validateAssignCollectorInput(
   }
 
   if (Object.keys(fieldErrors).length > 0) {
-    return {
-      ok: false,
-      fieldErrors,
-    };
+    return { ok: false, fieldErrors };
   }
 
   return {
     ok: true,
     data: {
       userId,
-      year,
-      month,
+      year: year as number,
+      month: month as number,
     },
   };
 }

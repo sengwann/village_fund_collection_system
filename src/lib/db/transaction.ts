@@ -1,8 +1,8 @@
 import "server-only";
 
-type PrismaErrorWithCode = {
-  code?: string;
-};
+import { isSerializationConflict } from "./retry";
+
+export { isSerializationConflict } from "./retry";
 
 export async function withSerializableRetry<T>(
   operation: () => Promise<T>,
@@ -11,12 +11,12 @@ export async function withSerializableRetry<T>(
   try {
     return await operation();
   } catch (error) {
-    const prismaError = error as PrismaErrorWithCode;
+    if (isSerializationConflict(error) && retries > 0) {
+      const attempt = 4 - retries;
+      const backoffMs = 50 * attempt;
+      const jitterMs = Math.random() * 50;
 
-    // P2034 = serialization failure in Prisma/PostgreSQL
-    if (prismaError?.code === "P2034" && retries > 0) {
-      // Small delay before retrying
-      await new Promise((resolve) => setTimeout(resolve, 50 * (4 - retries)));
+      await new Promise((resolve) => setTimeout(resolve, backoffMs + jitterMs));
 
       return withSerializableRetry(operation, retries - 1);
     }

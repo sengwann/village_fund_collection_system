@@ -1,6 +1,9 @@
 import type { TranslationKey } from "@/lib/i18n/en";
 import { useTranslation } from "@/lib/i18n/provider";
 
+export { getPeriodStatus } from "../lib/collector-period";
+export type { PeriodStatus } from "../lib/collector-period";
+
 /* Month names come from the dictionaries so they follow the app language. */
 export const MONTH_KEYS = [
   "collectors.month.1",
@@ -16,22 +19,6 @@ export const MONTH_KEYS = [
   "collectors.month.11",
   "collectors.month.12",
 ] as const satisfies readonly TranslationKey[];
-
-export type PeriodStatus = "past" | "current" | "upcoming";
-
-export function getPeriodStatus(
-  year: number,
-  month: number,
-  current: { year: number; month: number },
-): PeriodStatus {
-  if (year === current.year && month === current.month) {
-    return "current";
-  }
-  if (year < current.year || (year === current.year && month < current.month)) {
-    return "past";
-  }
-  return "upcoming";
-}
 
 /** Returns a formatter such as (2026, 10) => "October 2026". Client use only. */
 export function usePeriodLabel(): (year: number, month: number) => string {

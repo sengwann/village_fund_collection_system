@@ -1,5 +1,7 @@
 import "server-only";
 
+import { VillageStatus } from "@prisma/client";
+
 import { prisma } from "../prisma";
 import { requireAuthenticatedUser } from "../auth/guards";
 import type { SessionUser } from "../auth/auth.types";
@@ -8,16 +10,43 @@ import { redirectForbidden } from "./authz.errors";
 import { getVillageContext, hasActiveMembership } from "./context";
 import type { CollectorContext } from "./authz.types";
 
+const YANGON_TIME_ZONE = "Asia/Yangon";
+
+/**
+ * Returns the current year and month in Asia/Yangon time.
+ *
+ * Replit servers normally run in UTC, so using `new Date().getFullYear()`
+ * would return the previous month for the first 6.5 hours of a new month
+ * in Yangon. That would let the previous month's collector keep cash
+ * authority and deny the new one. All period logic in this app uses
+ * Yangon time.
+ */
 export function getCurrentPeriod(): {
   year: number;
   month: number;
 } {
-  const now = new Date();
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: YANGON_TIME_ZONE,
+    year: "numeric",
+    month: "numeric",
+  }).formatToParts(new Date());
+
+  const yearPart = parts.find((part) => part.type === "year");
+  const monthPart = parts.find((part) => part.type === "month");
 
   return {
-    year: now.getFullYear(),
-    month: now.getMonth() + 1,
+    year: Number(yearPart?.value),
+    month: Number(monthPart?.value),
   };
+}
+
+async function isVillageActive(villageId: string): Promise<boolean> {
+  const village = await prisma.village.findUnique({
+    where: { id: villageId },
+    select: { status: true },
+  });
+
+  return village?.status === VillageStatus.ACTIVE;
 }
 
 export async function getActiveCollectorContext(
@@ -30,6 +59,12 @@ export async function getActiveCollectorContext(
   }
 
   if (!hasActiveMembership(user)) {
+    return null;
+  }
+
+  // Defensive: if guards.ts does not already block inactive villages,
+  // this prevents collectors from continuing to collect cash there.
+  if (!(await isVillageActive(villageContext.villageId))) {
     return null;
   }
 

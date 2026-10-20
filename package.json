@@ -8,7 +8,8 @@
     "start": "next start --hostname 0.0.0.0 --port 5000",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test": "node --conditions react-server --test \"src/**/*.test.ts\"",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
@@ -26,6 +27,7 @@
     "bcryptjs": "^3.0.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "dotenv": "^18.0.8",
     "jose": "^6.2.12",
     "lucide-react": "^1.42.0",
     "next": "^16.3.4",
@@ -46,6 +48,8 @@
     "@types/react-dom": "^19.2.7",
     "eslint": "^9.39.5",
     "eslint-config-next": "^16.3.4",
-    "typescript": "^5.9.3"
+    "tsx": "^4.23.15",
+    "typescript": "^5.9.3",
+    "vitest": "^5.0.5"
   }
 }

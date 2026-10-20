@@ -3,16 +3,14 @@
 import { redirect } from "next/navigation";
 import { AuditActionType } from "@prisma/client";
 import { prisma } from "../../../lib/prisma";
-import { requireChief } from "../../../lib/authz";
+import { requireChief, getCurrentPeriod } from "../../../lib/authz";
 import { canDeactivateAssignment } from "../lib/collector-assignment-rules";
+import { getPeriodStatus } from "../lib/collector-period";
 import { AuditEntityType, createAuditLog } from "../../../lib/audit";
 
 function getFormDataString(formData: FormData, key: string): string {
   const value = formData.get(key);
-  if (typeof value === "string") {
-    return value;
-  }
-  return "";
+  return typeof value === "string" ? value : "";
 }
 
 export async function deactivateCollectorAssignmentAction(
@@ -35,11 +33,8 @@ export async function deactivateCollectorAssignmentAction(
       isActive: true,
       year: true,
       month: true,
-      user: {
-        select: {
-          name: true,
-        },
-      },
+      userId: true,
+      user: { select: { name: true } },
     },
   });
 
@@ -47,31 +42,47 @@ export async function deactivateCollectorAssignmentAction(
     redirect("/village/collectors");
   }
 
-  if (!canDeactivateAssignment(assignment.isActive)) {
+  const currentPeriod = getCurrentPeriod();
+  const periodStatus = getPeriodStatus(
+    assignment.year,
+    assignment.month,
+    currentPeriod,
+  );
+
+  if (!canDeactivateAssignment(assignment.isActive, periodStatus)) {
     redirect("/village/collectors");
   }
 
-  await prisma.collectorAssignment.update({
-    where: {
-      id: assignment.id,
-    },
-    data: {
-      isActive: false,
-    },
-  });
+  await prisma.$transaction(async (tx) => {
+    const result = await tx.collectorAssignment.updateMany({
+      where: {
+        id: assignment.id,
+        villageId,
+        isActive: true,
+      },
+      data: { isActive: false },
+    });
 
-  await createAuditLog(prisma, {
-    actionType: AuditActionType.STATUS_CHANGE,
-    entityType: AuditEntityType.COLLECTOR_ASSIGNMENT,
-    entityId: assignment.id,
-    villageId,
-    actorUserId: user.id,
-    metadata: {
-      year: assignment.year,
-      month: assignment.month,
-      isActive: false,
-      assignedUserName: assignment.user.name,
-    },
+    // Another request already deactivated it. Skip the audit write so a
+    // double submit does not create duplicate audit entries.
+    if (result.count === 0) {
+      return;
+    }
+
+    await createAuditLog(tx, {
+      actionType: AuditActionType.STATUS_CHANGE,
+      entityType: AuditEntityType.COLLECTOR_ASSIGNMENT,
+      entityId: assignment.id,
+      villageId,
+      actorUserId: user.id,
+      metadata: {
+        year: assignment.year,
+        month: assignment.month,
+        isActive: false,
+        assignedUserId: assignment.userId,
+        assignedUserName: assignment.user.name,
+      },
+    });
   });
 
   redirect("/village/collectors");

@@ -1,7 +1,8 @@
 import "server-only";
 
-import { UserRole } from "@prisma/client";
+import { UserRole, VillageStatus } from "@prisma/client";
 
+import { prisma } from "../prisma";
 import { requireAuthenticatedUser } from "../auth/guards";
 import type { SessionUser } from "../auth/auth.types";
 
@@ -35,6 +36,17 @@ export async function requireChief(): Promise<VillageContext> {
   const context = await requireVillageContext();
 
   if (!isChief(context.user) || !hasActiveMembership(context.user)) {
+    return redirectForbidden();
+  }
+
+  // Defensive: chiefs must not assign/deactivate in an inactive village.
+  // Verify with guards.ts before removing this if it becomes redundant.
+  const village = await prisma.village.findUnique({
+    where: { id: context.villageId },
+    select: { status: true },
+  });
+
+  if (village?.status !== VillageStatus.ACTIVE) {
     return redirectForbidden();
   }
 

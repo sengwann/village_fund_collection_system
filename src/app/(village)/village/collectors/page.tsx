@@ -1,10 +1,11 @@
-import { MembershipStatus } from "@prisma/client";
+import { MembershipStatus, UserRole } from "@prisma/client";
 import { AssignCollectorForm } from "@/features/collector-assignment/components/assign-collector-form";
 import { CollectorAssignmentList } from "@/features/collector-assignment/components/collector-assignment-list";
 import { CollectorCurrentPeriodCard } from "@/features/collector-assignment/components/collector-current-period-card";
 import { CollectorsPageHeader } from "@/features/collector-assignment/components/collectors-page-header";
 import { deactivateCollectorAssignmentAction } from "@/features/collector-assignment/actions/deactivate-collector-assignment.action";
 import { canDeactivateAssignment } from "@/features/collector-assignment/lib/collector-assignment-rules";
+import { getPeriodStatus } from "@/features/collector-assignment/lib/collector-period";
 import { getCurrentPeriod, requireChief } from "@/lib/authz";
 import { prisma } from "@/lib/prisma";
 import { formatYangonDateTime } from "@/lib/utils";
@@ -27,18 +28,12 @@ export default async function CollectorsPage() {
     select: {
       id: true,
       isActive: true,
-      user: {
-        select: {
-          name: true,
-        },
-      },
+      user: { select: { name: true } },
     },
   });
 
   const assignments = await prisma.collectorAssignment.findMany({
-    where: {
-      villageId,
-    },
+    where: { villageId },
     orderBy: [{ year: "desc" }, { month: "desc" }, { createdAt: "desc" }],
     select: {
       id: true,
@@ -46,37 +41,38 @@ export default async function CollectorsPage() {
       month: true,
       isActive: true,
       createdAt: true,
-      user: {
-        select: {
-          name: true,
-        },
-      },
+      user: { select: { name: true } },
     },
   });
 
+  // Chiefs are not eligible collectors (owner decision).
   const eligibleUsers = await prisma.user.findMany({
     where: {
       villageId,
       membershipStatus: MembershipStatus.ACTIVE,
+      role: { not: UserRole.CHIEF },
     },
-    orderBy: {
-      name: "asc",
-    },
-    select: {
-      id: true,
-      name: true,
-    },
+    orderBy: { name: "asc" },
+    select: { id: true, name: true },
   });
 
-  const assignmentItems = assignments.map((assignment) => ({
-    id: assignment.id,
-    year: assignment.year,
-    month: assignment.month,
-    isActive: assignment.isActive,
-    collectorName: assignment.user.name,
-    assignedAt: formatYangonDateTime(assignment.createdAt, "date"),
-    canDeactivate: canDeactivateAssignment(assignment.isActive),
-  }));
+  const assignmentItems = assignments.map((assignment) => {
+    const periodStatus = getPeriodStatus(
+      assignment.year,
+      assignment.month,
+      currentPeriod,
+    );
+
+    return {
+      id: assignment.id,
+      year: assignment.year,
+      month: assignment.month,
+      isActive: assignment.isActive,
+      collectorName: assignment.user.name,
+      assignedAt: formatYangonDateTime(assignment.createdAt, "date"),
+      canDeactivate: canDeactivateAssignment(assignment.isActive, periodStatus),
+    };
+  });
 
   return (
     <div className="space-y-6">
