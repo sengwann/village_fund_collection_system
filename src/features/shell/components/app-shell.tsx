@@ -20,12 +20,15 @@ export function AppShell({
   navigation,
   variant,
   language = LanguagePreference.EN,
+  awaitingChiefApproval = false,
   children,
 }: {
   user: SessionUser;
   navigation: ShellNavigation;
   variant: "platform" | "village";
   language?: LanguagePreference;
+  /** Pending member whose house has no head yet: the Chief decides. */
+  awaitingChiefApproval?: boolean;
   children: ReactNode;
 }) {
   const t = getT(language);
@@ -64,7 +67,9 @@ export function AppShell({
         >
           {variant === "village" &&
           user.membershipStatus === MembershipStatus.PENDING ? (
-            <PendingMembershipBanner />
+            <PendingMembershipBanner
+              awaitingChiefApproval={awaitingChiefApproval}
+            />
           ) : null}
           {children}
         </main>

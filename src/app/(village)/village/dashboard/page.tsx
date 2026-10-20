@@ -41,8 +41,13 @@ export const metadata = {
 };
 
 export default async function VillageDashboardPage() {
-  const { context, collectorContext, isHeadOfHouse, notifications } =
-    await getVillageShellContext();
+  const {
+    context,
+    collectorContext,
+    isHeadOfHouse,
+    awaitingChiefApproval,
+    notifications,
+  } = await getVillageShellContext();
   const user = context.user;
   const villageId = context.villageId;
   const chief = isChief(user);
@@ -56,7 +61,7 @@ export default async function VillageDashboardPage() {
     return (
       <div className="space-y-6">
         <DashboardHeader name={user.name} pending />
-        <PendingMembershipView />
+        <PendingMembershipView awaitingChiefApproval={awaitingChiefApproval} />
       </div>
     );
   }

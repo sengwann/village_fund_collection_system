@@ -14,6 +14,7 @@ export type NavIconName =
   | "credit-card"
   | "receipt"
   | "shield-check"
+  | "shield-alert"
   | "banknote";
 
 export type NavBadgeVariant = "default" | "alert";
@@ -82,6 +83,8 @@ export function buildVillageNavigation(params: {
   const chiefSummary = notifications?.chief ?? null;
   const disputeCount =
     isChief && chiefSummary ? chiefSummary.disputesNeedingAction : 0;
+  const pendingHeadlessMembers =
+    isChief && chiefSummary ? chiefSummary.pendingHeadlessMembers : 0;
   const pendingKpay =
     isActiveCollector && notifications?.collector
       ? notifications.collector.pendingKpay
@@ -107,6 +110,11 @@ export function buildVillageNavigation(params: {
     label: t("nav.houses"),
     href: "/village/houses",
     iconName: "building",
+    badge:
+      pendingHeadlessMembers > 0
+        ? formatBadgeCount(pendingHeadlessMembers)
+        : undefined,
+    badgeVariant: pendingHeadlessMembers > 0 ? "alert" : undefined,
   };
   const members: NavItem = {
     label: t("nav.members"),

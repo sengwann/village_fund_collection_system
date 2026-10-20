@@ -6,6 +6,17 @@ const PHONE_ALLOWED_CHARACTERS_REGEX = /^[0-9+\-\s()]+$/;
 const PHONE_NORMALIZED_REGEX = /^\+?\d{5,15}$/;
 const DATE_REGEX = /^(\d{4})-(\d{2})-(\d{2})$/;
 
+// Login rejects identifiers longer than 191 characters, so registration must
+// not accept anything the account could never sign in with.
+const IDENTIFIER_MAX_LENGTH = 191;
+const PHONE_RAW_MAX_LENGTH = 30;
+
+// bcrypt only uses the first 72 BYTES of the password. Myanmar script is
+// 3 bytes per character in UTF-8, so a character count alone is not enough.
+const PASSWORD_MIN_LENGTH = 8;
+const PASSWORD_MAX_LENGTH = 72;
+const PASSWORD_MAX_BYTES = 72;
+
 export type VillageCodeField = "villageCode";
 export type RegisterField =
   | "villageCode"
@@ -15,7 +26,7 @@ export type RegisterField =
   | "identifier"
   | "password"
   | "houseNumber"
-  | "dateOfBirth"; // ← NEW
+  | "dateOfBirth";
 
 export interface NormalizedVillageCodeInput {
   villageCode: string;
@@ -36,7 +47,7 @@ export interface NormalizedRegisterInput {
   phone: string | null;
   password: string;
   houseNumber: string;
-  dateOfBirth: Date | null; // ← NEW: Optional
+  dateOfBirth: Date | null;
 }
 
 export type RegisterValidationResult =
@@ -72,9 +83,20 @@ export function validateVillageCodeInput(
   return { ok: true, data: { villageCode } };
 }
 
+function isPasswordLengthValid(password: string): boolean {
+  if (
+    password.length < PASSWORD_MIN_LENGTH ||
+    password.length > PASSWORD_MAX_LENGTH
+  ) {
+    return false;
+  }
+  return new TextEncoder().encode(password).length <= PASSWORD_MAX_BYTES;
+}
+
 /**
  * Parses a date string (YYYY-MM-DD) into a Date object.
- * Returns null if empty or invalid.
+ * Returns null if empty, malformed, not a real calendar date, in the future,
+ * or unreasonably old.
  */
 function parseOptionalDate(raw: string): Date | null {
   if (!raw || !raw.trim()) return null;
@@ -83,6 +105,9 @@ function parseOptionalDate(raw: string): Date | null {
 
   const date = new Date(trimmed + "T00:00:00Z");
   if (isNaN(date.getTime())) return null;
+
+  // Reject dates that JavaScript would roll over (e.g. 2023-02-31).
+  if (date.toISOString().slice(0, 10) !== trimmed) return null;
 
   // Must not be in the future
   if (date > new Date()) return null;
@@ -96,10 +121,20 @@ function parseOptionalDate(raw: string): Date | null {
 export function validateRegisterInput(
   formData: FormData,
 ): RegisterValidationResult {
-  const fieldErrors: Partial<Record<RegisterField, string>> = {};
-
+  // The village code is a hidden field, so a bad value is not something the
+  // visitor can fix in the form. Report it as a form-level error and stop.
   const rawVillageCode = getFormDataString(formData, "villageCode");
   const villageCode = normalizeVillageCode(rawVillageCode);
+  if (!VILLAGE_CODE_REGEX.test(villageCode)) {
+    return {
+      ok: false,
+      fieldErrors: {},
+      formError: "Invalid village code.",
+    };
+  }
+
+  const fieldErrors: Partial<Record<RegisterField, string>> = {};
+
   const rawName = getFormDataString(formData, "name");
   const name = rawName.trim();
   const rawEmail = getFormDataString(formData, "email").trim();
@@ -107,11 +142,8 @@ export function validateRegisterInput(
   const rawPassword = getFormDataString(formData, "password");
   const rawHouseNumber = getFormDataString(formData, "houseNumber");
   const houseNumber = normalizeHouseNumber(rawHouseNumber);
-  const rawDateOfBirth = getFormDataString(formData, "dateOfBirth"); // ← NEW
+  const rawDateOfBirth = getFormDataString(formData, "dateOfBirth");
 
-  if (!VILLAGE_CODE_REGEX.test(villageCode)) {
-    fieldErrors.villageCode = "Invalid village code.";
-  }
   if (name.length < 2 || name.length > 100) {
     fieldErrors.name = "Name must be between 2 and 100 characters.";
   }
@@ -120,14 +152,20 @@ export function validateRegisterInput(
   let phone: string | null = null;
   if (rawEmail) {
     const normalizedEmail = rawEmail.toLowerCase();
-    if (!EMAIL_REGEX.test(normalizedEmail)) {
+    if (
+      normalizedEmail.length > IDENTIFIER_MAX_LENGTH ||
+      !EMAIL_REGEX.test(normalizedEmail)
+    ) {
       fieldErrors.email = "Email is invalid.";
     } else {
       email = normalizedEmail;
     }
   }
   if (rawPhone) {
-    if (!PHONE_ALLOWED_CHARACTERS_REGEX.test(rawPhone)) {
+    if (
+      rawPhone.length > PHONE_RAW_MAX_LENGTH ||
+      !PHONE_ALLOWED_CHARACTERS_REGEX.test(rawPhone)
+    ) {
       fieldErrors.phone = "Phone number is invalid.";
     } else {
       const normalizedPhone = rawPhone.replace(/[\s\-().]/g, "");
@@ -142,14 +180,14 @@ export function validateRegisterInput(
     fieldErrors.identifier =
       "Provide at least one login identifier: email or phone.";
   }
-  if (rawPassword.length < 8 || rawPassword.length > 72) {
+  if (!isPasswordLengthValid(rawPassword)) {
     fieldErrors.password = "Password must be between 8 and 72 characters.";
   }
   if (houseNumber.length < 2 || houseNumber.length > 30) {
     fieldErrors.houseNumber = "Select a valid house number.";
   }
 
-  // ← NEW: DOB is OPTIONAL. Only validate if provided.
+  // DOB is optional. Only validate if provided.
   let dateOfBirth: Date | null = null;
   if (rawDateOfBirth.trim()) {
     dateOfBirth = parseOptionalDate(rawDateOfBirth);

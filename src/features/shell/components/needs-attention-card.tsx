@@ -36,8 +36,13 @@ export function NeedsAttentionCard({
     formatCount(t(count === 1 ? one : other), count);
 
   if (isChief && notifications.chief) {
-    const { disputesNeedingAction, hasActiveCollector, hasActiveFund } =
-      notifications.chief;
+    const {
+      disputesNeedingAction,
+      hasActiveCollector,
+      hasActiveFund,
+      pendingHeadlessMembers,
+      singleHeadlessHouseId,
+    } = notifications.chief;
     if (disputesNeedingAction > 0) {
       items.push({
         key: "disputes",
@@ -47,6 +52,21 @@ export function NeedsAttentionCard({
           "shell.attention.disputesOther",
         ),
         href: "/village/disputes",
+        variant: "count",
+      });
+    }
+    // Pending members of houses with no head: only the Chief can decide.
+    if (pendingHeadlessMembers > 0) {
+      items.push({
+        key: "pending-heads",
+        label: counted(
+          pendingHeadlessMembers,
+          "shell.attention.membersOne",
+          "shell.attention.membersOther",
+        ),
+        href: singleHeadlessHouseId
+          ? `/village/houses/${singleHeadlessHouseId}`
+          : "/village/houses",
         variant: "count",
       });
     }

@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useRef, useState, useTransition } from "react";
 import type { FormEvent, ReactNode } from "react";
-import { Clock, ShieldCheck } from "lucide-react";
+import { Clock, Users } from "lucide-react";
 import { Button } from "../../../components/ui/button";
 import { Field, Select } from "../../../components/ui/field";
 import { useTranslation } from "../../../lib/i18n/provider";
@@ -111,6 +111,8 @@ export function RejoinForm({
           {t("rejoin.nextTitle")}
         </h3>
         <ul className="space-y-2">
+          {/* Both outcomes are now pending: a head approves, or the Village
+              Chief decides when the house has no head yet. */}
           <OutcomeItem
             body={t("rejoin.nextHasMembersBody")}
             icon={<Clock />}
@@ -119,9 +121,9 @@ export function RejoinForm({
           />
           <OutcomeItem
             body={t("rejoin.nextEmptyBody")}
-            icon={<ShieldCheck />}
+            icon={<Users />}
             title={t("rejoin.nextEmptyTitle")}
-            tone="success"
+            tone="info"
           />
         </ul>
       </section>

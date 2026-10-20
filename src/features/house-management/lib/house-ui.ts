@@ -27,6 +27,14 @@ export interface HouseDetailData {
   updatedAt: string;
 }
 
+/** A pending member of a house that has no head yet (Chief decides). */
+export interface PendingHeadCandidate {
+  id: string;
+  name: string;
+  /** ISO string, so the data can cross the server/client boundary. */
+  createdAt: string;
+}
+
 export interface HouseDetailRules {
   flags: HouseRuleFlags;
   edit: RuleResult;

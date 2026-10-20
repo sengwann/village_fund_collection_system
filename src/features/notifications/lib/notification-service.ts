@@ -15,6 +15,12 @@ export interface ChiefNotificationSummary {
   disputesNeedingAction: number;
   hasActiveCollector: boolean;
   hasActiveFund: boolean;
+  /** Pending villagers in houses that have no Head of House yet (Chief decides). */
+  pendingHeadlessMembers: number;
+  /** Number of houses those pending members belong to. */
+  headlessHouseCount: number;
+  /** Set only when exactly one house is involved, so the Chief can open it directly. */
+  singleHeadlessHouseId: string | null;
 }
 
 export interface CollectorNotificationSummary {
@@ -65,29 +71,57 @@ export async function computeNotificationSummary(params: {
   const chiefPromise: Promise<ChiefNotificationSummary | null> = isChief
     ? (async () => {
         const { year, month } = getCurrentPeriod();
-        const [disputesNeedingAction, activeCollector, activeFund] =
-          await Promise.all([
-            prisma.dispute.count({
-              where: {
-                villageId,
-                status: {
-                  in: [DisputeStatus.OPEN, DisputeStatus.UNDER_REVIEW],
-                },
+        const [
+          disputesNeedingAction,
+          activeCollector,
+          activeFund,
+          headlessGroups,
+        ] = await Promise.all([
+          prisma.dispute.count({
+            where: {
+              villageId,
+              status: {
+                in: [DisputeStatus.OPEN, DisputeStatus.UNDER_REVIEW],
               },
-            }),
-            prisma.collectorAssignment.findFirst({
-              where: { villageId, year, month, isActive: true },
-              select: { id: true },
-            }),
-            prisma.fund.findFirst({
-              where: { villageId, status: FundStatus.ACTIVE },
-              select: { id: true },
-            }),
-          ]);
+            },
+          }),
+          prisma.collectorAssignment.findFirst({
+            where: { villageId, year, month, isActive: true },
+            select: { id: true },
+          }),
+          prisma.fund.findFirst({
+            where: { villageId, status: FundStatus.ACTIVE },
+            select: { id: true },
+          }),
+          // Pending villagers whose house has no head: only the Chief can
+          // decide on these. Pending members of a house that has a head are
+          // handled by that head and are not counted here.
+          prisma.user.groupBy({
+            by: ["houseId"],
+            where: {
+              villageId,
+              role: UserRole.VILLAGER,
+              membershipStatus: MembershipStatus.PENDING,
+              house: { is: { headOfHouseId: null } },
+            },
+            _count: { _all: true },
+          }),
+        ]);
+
+        const pendingHeadlessMembers = headlessGroups.reduce(
+          (sum, group) => sum + group._count._all,
+          0,
+        );
+        const headlessHouseCount = headlessGroups.length;
+
         return {
           disputesNeedingAction,
           hasActiveCollector: Boolean(activeCollector),
           hasActiveFund: Boolean(activeFund),
+          pendingHeadlessMembers,
+          headlessHouseCount,
+          singleHeadlessHouseId:
+            headlessHouseCount === 1 ? headlessGroups[0].houseId : null,
         };
       })()
     : Promise.resolve(null);

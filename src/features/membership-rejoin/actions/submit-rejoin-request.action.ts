@@ -15,7 +15,7 @@ import { revalidateVillageShell } from "../../shell/lib/shell-revalidation";
 export async function submitRejoinRequestAction(
   formData: FormData,
 ): Promise<void> {
-  const { user, villageId, membershipStatus } = await requireRejoinContext();
+  const { user, villageId } = await requireRejoinContext();
 
   const rawHouseNumber = getFormDataString(formData, "houseNumber");
   const houseNumber = normalizeHouseNumber(rawHouseNumber);
@@ -83,49 +83,20 @@ export async function submitRejoinRequestAction(
             throw new Error("HOUSE_NOT_AVAILABLE");
           }
 
-          const activeMemberCount = await tx.user.count({
+          // A rejoin request is always PENDING and never makes the user Head
+          // of House. If the house has a head, that head approves the request.
+          // If the house has no head yet, the Village Chief decides.
+          const newMembershipStatus = MembershipStatus.PENDING;
+
+          await tx.user.update({
             where: {
+              id: user.id,
+            },
+            data: {
               houseId: house.id,
-              membershipStatus: MembershipStatus.ACTIVE,
+              membershipStatus: newMembershipStatus,
             },
           });
-
-          let newMembershipStatus: MembershipStatus;
-
-          if (activeMemberCount === 0) {
-            await tx.user.update({
-              where: {
-                id: user.id,
-              },
-              data: {
-                houseId: house.id,
-                membershipStatus: MembershipStatus.ACTIVE,
-              },
-            });
-
-            await tx.house.update({
-              where: {
-                id: house.id,
-              },
-              data: {
-                headOfHouseId: user.id,
-              },
-            });
-
-            newMembershipStatus = MembershipStatus.ACTIVE;
-          } else {
-            await tx.user.update({
-              where: {
-                id: user.id,
-              },
-              data: {
-                houseId: house.id,
-                membershipStatus: MembershipStatus.PENDING,
-              },
-            });
-
-            newMembershipStatus = MembershipStatus.PENDING;
-          }
 
           await createAuditLog(tx, {
             actionType: AuditActionType.STATUS_CHANGE,

@@ -35,6 +35,28 @@ class RegistrationInputError extends Error {
   }
 }
 
+type PrismaLikeError = {
+  code?: string;
+  message?: string;
+  meta?: unknown;
+};
+
+/**
+ * Collects every place a unique-constraint error may name the violated field.
+ * With the classic engine this is `meta.target`; with driver adapters (the pg
+ * adapter used here) the details can sit under `meta.driverAdapterError`, or
+ * only appear in the message. Search them all.
+ */
+function getUniqueViolationInfo(error: PrismaLikeError): string {
+  let metaText = "";
+  try {
+    metaText = JSON.stringify(error.meta ?? "");
+  } catch {
+    metaText = "";
+  }
+  return `${metaText} ${error.message ?? ""}`.toLowerCase();
+}
+
 export async function registerVillagerAction(
   formData: FormData,
 ): Promise<RegisterVillagerActionResult> {
@@ -96,17 +118,11 @@ export async function registerVillagerAction(
             );
           }
 
-          const activeMemberCount = await tx.user.count({
-            where: {
-              houseId: house.id,
-              membershipStatus: MembershipStatus.ACTIVE,
-            },
-          });
-
-          const membershipStatus =
-            activeMemberCount === 0
-              ? MembershipStatus.ACTIVE
-              : MembershipStatus.PENDING;
+          // Every new registrant is PENDING and is never made Head of House
+          // here. If the house has a head, that head approves the request.
+          // If the house has no head yet, the Village Chief decides (see the
+          // chief approve/reject actions in household-management).
+          const membershipStatus = MembershipStatus.PENDING;
 
           const user = await tx.user.create({
             data: {
@@ -121,17 +137,6 @@ export async function registerVillagerAction(
               dateOfBirth,
             },
           });
-
-          if (activeMemberCount === 0) {
-            await tx.house.update({
-              where: {
-                id: house.id,
-              },
-              data: {
-                headOfHouseId: user.id,
-              },
-            });
-          }
 
           await createAuditLog(tx, {
             actionType: AuditActionType.CREATE,
@@ -168,16 +173,14 @@ export async function registerVillagerAction(
       };
     }
 
-    const prismaError = error as {
-      code?: string;
-      meta?: {
-        target?: unknown;
-      };
-    };
+    const prismaError = error as PrismaLikeError;
 
     if (prismaError.code === "P2002") {
-      const targetInfo = JSON.stringify(prismaError.meta?.target ?? "");
-      if (targetInfo.includes("email")) {
+      const info = getUniqueViolationInfo(prismaError);
+      const emailViolation = info.includes("email");
+      const phoneViolation = info.includes("phone");
+
+      if (emailViolation && !phoneViolation) {
         return {
           success: false,
           fieldErrors: {
@@ -185,7 +188,7 @@ export async function registerVillagerAction(
           },
         };
       }
-      if (targetInfo.includes("phone")) {
+      if (phoneViolation && !emailViolation) {
         return {
           success: false,
           fieldErrors: {

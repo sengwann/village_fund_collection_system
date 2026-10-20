@@ -2,7 +2,9 @@ import { notFound } from "next/navigation";
 import { requireChief } from "@/lib/authz";
 import { requireSameVillage } from "@/lib/authz/tenant";
 import { prisma } from "@/lib/prisma";
-import { MembershipStatus } from "@prisma/client";
+import { MembershipStatus, UserRole } from "@prisma/client";
+import { chiefApproveFirstMemberAction } from "@/features/household-management/actions/chief-approve-first-member.action";
+import { chiefRejectPendingMemberAction } from "@/features/household-management/actions/chief-reject-pending-member.action";
 import { HouseDetailView } from "@/features/house-management/components/house-detail-view";
 import {
   canDeactivateHouse,
@@ -42,6 +44,7 @@ export default async function HouseDetailPage({ params }: { params: unknown }) {
       villageId: true,
       houseNumber: true,
       isActive: true,
+      headOfHouseId: true,
       createdAt: true,
       updatedAt: true,
       headOfHouse: {
@@ -73,8 +76,38 @@ export default async function HouseDetailPage({ params }: { params: unknown }) {
     hasPayments: house._count.payments > 0,
   };
 
+  // A house with no head has its pending members decided by the Chief, oldest
+  // first. Once a head exists, the head handles them and this stays empty.
+  const pendingHeadCandidates =
+    house.headOfHouseId === null
+      ? (
+          await prisma.user.findMany({
+            where: {
+              houseId: house.id,
+              villageId: house.villageId,
+              role: UserRole.VILLAGER,
+              membershipStatus: MembershipStatus.PENDING,
+            },
+            select: {
+              id: true,
+              name: true,
+              createdAt: true,
+            },
+            orderBy: {
+              createdAt: "asc",
+            },
+          })
+        ).map((candidate) => ({
+          id: candidate.id,
+          name: candidate.name,
+          createdAt: candidate.createdAt.toISOString(),
+        }))
+      : [];
+
   return (
     <HouseDetailView
+      chiefApproveAction={chiefApproveFirstMemberAction}
+      chiefRejectAction={chiefRejectPendingMemberAction}
       house={{
         id: house.id,
         houseNumber: house.houseNumber,
@@ -85,6 +118,7 @@ export default async function HouseDetailPage({ params }: { params: unknown }) {
         createdAt: house.createdAt.toISOString(),
         updatedAt: house.updatedAt.toISOString(),
       }}
+      pendingHeadCandidates={pendingHeadCandidates}
       rules={{
         flags,
         edit: canEditHouseNumber(flags),

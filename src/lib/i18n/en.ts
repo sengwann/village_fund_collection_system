@@ -180,7 +180,7 @@ export const en = {
   "signup.housePlaceholder": "Select a house number",
   "signup.houseHint": "Choose a house number created by your village chief.",
   "signup.houseNote":
-    "The first person to register for a house becomes its Head of House and is approved right away. Everyone else waits for the Head of House to approve.",
+    "New members wait for approval. If the house has no Head of House yet, the Village Chief chooses one. Otherwise, the Head of House approves you.",
   "signup.submit": "Create account",
   "signup.submitting": "Creating account...",
   "signup.errorTitle": "Could not create your account",
@@ -247,11 +247,12 @@ export const en = {
   "rejoin.housePlaceholder": "Select a house number",
   "rejoin.houseRequired": "Select a house number to continue.",
   "rejoin.nextTitle": "What happens next",
-  "rejoin.nextHasMembersTitle": "If the house already has active members",
+  "rejoin.nextHasMembersTitle": "If the house already has a Head of House",
   "rejoin.nextHasMembersBody":
     "Your request stays pending until the Head of House approves it.",
-  "rejoin.nextEmptyTitle": "If the house has no active members",
-  "rejoin.nextEmptyBody": "You become the active Head of House right away.",
+  "rejoin.nextEmptyTitle": "If the house has no Head of House yet",
+  "rejoin.nextEmptyBody":
+    "Your request stays pending until the Village Chief decides. The Chief may approve one member as Head of House.",
   "rejoin.submit": "Submit rejoin request",
   "rejoin.submitting": "Submitting request...",
   "rejoin.noHousesTitle": "No active houses yet",

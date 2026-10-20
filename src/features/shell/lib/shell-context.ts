@@ -1,5 +1,9 @@
 import { cache } from "react";
-import { LanguagePreference, MembershipStatus } from "@prisma/client";
+import {
+  LanguagePreference,
+  MembershipStatus,
+  UserRole,
+} from "@prisma/client";
 import {
   getActiveCollectorContext,
   requireSystemAdmin,
@@ -23,6 +27,11 @@ export interface VillageShellContext {
   context: VillageContext;
   collectorContext: CollectorContext | null;
   isHeadOfHouse: boolean;
+  /**
+   * True for a PENDING villager whose house has no Head of House yet, so the
+   * Village Chief (not a head) decides on the request.
+   */
+  awaitingChiefApproval: boolean;
   notifications: NotificationSummary;
   language: LanguagePreference;
 }
@@ -58,17 +67,25 @@ export const getVillageShellContext = cache(
     }
     const collectorContext = await getActiveCollectorContext(context.user);
     let isHeadOfHouse = false;
+    let awaitingChiefApproval = false;
     if (
       context.user.houseId &&
-      context.user.membershipStatus === MembershipStatus.ACTIVE
+      (context.user.membershipStatus === MembershipStatus.ACTIVE ||
+        context.user.membershipStatus === MembershipStatus.PENDING)
     ) {
       const house = await prisma.house.findUnique({
         where: { id: context.user.houseId },
         select: { isActive: true, headOfHouseId: true },
       });
-      isHeadOfHouse = Boolean(
-        house && house.isActive && house.headOfHouseId === context.user.id,
-      );
+      if (context.user.membershipStatus === MembershipStatus.ACTIVE) {
+        isHeadOfHouse = Boolean(
+          house && house.isActive && house.headOfHouseId === context.user.id,
+        );
+      } else {
+        awaitingChiefApproval =
+          context.user.role === UserRole.VILLAGER &&
+          Boolean(house && house.headOfHouseId === null);
+      }
     }
     const notifications = await computeNotificationSummary({
       user: context.user,
@@ -81,6 +98,7 @@ export const getVillageShellContext = cache(
       context,
       collectorContext,
       isHeadOfHouse,
+      awaitingChiefApproval,
       notifications,
       language,
     };

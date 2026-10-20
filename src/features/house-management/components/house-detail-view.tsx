@@ -9,18 +9,17 @@ import {
   interpolate,
   type HouseDetailData,
   type HouseDetailRules,
+  type PendingHeadCandidate,
 } from "../lib/house-ui";
 import { EditHouseLink } from "./edit-house-link";
 import { HouseLifecycleActions } from "./house-lifecycle-actions";
 import { HouseStatusBadge } from "./house-status-badge";
+import { PendingHeadSection } from "./pending-head-section";
 
-function InfoRow({
-  label,
-  children,
-}: {
-  label: string;
-  children: ReactNode;
-}) {
+/** Same shape the other forms use: <form action={serverAction}>. */
+type FormAction = (formData: FormData) => void | Promise<void>;
+
+function InfoRow({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div className="flex flex-col gap-0.5 py-3 first:pt-0 last:pb-0 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
       <dt className="text-sm text-muted-foreground">{label}</dt>
@@ -34,12 +33,23 @@ function InfoRow({
 export function HouseDetailView({
   house,
   rules,
+  pendingHeadCandidates = [],
+  chiefApproveAction,
+  chiefRejectAction,
 }: {
   house: HouseDetailData;
   rules: HouseDetailRules;
+  /** Pending members of a headless house. Empty when the house has a head. */
+  pendingHeadCandidates?: PendingHeadCandidate[];
+  chiefApproveAction?: FormAction;
+  chiefRejectAction?: FormAction;
 }) {
   const { t } = useTranslation();
   const showLifecycle = house.isActive || rules.reactivate.allowed;
+  const showPendingHead =
+    pendingHeadCandidates.length > 0 &&
+    Boolean(chiefApproveAction) &&
+    Boolean(chiefRejectAction);
 
   return (
     <div className="space-y-6">
@@ -55,6 +65,16 @@ export function HouseDetailView({
 
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,22rem)] lg:items-start">
         <div className="space-y-4">
+          {showPendingHead && chiefApproveAction && chiefRejectAction ? (
+            <PendingHeadSection
+              approveAction={chiefApproveAction}
+              canApprove={house.isActive}
+              candidates={pendingHeadCandidates}
+              houseId={house.id}
+              rejectAction={chiefRejectAction}
+            />
+          ) : null}
+
           <dl className="grid grid-cols-2 gap-3">
             <Card className="p-4">
               <dt className="text-sm text-muted-foreground">

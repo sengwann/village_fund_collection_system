@@ -9,8 +9,14 @@ export default async function VillageLayout({
 }: {
   children: ReactNode;
 }) {
-  const { context, collectorContext, isHeadOfHouse, notifications, language } =
-    await getVillageShellContext();
+  const {
+    context,
+    collectorContext,
+    isHeadOfHouse,
+    awaitingChiefApproval,
+    notifications,
+    language,
+  } = await getVillageShellContext();
   const navigation = buildVillageNavigation({
     user: context.user,
     isActiveCollector: Boolean(collectorContext),
@@ -21,6 +27,7 @@ export default async function VillageLayout({
   return (
     <TranslationProvider language={language}>
       <AppShell
+        awaitingChiefApproval={awaitingChiefApproval}
         navigation={navigation}
         user={context.user}
         variant="village"
