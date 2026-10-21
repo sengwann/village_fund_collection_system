@@ -9,12 +9,9 @@ export const metadata = {
 export default async function HousesPage() {
   const { villageId } = await requireChief();
 
-  const houses = await prisma.house.findMany({
+  const rows = await prisma.house.findMany({
     where: {
       villageId,
-    },
-    orderBy: {
-      houseNumber: "asc",
     },
     select: {
       id: true,
@@ -22,6 +19,11 @@ export default async function HousesPage() {
       isActive: true,
     },
   });
+
+  // Natural order: "2" before "10", "A-2" before "A-10".
+  const houses = [...rows].sort((a, b) =>
+    a.houseNumber.localeCompare(b.houseNumber, "en", { numeric: true }),
+  );
 
   return <HousesDirectory houses={houses} />;
 }

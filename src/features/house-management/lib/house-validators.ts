@@ -1,4 +1,4 @@
-import "server-only";
+import type { HouseErrorCode } from "./house-error-text";
 
 export type HouseField = "houseNumber";
 
@@ -10,8 +10,7 @@ export type HouseValidationResult =
   | { ok: true; data: NormalizedHouseInput }
   | {
       ok: false;
-      fieldErrors: Partial<Record<HouseField, string>>;
-      formError?: string;
+      fieldErrors: Partial<Record<HouseField, HouseErrorCode>>;
     };
 
 // Latin letters, digits, Myanmar / Myanmar Extended-A / Extended-B blocks,
@@ -31,38 +30,19 @@ export function validateHouseNumber(raw: string): HouseValidationResult {
   const normalized = normalizeHouseNumber(raw);
 
   if (!normalized) {
-    return {
-      ok: false,
-      fieldErrors: { houseNumber: "House number is required." },
-    };
+    return { ok: false, fieldErrors: { houseNumber: "required" } };
   }
 
   if (normalized.length < 2 || normalized.length > 30) {
-    return {
-      ok: false,
-      fieldErrors: {
-        houseNumber: "House number must be between 2 and 30 characters.",
-      },
-    };
+    return { ok: false, fieldErrors: { houseNumber: "length" } };
   }
 
   if (!ALLOWED_CHARS_REGEX.test(normalized)) {
-    return {
-      ok: false,
-      fieldErrors: {
-        houseNumber:
-          "House number can only contain letters, numbers, spaces, hyphens, slashes, dots, and parentheses.",
-      },
-    };
+    return { ok: false, fieldErrors: { houseNumber: "chars" } };
   }
 
   if (!MEANINGFUL_CONTENT_REGEX.test(normalized)) {
-    return {
-      ok: false,
-      fieldErrors: {
-        houseNumber: "House number must contain at least one letter or number.",
-      },
-    };
+    return { ok: false, fieldErrors: { houseNumber: "noContent" } };
   }
 
   return { ok: true, data: { houseNumber: normalized } };

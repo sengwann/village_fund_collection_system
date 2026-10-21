@@ -663,7 +663,7 @@ export const en = {
     "Reactivating allows new members to join this house again.",
   "houses.form.houseNumber": "House number",
   "houses.form.hint":
-    "Letters, numbers, spaces, hyphens, slashes and dots are allowed (2–30 characters).",
+    "Letters, numbers, spaces, hyphens, slashes, dots and parentheses are allowed (2–30 characters).",
   "houses.create.title": "Create house",
   "houses.create.description":
     "Add a new official house number to your village.",

@@ -4,6 +4,8 @@ import { redirect, notFound } from "next/navigation";
 import { AuditActionType } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { requireChief } from "@/lib/authz";
+import { redirectForbidden } from "@/lib/authz/authz.errors";
+import { lockActiveVillage } from "@/lib/authz/village";
 import { canReactivateHouse } from "../lib/house-rules";
 import { AuditEntityType, createAuditLog } from "@/lib/audit";
 
@@ -11,6 +13,10 @@ export async function reactivateHouseAction(houseId: string): Promise<void> {
   const { user, villageId } = await requireChief();
 
   const outcome = await prisma.$transaction(async (tx) => {
+    if (!(await lockActiveVillage(tx, villageId))) {
+      return "village_inactive" as const;
+    }
+
     // Scoped by village: a house from another village looks like "not found".
     const house = await tx.house.findFirst({
       where: { id: houseId, villageId },
@@ -45,6 +51,10 @@ export async function reactivateHouseAction(houseId: string): Promise<void> {
 
     return "done" as const;
   });
+
+  if (outcome === "village_inactive") {
+    return redirectForbidden();
+  }
 
   if (outcome === "not_found") {
     return notFound();

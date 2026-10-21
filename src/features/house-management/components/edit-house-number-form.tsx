@@ -6,12 +6,7 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import type { FormEvent } from "react";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Field, Input } from "@/components/ui/field";
 import { PageHeader } from "@/components/ui/page-header";
 import { useTranslation } from "@/lib/i18n/provider";
@@ -19,6 +14,7 @@ import {
   updateHouseNumberAction,
   type UpdateHouseActionResult,
 } from "../actions/update-house-number.action";
+import { getHouseErrorText } from "../lib/house-error-text";
 import { interpolate } from "../lib/house-ui";
 
 export function EditHouseNumberForm({
@@ -29,7 +25,8 @@ export function EditHouseNumberForm({
   currentHouseNumber: string;
 }) {
   const router = useRouter();
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
+  const errorText = getHouseErrorText(language);
   const [formError, setFormError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<
     Record<string, string | undefined>
@@ -58,8 +55,16 @@ export function EditHouseNumberForm({
         router.refresh();
         return;
       }
-      setFieldErrors(result.fieldErrors ?? {});
-      setFormError(result.formError ?? t("houses.editPage.generic"));
+
+      const code = result.fieldErrors?.houseNumber;
+      if (code) {
+        // A field error is specific enough; do not add the generic alert.
+        setFieldErrors({ houseNumber: errorText[code] });
+        setFormError(null);
+        return;
+      }
+
+      setFormError(t("houses.editPage.generic"));
     });
   }
 

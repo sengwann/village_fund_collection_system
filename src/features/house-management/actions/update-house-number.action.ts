@@ -4,7 +4,10 @@ import { notFound } from "next/navigation";
 import { AuditActionType } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { requireChief } from "@/lib/authz";
+import { redirectForbidden } from "@/lib/authz/authz.errors";
+import { lockActiveVillage } from "@/lib/authz/village";
 import { validateHouseNumber, type HouseField } from "../lib/house-validators";
+import type { HouseErrorCode } from "../lib/house-error-text";
 import { canEditHouseNumber } from "../lib/house-rules";
 import { AuditEntityType, createAuditLog } from "@/lib/audit";
 
@@ -12,8 +15,9 @@ export type UpdateHouseActionResult =
   | { success: true }
   | {
       success: false;
-      formError?: string;
-      fieldErrors?: Partial<Record<HouseField, string>>;
+      /** "generic" means: show the translated generic error in the form. */
+      formError?: "generic";
+      fieldErrors?: Partial<Record<HouseField, HouseErrorCode>>;
     };
 
 export async function updateHouseNumberAction(
@@ -24,7 +28,7 @@ export async function updateHouseNumberAction(
 
   const rules = canEditHouseNumber();
   if (!rules.allowed) {
-    return { success: false, formError: rules.reason };
+    return { success: false, formError: "generic" };
   }
 
   const rawHouseNumber = formData.get("houseNumber");
@@ -33,19 +37,24 @@ export async function updateHouseNumberAction(
   );
 
   if (!validation.ok) {
-    return {
-      success: false,
-      fieldErrors: validation.fieldErrors,
-      formError: validation.formError,
-    };
+    return { success: false, fieldErrors: validation.fieldErrors };
   }
 
   const { houseNumber } = validation.data;
 
-  let outcome: "updated" | "unchanged" | "not_found";
+  let outcome:
+    | "updated"
+    | "unchanged"
+    | "not_found"
+    | "conflict"
+    | "village_inactive";
 
   try {
     outcome = await prisma.$transaction(async (tx) => {
+      if (!(await lockActiveVillage(tx, villageId))) {
+        return "village_inactive" as const;
+      }
+
       // Scoped by village: a house from another village looks like "not found".
       const house = await tx.house.findFirst({
         where: { id: houseId, villageId },
@@ -55,10 +64,14 @@ export async function updateHouseNumberAction(
       if (!house) return "not_found" as const;
       if (house.houseNumber === houseNumber) return "unchanged" as const;
 
-      await tx.house.update({
-        where: { id: house.id, villageId },
+      // Guarded write: only succeeds if the number is still the one we read,
+      // so the audit "previousHouseNumber" is always accurate.
+      const { count } = await tx.house.updateMany({
+        where: { id: house.id, villageId, houseNumber: house.houseNumber },
         data: { houseNumber },
       });
+
+      if (count !== 1) return "conflict" as const;
 
       await createAuditLog(tx, {
         actionType: AuditActionType.UPDATE,
@@ -80,24 +93,17 @@ export async function updateHouseNumberAction(
     if (prismaError.code === "P2002") {
       return {
         success: false,
-        fieldErrors: {
-          houseNumber: "House number already exists in this village.",
-        },
+        fieldErrors: { houseNumber: "duplicate" },
       };
     }
 
-    // Row disappeared between the read and the write.
-    if (prismaError.code === "P2025") {
-      return notFound();
-    }
-
-    return {
-      success: false,
-      formError: "Unable to update house number. Please try again.",
-    };
+    return { success: false, formError: "generic" };
   }
 
+  if (outcome === "village_inactive") return redirectForbidden();
   if (outcome === "not_found") return notFound();
+  // Another rename won the race; ask the user to retry with fresh data.
+  if (outcome === "conflict") return { success: false, formError: "generic" };
 
   return { success: true };
 }

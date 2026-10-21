@@ -4,21 +4,31 @@ import { redirect, notFound } from "next/navigation";
 import { AuditActionType, MembershipStatus, Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { requireChief } from "@/lib/authz";
+import { redirectForbidden } from "@/lib/authz/authz.errors";
+import { lockActiveVillage } from "@/lib/authz/village";
 import { canDeactivateHouse } from "../lib/house-rules";
 import { AuditEntityType, createAuditLog } from "@/lib/audit";
 import { withSerializableRetry } from "@/lib/db/transaction";
 
+type DeactivateOutcome =
+  | { kind: "found"; houseId: string }
+  | { kind: "not_found" }
+  | { kind: "village_inactive" };
+
 export async function deactivateHouseAction(houseId: string): Promise<void> {
   const { user, villageId } = await requireChief();
 
-  // The id of the house when it was found in this village, otherwise null.
   // A blocked deactivation is not an error: the detail page shows why.
-  let foundHouseId: string | null;
+  let outcome: DeactivateOutcome;
 
   try {
-    foundHouseId = await withSerializableRetry(() =>
+    outcome = await withSerializableRetry(() =>
       prisma.$transaction(
-        async (tx) => {
+        async (tx): Promise<DeactivateOutcome> => {
+          if (!(await lockActiveVillage(tx, villageId))) {
+            return { kind: "village_inactive" };
+          }
+
           const house = await tx.house.findUnique({
             where: { id: houseId },
             select: {
@@ -38,7 +48,7 @@ export async function deactivateHouseAction(houseId: string): Promise<void> {
           });
 
           if (!house || house.villageId !== villageId) {
-            return null;
+            return { kind: "not_found" };
           }
 
           const rules = canDeactivateHouse({
@@ -47,7 +57,7 @@ export async function deactivateHouseAction(houseId: string): Promise<void> {
           });
 
           if (!rules.allowed) {
-            return house.id;
+            return { kind: "found", houseId: house.id };
           }
 
           await tx.house.update({
@@ -71,7 +81,7 @@ export async function deactivateHouseAction(houseId: string): Promise<void> {
             },
           });
 
-          return house.id;
+          return { kind: "found", houseId: house.id };
         },
         { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
       ),
@@ -85,9 +95,13 @@ export async function deactivateHouseAction(houseId: string): Promise<void> {
     throw error;
   }
 
-  if (!foundHouseId) {
+  if (outcome.kind === "village_inactive") {
+    return redirectForbidden();
+  }
+
+  if (outcome.kind === "not_found") {
     return notFound();
   }
 
-  redirect(`/village/houses/${foundHouseId}`);
+  redirect(`/village/houses/${outcome.houseId}`);
 }

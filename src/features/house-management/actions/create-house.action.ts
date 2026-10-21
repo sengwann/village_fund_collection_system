@@ -3,15 +3,19 @@
 import { AuditActionType } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { requireChief } from "@/lib/authz";
+import { redirectForbidden } from "@/lib/authz/authz.errors";
+import { lockActiveVillage } from "@/lib/authz/village";
 import { validateHouseNumber, type HouseField } from "../lib/house-validators";
+import type { HouseErrorCode } from "../lib/house-error-text";
 import { AuditEntityType, createAuditLog } from "@/lib/audit";
 
 export type CreateHouseActionResult =
   | { success: true; houseId: string }
   | {
       success: false;
-      formError?: string;
-      fieldErrors?: Partial<Record<HouseField, string>>;
+      /** "generic" means: show the translated generic error in the form. */
+      formError?: "generic";
+      fieldErrors?: Partial<Record<HouseField, HouseErrorCode>>;
     };
 
 export async function createHouseAction(
@@ -24,17 +28,23 @@ export async function createHouseAction(
   );
 
   if (!validation.ok) {
-    return {
-      success: false,
-      fieldErrors: validation.fieldErrors,
-      formError: validation.formError,
-    };
+    return { success: false, fieldErrors: validation.fieldErrors };
   }
 
   const { houseNumber } = validation.data;
 
+  let outcome:
+    | { kind: "created"; houseId: string }
+    | { kind: "village_inactive" };
+
   try {
-    const house = await prisma.$transaction(async (tx) => {
+    outcome = await prisma.$transaction(async (tx) => {
+      // Village must still be ACTIVE when the write happens, not only when
+      // the request started.
+      if (!(await lockActiveVillage(tx, villageId))) {
+        return { kind: "village_inactive" } as const;
+      }
+
       const createdHouse = await tx.house.create({
         data: { villageId, houseNumber, isActive: true },
       });
@@ -48,23 +58,22 @@ export async function createHouseAction(
         metadata: { houseNumber, isActive: true },
       });
 
-      return createdHouse;
+      return { kind: "created", houseId: createdHouse.id } as const;
     });
-
-    return { success: true, houseId: house.id };
   } catch (error) {
-    const prismaError = error as { code?: string; meta?: { target?: unknown } };
+    const prismaError = error as { code?: string };
     if (prismaError.code === "P2002") {
       return {
         success: false,
-        fieldErrors: {
-          houseNumber: "House number already exists in this village.",
-        },
+        fieldErrors: { houseNumber: "duplicate" },
       };
     }
-    return {
-      success: false,
-      formError: "Unable to create house. Please try again.",
-    };
+    return { success: false, formError: "generic" };
   }
+
+  if (outcome.kind === "village_inactive") {
+    return redirectForbidden();
+  }
+
+  return { success: true, houseId: outcome.houseId };
 }

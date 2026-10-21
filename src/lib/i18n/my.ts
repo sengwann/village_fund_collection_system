@@ -366,7 +366,7 @@ export const my: Record<TranslationKey, string> = {
   "adminVillages.err.nameLength":
     "ကျေးရွာအမည်သည် စာလုံး 2 လုံးမှ 100 အတွင်း ဖြစ်ရမည်။",
   "adminVillages.err.chiefNameLength":
-    "အုပ်ချုပ်ရေးမှူး အမည�����သည် စာလုံး 2 လုံးမှ 100 အတွင်း ဖြစ်ရမည်။",
+    "အုပ်ချုပ်ရေးမှူး အမည�����������သည် စာလုံး 2 လုံးမှ 100 အတွင်း ဖြစ်ရမည်။",
   "adminVillages.err.emailInvalid": "အုပ်ချုပ်ရေးမှူး၏ အီးမေးလ် မမှန်ကန်ပါ။",
   "adminVillages.err.phoneInvalid":
     "���ုပ်ချုပ်ရေးမှူး၏ ဖုန်းနံပါတ် မမှန်ကန်ပါ။",
@@ -686,18 +686,18 @@ export const my: Record<TranslationKey, string> = {
     "ငွေပေးချေမှု မှတ်တမ်းများ ရှိသော အိမ်ကို ပိတ်၍ မရပါ။",
   "houses.reactivate.button": "အိမ် ပြန်ဖွင့်ရန်",
   "houses.reactivate.hint":
-    "ပြန်ဖွင့်ပါက ဤအိမ်သို့ အဖွဲ့ဝင်အသစ်များ ပြန်လည် ဝင်ရောက်နိုင်သည်။",
+    "ပြန်ဖွင့်ပါက ဤအိမ်သို့ အဖွဲ့ဝင်အသစ်များ ပြန်လည် ဝင်ရ���ာ���်���ိုင်သည်။",
   "houses.form.houseNumber": "အိမ်နံပါတ်",
   "houses.form.hint":
-    "စာလုံး၊ ဂဏန်း၊ နေရာလွတ်၊ တုံးတို၊ ဆလက်ရှ်နှင့် အစက်များ ထည့်နိုင်သည် (၂ လုံးမှ ၃၀ လုံး)။",
+    "စာလုံး၊ ဂဏန်း၊ နေရာလွတ်၊ တုံးတို၊ ဆလက်ရှ်၊ အစက်နှင့် ကွင်းစကွင်းပိတ်များ ထည့်နိုင်သည် (၂ လုံးမှ ၃၀ လုံး)။",
   "houses.create.title": "အိမ် ဖန်တီးရန်",
   "houses.create.description":
-    "သင့်ကျေးရွာအတွက် တရားဝင် အိမ်နံပed�တ် အသစ် ထည့်ပါ။",
+    "သင့်ကျေးရွာအတွက် တရားဝင် အိမ်နံပါတ် အသစ် ထည့်ပါ။",
   "houses.create.cardTitle": "အိမ် အချက်အလက်",
   "houses.create.placeholder": "ဥပမာ - A-12 သို့မဟုတ် 101",
   "houses.create.submit": "အိမ် ဖန်တီးရန်",
   "houses.create.submitting": "အိမ် ဖန်တီးနေသည်...",
-  "houses.create.errorTitle": "အိမth� ဖန်တီး၍ မရပါ",
+  "houses.create.errorTitle": "အိမ် ဖန်တီး၍ မရပါ",
   "houses.create.generic": "အိမ် ဖန်တီး၍ မရပါ။ ထပ်ကြိုးစားပါ။",
   "houses.editPage.title": "အိမ်နံပါတ် ပြင်ဆင်ရန်",
   "houses.editPage.description": "တရားဝင် အိမ်နံပါတ်ကို ပြင်ဆင်ပါ။",
