@@ -13,6 +13,15 @@ import { canTransition } from "./village-lifecycle-rules";
  *   without data loss. Read-only access for a blocked village is NOT part of
  *   this feature and needs explicit authorization as a separate feature.
  *
+ * Owner decision (B03, deactivation is non-cascading):
+ *   Deactivating a village only changes Village.status and writes an audit
+ *   entry. It never changes user memberships, never clears or releases user
+ *   emails/phones, and never releases the villageCode. Those identifiers stay
+ *   reserved permanently, and the deactivate confirmation tells the admin so.
+ *   Moving users of a deactivated village to another village is NOT part of
+ *   B03. It needs its own audited account-transfer feature, designed first
+ *   around who owns historical Payment/Dispute/AuditLog rows.
+ *
  * The transition table itself lives in village-lifecycle-rules.ts (pure, unit
  * tested). These wrappers keep the original exports and `VillageStatus` types.
  */

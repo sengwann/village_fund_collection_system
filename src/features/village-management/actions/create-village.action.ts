@@ -16,7 +16,10 @@ import {
 } from "../lib/village-validators";
 import type { CreateVillageFormErrorCode } from "../lib/village-validation-rules";
 import { AuditEntityType, createAuditLog } from "../../../lib/audit";
-import { withSerializableRetry } from "../../../lib/db/transaction";
+import {
+  isSerializationConflict,
+  withSerializableRetry,
+} from "../../../lib/db/transaction";
 
 export type CreateVillageActionResult =
   | {
@@ -109,7 +112,9 @@ function getUniqueViolationText(error: unknown): string {
 
   if (error instanceof Error) {
     const message = error.message;
-    const marker = message.toLowerCase().lastIndexOf("unique constraint failed");
+    const marker = message
+      .toLowerCase()
+      .lastIndexOf("unique constraint failed");
 
     if (marker >= 0) {
       parts.push(message.slice(marker));
@@ -283,7 +288,8 @@ export async function createVillageAction(
 
     logUnexpectedError(error);
 
-    if (code === "P2034") {
+    // Covers Prisma 6 P2034 and the Prisma 7 adapter-pg write conflict.
+    if (isSerializationConflict(error)) {
       return { success: false, formError: "RETRY" };
     }
 

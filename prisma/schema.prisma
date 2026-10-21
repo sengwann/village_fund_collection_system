@@ -56,6 +56,7 @@ VOID
 ACCEPT 
 LOGIN 
 LOGOUT 
+LOGIN_THROTTLED 
 }
 enum FundStatus { 
 DRAFT 
@@ -278,4 +279,19 @@ model UserSettings {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   @@index([userId])
+}
+
+/// Login brute-force throttle counters. Keys are HMAC hashes; no raw
+/// identifiers, user ids or IP addresses are stored. Rows are disposable.
+model LoginThrottleState {
+  id String @id @default(cuid())
+  scope String
+  keyHash String
+  attempts Int @default(0)
+  windowStartedAt DateTime
+  lockedUntil DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@unique([scope, keyHash])
+  @@index([updatedAt])
 }

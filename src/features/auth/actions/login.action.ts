@@ -8,6 +8,16 @@ import {
   getSafeRedirectPath,
   validateLoginInput,
 } from "../../../lib/auth/validators";
+import {
+  AUTH_INVALID_CREDENTIALS_MESSAGE,
+  AUTH_THROTTLED_MESSAGE,
+} from "../../../lib/auth/auth.constants";
+import { getClientIp } from "../../../lib/auth/client-ip";
+import {
+  clearLoginThrottle,
+  maybeCleanupLoginThrottle,
+  reserveLoginAttempt,
+} from "../../../lib/auth/login-throttle";
 import { AuditEntityType, tryCreateAuditLog } from "../../../lib/audit";
 import type { LoginResult } from "../../../lib/auth/auth.types";
 
@@ -19,6 +29,14 @@ function getFormDataString(formData: FormData, key: string): string {
   return typeof value === "string" ? value : "";
 }
 
+function invalidCredentials(): LoginResult {
+  return {
+    success: false,
+    code: "INVALID_CREDENTIALS",
+    error: AUTH_INVALID_CREDENTIALS_MESSAGE,
+  };
+}
+
 export async function loginAction(formData: FormData): Promise<LoginResult> {
   const input = {
     identifier: getFormDataString(formData, "identifier"),
@@ -26,13 +44,13 @@ export async function loginAction(formData: FormData): Promise<LoginResult> {
     redirectTo: getFormDataString(formData, "redirectTo") || undefined,
   };
 
+  // Malformed input costs no bcrypt work, so it is not counted.
   const validation = validateLoginInput(input);
   if (!validation.ok) {
-    return { success: false, error: validation.error };
+    return invalidCredentials();
   }
 
   const { identifier, password, redirectTo } = validation.data;
-  const genericError = "Invalid credentials.";
 
   const user = await prisma.user.findFirst({
     where:
@@ -48,23 +66,67 @@ export async function loginAction(formData: FormData): Promise<LoginResult> {
     },
   });
 
+  // Known accounts are throttled by user id, so email and phone attempts
+  // against the same account share one counter.
+  const identityKey = user
+    ? `user:${user.id}`
+    : `identifier:${identifier.type}:${identifier.value}`;
+
+  const clientIp = await getClientIp();
+
+  // Count the attempt BEFORE checking the password (atomic, race-free).
+  const throttle = await reserveLoginAttempt(prisma, { identityKey, clientIp });
+
+  for (const lockout of throttle.newLockouts) {
+    const isAccountScope = lockout.scope === "IDENTIFIER_IP";
+    // Skip unknown-identifier lockouts so attackers cannot flood the audit log.
+    if (isAccountScope && !user) continue;
+
+    // Best-effort; never interrupts or bypasses enforcement.
+    await tryCreateAuditLog(prisma, {
+      actionType: AuditActionType.LOGIN_THROTTLED,
+      entityType: AuditEntityType.SESSION,
+      entityId: isAccountScope ? (user?.id ?? null) : null,
+      villageId: isAccountScope ? (user?.villageId ?? null) : null,
+      actorUserId: null,
+      metadata: {
+        scope: lockout.scope,
+        attemptLimit: lockout.attemptLimit,
+        cooldownSeconds: lockout.cooldownSeconds,
+        keyFingerprint: lockout.keyFingerprint,
+      },
+    });
+  }
+
+  if (throttle.blocked) {
+    return {
+      success: false,
+      code: "THROTTLED",
+      error: AUTH_THROTTLED_MESSAGE,
+      retryAfterSeconds: throttle.retryAfterSeconds,
+    };
+  }
+
   const passwordIsValid = await verifyPassword(
     password,
     user?.passwordHash ?? DUMMY_PASSWORD_HASH,
   );
 
   if (!user || !passwordIsValid) {
-    return { success: false, error: genericError };
+    await maybeCleanupLoginThrottle(prisma);
+    return invalidCredentials();
   }
 
   if (user.role !== UserRole.SYSTEM_ADMIN) {
     if (!user.villageId || !user.village) {
-      return { success: false, error: genericError };
+      return invalidCredentials();
     }
     if (user.village.status !== VillageStatus.ACTIVE) {
-      return { success: false, error: genericError };
+      return invalidCredentials();
     }
   }
+
+  await clearLoginThrottle(prisma, throttle.identifierKeyHash);
 
   await createSession(user.id);
 

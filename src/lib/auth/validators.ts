@@ -1,6 +1,9 @@
 import "server-only";
 
-import { DEFAULT_POST_LOGIN_ROUTE } from "./auth.constants";
+import {
+  AUTH_INVALID_CREDENTIALS_MESSAGE,
+  DEFAULT_POST_LOGIN_ROUTE,
+} from "./auth.constants";
 import { sanitizeRedirectPath } from "./safe-redirect";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -88,7 +91,7 @@ export function validateLoginInput(input: {
 
   const invalidResult: LoginValidationResult = {
     ok: false,
-    error: "Invalid credentials.",
+    error: AUTH_INVALID_CREDENTIALS_MESSAGE,
   };
 
   if (!identifier || !password) {

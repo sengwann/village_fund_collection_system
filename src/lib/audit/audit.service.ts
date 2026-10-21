@@ -9,7 +9,8 @@ import type { CreateAuditLogInput } from "./audit.types";
  * or prisma.auditLog.delete() anywhere in the codebase.
  *
  * - Use createAuditLog for critical operations. Errors propagate.
- * - Use tryCreateAuditLog ONLY for non-critical events (LOGIN/LOGOUT).
+ * - Use tryCreateAuditLog ONLY for non-critical events
+ *   (LOGIN/LOGOUT/LOGIN_THROTTLED).
  */
 
 export async function createAuditLog(
@@ -36,6 +37,6 @@ export async function tryCreateAuditLog(
     await createAuditLog(client, input);
   } catch {
     // Best-effort: silently ignore audit failures for non-critical events.
-    // This should ONLY be used for LOGIN/LOGOUT events.
+    // This should ONLY be used for LOGIN/LOGOUT/LOGIN_THROTTLED events.
   }
 }

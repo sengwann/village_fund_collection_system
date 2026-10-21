@@ -142,6 +142,9 @@ export const my: Record<TranslationKey, string> = {
   "login.errorTitle": "ဝင်ရောက်၍ မရပါ",
   "login.errorInvalid":
     "အချက်အလက် မမှန်ကန်ပါ။ အီးမေးလ် သို့မဟုတ် ဖုန်းနှင့် စကားဝှက်ကို စစ်ဆေးပြီး ထပ်ကြိုးစားပါ။",
+
+  "login.errorThrottled":
+    "ဝင်ရောက်ရန် ကြိုးစားမှု များလွန်းနေပါသည်။ ကျေးဇူးပြု၍ {minutes} မိနစ်ခန့်အကြာတွင် ထပ်ကြိုးစားပါ။",
   "login.noAccount": "အကောင့် မရှိသေးဘူးလား။",
   "login.createAccount": "အကောင့် ဖွင့်ရန်",
   "login.language": "ဘာသာစကား",
@@ -363,7 +366,7 @@ export const my: Record<TranslationKey, string> = {
   "adminVillages.err.nameLength":
     "ကျေးရွာအမည်သည် စာလုံး 2 လုံးမှ 100 အတွင်း ဖြစ်ရမည်။",
   "adminVillages.err.chiefNameLength":
-    "အုပ်ချုပ်ရေးမှူး အမည်သည် စာလုံး 2 လုံးမှ 100 အတွင်း ဖြစ်ရမည်။",
+    "အုပ်ချုပ်ရေးမှူး အမည�����သည် စာလုံး 2 လုံးမှ 100 အတွင်း ဖြစ်ရမည်။",
   "adminVillages.err.emailInvalid": "အုပ်ချုပ်ရေးမှူး၏ အီးမေးလ် မမှန်ကန်ပါ။",
   "adminVillages.err.phoneInvalid":
     "���ုပ်ချုပ်ရေးမှူး၏ ဖုန်းနံပါတ် မမှန်ကန်ပါ။",
@@ -378,7 +381,7 @@ export const my: Record<TranslationKey, string> = {
     "အကြောင်းပြချက်သည် စာလုံး 200 ထက် မပိုရပါ။ တိုအောင်ပြင်ပြီး ထပ်ကြိုးစားပါ။",
   "adminVillages.reason.label": "အကြောင်းပြချက် (မဖြည့်လည်းရသည်)",
   "adminVillages.reason.hint":
-    "စာရင်းစစ် မှတ်တမ်းတွင် သိမ်းထားမည်။ စာလုံး 200 အထိ။",
+    "စာရင်းစစ် မှတ်တမ်းတွင် သိမ်းထားမည်ဖြစ်ပြီး ကျေးရွာက ကြည့်နိုင်သည်။ ကိုယ်ရေးကိုယ်တာ အချက်အလက် မထည့်ပါနှင့်။ စာလုံး 200 အထိ။",
   "adminVillages.detail.infoTitle": "ကျေးရွာ အချက်အလက်",
   "adminVillages.detail.code": "ကျေးရွာကုဒ်",
   "adminVillages.detail.name": "ကျေးရွာအမည်",
@@ -404,7 +407,7 @@ export const my: Record<TranslationKey, string> = {
   "adminVillages.deactivate.button": "ကျေးရွာ ပိတ်သိမ်းရန်",
   "adminVillages.deactivate.confirmTitle": "ဤကျေးရွာကို ပိတ်သိမ်းမလား။",
   "adminVillages.deactivate.confirmBody":
-    "{name} ({code}) ကို ပိတ်သိမ်းပါမည်။ ဤလုပ်ဆောင်ချက်ကို နောက်ပြန်လှည့်၍ မရပါ။ ကျေးရွာအသုံးပြုသူများ ဝင်ရောက်ခွင့် ဆုံးရှုံးမည်ဖြစ်ပြီး မှတ်တမ်းများကို ဆက်လက် သိမ်းထားမည်။",
+    "{name} ({code}) ကို ပိတ်သိမ်းပါမည်။ ဤလုပ်ဆောင်ချက်ကို နောက်ပြန်လှည့်၍ မရပါ။ ကျေးရွာအသုံးပြုသူများ ဝင်ရောက်ခွင့် ဆုံးရှုံးမည်ဖြစ်ပြီး မှတ်တမ်းများကို ဆက်လက် သိမ်းထားမည်။ ကျေးရွာကုဒ်နှင့် အသုံးပြုသူများ၏ အီးမေးလ်၊ ဖုန်းနံပါတ်များကို ဆက်လက် သီးသန့်ထားမည်ဖြစ်သောကြောင့် ပြန်လည် အသုံးပြု၍ မရပါ။",
   "adminVillages.deactivate.confirm": "ဟုတ်ကဲ့၊ ပိတ်သိမ်းမည်",
 
   // Audit logs (Feature P)
@@ -473,6 +476,7 @@ export const my: Record<TranslationKey, string> = {
   "audit.action.accept": "လက်ခံခြင်း",
   "audit.action.login": "ဝင်ရောက်ခြင်း",
   "audit.action.logout": "ထွက်ခွာခြင်း",
+  "audit.action.loginThrottled": "ဝင်ရောက်မှု ကန့်သတ်ခြင်း",
   "audit.entity.village": "ကျေးရွာ",
   "audit.entity.house": "အိမ်",
   "audit.entity.user": "အသုံးပြုသူ",
@@ -688,12 +692,12 @@ export const my: Record<TranslationKey, string> = {
     "စာလုံး၊ ဂဏန်း၊ နေရာလွတ်၊ တုံးတို၊ ဆလက်ရှ်နှင့် အစက်များ ထည့်နိုင်သည် (၂ လုံးမှ ၃၀ လုံး)။",
   "houses.create.title": "အိမ် ဖန်တီးရန်",
   "houses.create.description":
-    "သင့်ကျေးရွာအတွက် တရားဝင် အိမ်နံပါတ် အသစ် ထည့်ပါ။",
+    "သင့်ကျေးရွာအတွက် တရားဝင် အိမ်နံပed�တ် အသစ် ထည့်ပါ။",
   "houses.create.cardTitle": "အိမ် အချက်အလက်",
   "houses.create.placeholder": "ဥပမာ - A-12 သို့မဟုတ် 101",
   "houses.create.submit": "အိမ် ဖန်တီးရန်",
   "houses.create.submitting": "အိမ် ဖန်တီးနေသည်...",
-  "houses.create.errorTitle": "အိမ် ဖန်တီး၍ မရပါ",
+  "houses.create.errorTitle": "အိမth� ဖန်တီး၍ မရပါ",
   "houses.create.generic": "အိမ် ဖန်တီး၍ မရပါ။ ထပ်ကြိုးစားပါ။",
   "houses.editPage.title": "အိမ်နံပါတ် ပြင်ဆင်ရန်",
   "houses.editPage.description": "တရားဝင် အိမ်နံပါတ်ကို ပြင်ဆင်ပါ။",

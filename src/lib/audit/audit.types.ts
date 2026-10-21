@@ -29,6 +29,8 @@ export interface VillageAuditMetadata {
   name?: string;
   previousStatus?: string;
   newStatus?: string;
+  reason?: string;
+  chiefUserId?: string;
 }
 
 export interface HouseAuditMetadata {

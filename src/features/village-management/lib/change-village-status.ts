@@ -19,6 +19,10 @@ export type ChangeVillageStatusOutcome = "ok" | "not_found" | "not_allowed";
  * roll back together under Serializable isolation. It returns an outcome
  * instead of redirecting, so no redirect() is thrown inside the transaction.
  *
+ * The update is conditional on the status that was read (defense in depth on
+ * top of Serializable). If it matches no row, nothing is written and the
+ * outcome is "not_allowed".
+ *
  * Callers must already have authenticated a SYSTEM_ADMIN (requireSystemAdmin).
  */
 export async function changeVillageStatus(params: {
@@ -54,14 +58,19 @@ export async function changeVillageStatus(params: {
 
         const newStatus = LIFECYCLE_TARGET_STATUS[action];
 
-        await tx.village.update({
+        const updated = await tx.village.updateMany({
           where: {
             id: village.id,
+            status: village.status,
           },
           data: {
             status: newStatus,
           },
         });
+
+        if (updated.count !== 1) {
+          return "not_allowed";
+        }
 
         await createAuditLog(tx, {
           actionType: AuditActionType.STATUS_CHANGE,

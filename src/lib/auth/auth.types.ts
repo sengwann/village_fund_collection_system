@@ -12,6 +12,8 @@ export interface SessionUser {
   dateOfBirth: Date | null;
 }
 
+export type LoginFailureCode = "INVALID_CREDENTIALS" | "THROTTLED";
+
 export type LoginResult =
   | {
       success: true;
@@ -19,5 +21,12 @@ export type LoginResult =
     }
   | {
       success: false;
+      code: "INVALID_CREDENTIALS";
       error: string;
+    }
+  | {
+      success: false;
+      code: "THROTTLED";
+      error: string;
+      retryAfterSeconds: number;
     };

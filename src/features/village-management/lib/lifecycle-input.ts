@@ -13,6 +13,8 @@ export const REASON_MAX_LENGTH = 200;
 /** Query-string contract between the lifecycle actions and the detail page. */
 export const LIFECYCLE_ERROR_PARAM = "error";
 export const LIFECYCLE_ERROR_REASON_TOO_LONG = "reason_too_long";
+/** A serialization conflict that survived all retries. */
+export const LIFECYCLE_ERROR_BUSY = "busy";
 
 export function parseVillageId(value: unknown): string | null {
   if (typeof value !== "string") {

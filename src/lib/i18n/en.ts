@@ -120,6 +120,8 @@ export const en = {
 
   // Login
   "login.title": "Sign in",
+  "login.errorThrottled":
+    "Too many sign-in attempts. Please try again in {minutes} minutes.",
   "login.subtitle":
     "Enter your email or phone number and password to continue.",
   "login.identifier": "Email or phone",
@@ -358,7 +360,8 @@ export const en = {
   "adminVillages.err.reasonTooLong":
     "The reason must be 200 characters or fewer. Shorten it and try again.",
   "adminVillages.reason.label": "Reason (optional)",
-  "adminVillages.reason.hint": "Saved in the audit log. Up to 200 characters.",
+  "adminVillages.reason.hint":
+    "Saved in the audit log, which the village can see. Do not include private details. Up to 200 characters.",
   "adminVillages.detail.infoTitle": "Village information",
   "adminVillages.detail.code": "Village code",
   "adminVillages.detail.name": "Village name",
@@ -383,7 +386,7 @@ export const en = {
   "adminVillages.deactivate.button": "Deactivate village",
   "adminVillages.deactivate.confirmTitle": "Deactivate this village?",
   "adminVillages.deactivate.confirmBody":
-    "{name} ({code}) will be deactivated. This cannot be undone. Village users will lose access; records and history are kept.",
+    "{name} ({code}) will be deactivated. This cannot be undone. Village users will lose access; records and history are kept. The village code and users' emails and phone numbers stay reserved and cannot be reused.",
   "adminVillages.deactivate.confirm": "Yes, deactivate",
 
   // Audit logs (Feature P)
@@ -451,6 +454,7 @@ export const en = {
   "audit.action.accept": "Accept",
   "audit.action.login": "Login",
   "audit.action.logout": "Logout",
+  "audit.action.loginThrottled": "Login throttled",
   "audit.entity.village": "Village",
   "audit.entity.house": "House",
   "audit.entity.user": "User",

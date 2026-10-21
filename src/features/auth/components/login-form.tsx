@@ -16,9 +16,6 @@ import { useTranslation } from "../../../lib/i18n/provider";
 import { cn } from "../../../lib/utils";
 import { loginAction } from "../actions/login.action";
 
-/** The one generic message the server action returns for any failed sign-in. */
-const SERVER_INVALID_CREDENTIALS = "Invalid credentials.";
-
 export function LoginForm({ redirectTo }: { redirectTo?: string }) {
   const router = useRouter();
   const { t } = useTranslation();
@@ -45,11 +42,14 @@ export function LoginForm({ redirectTo }: { redirectTo?: string }) {
       }
 
       if (!result.success) {
-        setError(
-          result.error === SERVER_INVALID_CREDENTIALS
-            ? t("login.errorInvalid")
-            : result.error,
-        );
+        if (result.code === "THROTTLED") {
+          const minutes = Math.max(1, Math.ceil(result.retryAfterSeconds / 60));
+          setError(
+            t("login.errorThrottled").replace("{minutes}", String(minutes)),
+          );
+        } else {
+          setError(t("login.errorInvalid"));
+        }
         return;
       }
 

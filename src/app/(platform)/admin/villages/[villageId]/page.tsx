@@ -7,6 +7,7 @@ import { getPlatformShellContext } from "@/features/shell/lib/shell-context";
 import { VillageLifecycleActions } from "@/features/village-management/components/village-lifecycle-actions";
 import { VillageStatusBadge } from "@/features/village-management/components/village-status-badge";
 import {
+  LIFECYCLE_ERROR_BUSY,
   LIFECYCLE_ERROR_PARAM,
   LIFECYCLE_ERROR_REASON_TOO_LONG,
 } from "@/features/village-management/lib/lifecycle-input";
@@ -19,56 +20,9 @@ export const metadata = {
   title: "Village Detail | Village Fund Collection System",
 };
 
-type RouteParams = Record<string, string | string[] | undefined>;
+type SearchParams = Record<string, string | string[] | undefined>;
 
-async function extractVillageId(rawParams: unknown): Promise<string> {
-  if (!rawParams) {
-    return "";
-  }
-
-  let params: RouteParams;
-
-  const maybePromise = rawParams as {
-    then?: unknown;
-  };
-
-  if (typeof maybePromise.then === "function") {
-    params = await (rawParams as Promise<RouteParams>);
-  } else {
-    params = rawParams as RouteParams;
-  }
-
-  const villageId = params.villageId;
-
-  if (Array.isArray(villageId)) {
-    return villageId[0] ?? "";
-  }
-
-  return villageId ?? "";
-}
-
-async function extractSearchParam(
-  rawSearchParams: unknown,
-  key: string,
-): Promise<string | null> {
-  if (!rawSearchParams) {
-    return null;
-  }
-
-  let searchParams: RouteParams;
-
-  const maybePromise = rawSearchParams as {
-    then?: unknown;
-  };
-
-  if (typeof maybePromise.then === "function") {
-    searchParams = await (rawSearchParams as Promise<RouteParams>);
-  } else {
-    searchParams = rawSearchParams as RouteParams;
-  }
-
-  const value = searchParams[key];
-
+function firstValue(value: string | string[] | undefined): string | null {
   if (Array.isArray(value)) {
     return value[0] ?? null;
   }
@@ -80,10 +34,10 @@ export default async function VillageDetailPage({
   params,
   searchParams,
 }: {
-  params: unknown;
-  searchParams?: unknown;
+  params: Promise<{ villageId: string }>;
+  searchParams?: Promise<SearchParams>;
 }) {
-  const villageId = await extractVillageId(params);
+  const { villageId } = await params;
 
   if (!villageId) {
     notFound();
@@ -93,11 +47,10 @@ export default async function VillageDetailPage({
   const { language } = await getPlatformShellContext();
   const t = getT(language);
 
-  const errorParam = await extractSearchParam(
-    searchParams,
-    LIFECYCLE_ERROR_PARAM,
-  );
+  const query = (await searchParams) ?? {};
+  const errorParam = firstValue(query[LIFECYCLE_ERROR_PARAM]);
   const showReasonTooLong = errorParam === LIFECYCLE_ERROR_REASON_TOO_LONG;
+  const showBusy = errorParam === LIFECYCLE_ERROR_BUSY;
 
   const statusLabels: Record<typeof village.status, TranslationKey> = {
     ACTIVE: "adminDashboard.status.active",
@@ -158,6 +111,10 @@ export default async function VillageDetailPage({
 
       {showReasonTooLong ? (
         <Alert tone="danger">{t("adminVillages.err.reasonTooLong")}</Alert>
+      ) : null}
+
+      {showBusy ? (
+        <Alert tone="danger">{t("adminVillages.err.retry")}</Alert>
       ) : null}
 
       <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
