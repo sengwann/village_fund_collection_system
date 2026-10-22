@@ -11,6 +11,7 @@ import {
 import {
   AUTH_INVALID_CREDENTIALS_MESSAGE,
   AUTH_THROTTLED_MESSAGE,
+  CHANGE_PASSWORD_ROUTE,
 } from "../../../lib/auth/auth.constants";
 import { getClientIp } from "../../../lib/auth/client-ip";
 import {
@@ -41,6 +42,7 @@ export async function loginAction(formData: FormData): Promise<LoginResult> {
   const input = {
     identifier: getFormDataString(formData, "identifier"),
     password: getFormDataString(formData, "password"),
+    villageCode: getFormDataString(formData, "villageCode"),
     redirectTo: getFormDataString(formData, "redirectTo") || undefined,
   };
 
@@ -50,27 +52,45 @@ export async function loginAction(formData: FormData): Promise<LoginResult> {
     return invalidCredentials();
   }
 
-  const { identifier, password, redirectTo } = validation.data;
+  const { identifier, password, villageCode, redirectTo } = validation.data;
 
+  const identifierWhere =
+    identifier.type === "email"
+      ? { email: identifier.value }
+      : { phone: identifier.value };
+
+  // Email and phone are only unique inside one village, so the account is
+  // always looked up INSIDE a scope, never by identifier alone:
+  //  - with a village code: that village's own users (never a SYSTEM_ADMIN);
+  //  - without one: platform administrators only (SYSTEM_ADMIN, no village).
   const user = await prisma.user.findFirst({
-    where:
-      identifier.type === "email"
-        ? { email: identifier.value }
-        : { phone: identifier.value },
+    where: villageCode
+      ? {
+          ...identifierWhere,
+          role: { not: UserRole.SYSTEM_ADMIN },
+          village: { is: { villageCode } },
+        }
+      : {
+          ...identifierWhere,
+          role: UserRole.SYSTEM_ADMIN,
+          villageId: null,
+        },
     select: {
       id: true,
       passwordHash: true,
       role: true,
       villageId: true,
+      mustChangePassword: true,
       village: { select: { status: true } },
     },
   });
 
   // Known accounts are throttled by user id, so email and phone attempts
-  // against the same account share one counter.
+  // against the same account share one counter. Unknown identifiers include
+  // the scope, so the same address in two villages is counted separately.
   const identityKey = user
     ? `user:${user.id}`
-    : `identifier:${identifier.type}:${identifier.value}`;
+    : `identifier:${villageCode ? `village:${villageCode}` : "admin"}:${identifier.type}:${identifier.value}`;
 
   const clientIp = await getClientIp();
 
@@ -141,6 +161,10 @@ export async function loginAction(formData: FormData): Promise<LoginResult> {
 
   return {
     success: true,
-    redirectTo: getSafeRedirectPath(redirectTo),
+    // A Chief with an initial password goes straight to the change-password
+    // page. The server guards enforce this too; this only avoids a bounce.
+    redirectTo: user.mustChangePassword
+      ? CHANGE_PASSWORD_ROUTE
+      : getSafeRedirectPath(redirectTo),
   };
 }

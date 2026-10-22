@@ -1,7 +1,11 @@
 import { beforeAll, describe, expect, it, vi } from "vitest";
 import type { PrismaClient } from "@prisma/client";
 
-import { hashThrottleKey, reserveLoginAttempt } from "./login-throttle";
+import {
+  hashThrottleKey,
+  reserveLoginAttempt,
+  reserveSignupAttempt,
+} from "./login-throttle";
 
 const SECRET = "s".repeat(40);
 
@@ -137,5 +141,33 @@ describe("reserveLoginAttempt (aggregation, mocked DB)", () => {
     } finally {
       process.env.AUTH_SECRET = original;
     }
+  });
+});
+
+describe("reserveSignupAttempt (mocked DB)", () => {
+  it("counts one attempt against the signup IP scope", async () => {
+    const { client, queryRaw } = fakeClient([
+      { attempts: 1, retryAfterSeconds: 0 },
+    ]);
+    const result = await reserveSignupAttempt(client, {
+      clientIp: "203.0.113.7",
+    });
+    expect(result).toEqual({ blocked: false, retryAfterSeconds: 0 });
+    expect(queryRaw).toHaveBeenCalledTimes(1);
+  });
+
+  it("blocks once the limit is crossed", async () => {
+    const { client } = fakeClient([{ attempts: 61, retryAfterSeconds: 900 }]);
+    const result = await reserveSignupAttempt(client, {
+      clientIp: "203.0.113.7",
+    });
+    expect(result).toEqual({ blocked: true, retryAfterSeconds: 900 });
+  });
+
+  it("does not count anything without a known client IP", async () => {
+    const { client, queryRaw } = fakeClient([]);
+    const result = await reserveSignupAttempt(client, { clientIp: null });
+    expect(result.blocked).toBe(false);
+    expect(queryRaw).not.toHaveBeenCalled();
   });
 });

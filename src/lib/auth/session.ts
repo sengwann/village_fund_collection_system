@@ -114,6 +114,7 @@ export async function getCurrentUser(): Promise<SessionUser | null> {
       dateOfBirth: true,
       email: true,
       phone: true,
+      mustChangePassword: true,
       village: { select: { status: true } },
     },
   });
@@ -135,5 +136,6 @@ export async function getCurrentUser(): Promise<SessionUser | null> {
     email: user.email,
     phone: user.phone,
     dateOfBirth: user.dateOfBirth,
+    mustChangePassword: user.mustChangePassword,
   };
 }

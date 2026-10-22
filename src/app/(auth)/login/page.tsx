@@ -1,7 +1,11 @@
 import { redirect } from "next/navigation";
 import { LoginScreen } from "@/features/auth/components/login-screen";
 import { getCurrentUser } from "@/lib/auth/session";
-import { getSafeRedirectPath } from "@/lib/auth/validators";
+import { CHANGE_PASSWORD_ROUTE } from "@/lib/auth/auth.constants";
+import {
+  getSafeRedirectPath,
+  normalizeLoginVillageCode,
+} from "@/lib/auth/validators";
 
 export const metadata = {
   title: "Login | Village Fund Collection System",
@@ -48,10 +52,25 @@ export default async function LoginPage({
   const redirectTo = getSafeRedirectPath(getFirstStringValue(params.redirect));
 
   if (user) {
-    redirect(redirectTo);
+    redirect(user.mustChangePassword ? CHANGE_PASSWORD_ROUTE : redirectTo);
   }
 
   const registered = getFirstStringValue(params.registered) === "1";
 
-  return <LoginScreen redirectTo={redirectTo} registered={registered} />;
+  // Registration sends the village code along so the new villager does not
+  // have to type it again. It is only a pre-fill; the sign-in re-validates it.
+  const rawVillage = normalizeLoginVillageCode(
+    getFirstStringValue(params.village) ?? "",
+  );
+  const defaultVillageCode = /^[A-Z0-9]{3,20}$/.test(rawVillage)
+    ? rawVillage
+    : "";
+
+  return (
+    <LoginScreen
+      defaultVillageCode={defaultVillageCode}
+      redirectTo={redirectTo}
+      registered={registered}
+    />
+  );
 }

@@ -1,11 +1,8 @@
 "use server";
 import { AuditActionType } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import {
-  destroySession,
-  revokeUserSessions,
-} from "@/lib/auth/session";
-import { requireAuthenticatedUser } from "@/lib/auth/guards";
+import { destroySession, revokeUserSessions } from "@/lib/auth/session";
+import { requireSessionUser } from "@/lib/auth/guards";
 import { hashPassword, verifyPassword } from "@/lib/auth/password";
 import { AuditEntityType, createAuditLog } from "@/lib/audit";
 import {
@@ -24,7 +21,9 @@ export type ChangePasswordActionResult =
 export async function changePasswordAction(
   formData: FormData,
 ): Promise<ChangePasswordActionResult> {
-  const user = await requireAuthenticatedUser();
+  // Gate-exempt on purpose: a Chief with an initial password may only reach
+  // this action (and logout) until the password is replaced.
+  const user = await requireSessionUser();
   const validation = validatePasswordInput(formData);
   if (!validation.ok) {
     return {
@@ -64,6 +63,7 @@ export async function changePasswordAction(
         where: { id: user.id },
         data: {
           passwordHash: newPasswordHash,
+          mustChangePassword: false,
           sessionVersion: { increment: 1 },
         },
       });

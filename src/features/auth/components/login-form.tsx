@@ -16,7 +16,14 @@ import { useTranslation } from "../../../lib/i18n/provider";
 import { cn } from "../../../lib/utils";
 import { loginAction } from "../actions/login.action";
 
-export function LoginForm({ redirectTo }: { redirectTo?: string }) {
+export function LoginForm({
+  redirectTo,
+  defaultVillageCode,
+}: {
+  redirectTo?: string;
+  /** Pre-filled from the registration redirect; empty for administrators. */
+  defaultVillageCode?: string;
+}) {
   const router = useRouter();
   const { t } = useTranslation();
   const passwordId = useId();
@@ -69,6 +76,24 @@ export function LoginForm({ redirectTo }: { redirectTo?: string }) {
       {redirectTo ? (
         <input name="redirectTo" type="hidden" value={redirectTo} />
       ) : null}
+
+      <Field
+        hint={t("login.villageCodeHint")}
+        id="villageCode"
+        label={t("signup.codeLabel")}
+      >
+        <Input
+          autoCapitalize="characters"
+          autoComplete="organization"
+          autoCorrect="off"
+          className="font-mono uppercase tracking-wider placeholder:font-sans placeholder:normal-case placeholder:tracking-normal"
+          defaultValue={defaultVillageCode}
+          name="villageCode"
+          placeholder={t("signup.codePlaceholder")}
+          spellCheck={false}
+          type="text"
+        />
+      </Field>
 
       <Field id="identifier" label={t("login.identifier")} required>
         <Input

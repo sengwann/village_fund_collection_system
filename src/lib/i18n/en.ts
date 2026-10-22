@@ -124,6 +124,13 @@ export const en = {
     "Too many sign-in attempts. Please try again in {minutes} minutes.",
   "login.subtitle":
     "Enter your email or phone number and password to continue.",
+  "login.villageCodeHint":
+    "Leave blank only if you are a system administrator.",
+  "passwordRequired.title": "Choose a new password",
+  "passwordRequired.body":
+    "Your account was created with an initial password. Replace it before you continue.",
+  "passwordRequired.hint":
+    "Enter the initial password you were given as the current password.",
   "login.identifier": "Email or phone",
   "login.identifierPlaceholder": "you@example.com or 09xxxxxxx",
   "login.password": "Password",
@@ -192,6 +199,9 @@ export const en = {
   "signup.err.phone": "Phone number is invalid.",
   "signup.err.identifier": "Add an email or a phone number (at least one).",
   "signup.err.password": "Password must be between 8 and 72 characters.",
+  "signup.err.passwordBytes":
+    "Password is too long. Myanmar characters count as 3 each; use at most 72 bytes (about 24 Myanmar characters).",
+  "signup.err.throttled": "Too many attempts. Please try again later.",
   "signup.err.houseNumber": "Select a valid house number.",
   "signup.err.dob": "Date of birth is invalid. It cannot be in the future.",
   "signup.err.houseUnavailable": "The selected house is not available.",

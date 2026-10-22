@@ -130,6 +130,13 @@ export const my: Record<TranslationKey, string> = {
   "login.title": "ဝင်ရောက်ရန်",
   "login.subtitle":
     "ဆက်လက်ရန် အီးမေးလ် သို့မဟုတ် ဖုန်းနံပါတ်နှင့် စကားဝှက်ကို ထည့်ပါ။",
+  "login.villageCodeHint":
+    "စနစ်စီမံသူ (System Admin) မဟုတ်ပါက ကျေးရွာကုဒ်ကို ဖြည့်ပါ။",
+  "passwordRequired.title": "စကားဝှက်အသစ် ရွေးချယ်ပါ",
+  "passwordRequired.body":
+    "သင့်အကောင့်ကို ကနဦးစကားဝှက်ဖြင့် ဖန်တီးထားခြင်း ဖြစ်ပါသည်။ ဆက်မသွားမီ ၎င်းကို ပြောင်းလဲပါ။",
+  "passwordRequired.hint":
+    "လက်ရှိစကားဝှက်နေရာတွင် သင့်အား ပေးထားသော ကနဦးစကားဝှက်ကို ထည့်ပါ။",
   "login.identifier": "အီးမေးလ် သို့မဟုတ် ဖုန်း",
   "login.identifierPlaceholder": "you@example.com သို့မဟုတ် 09xxxxxxx",
   "login.password": "စကားဝှက်",
@@ -208,6 +215,10 @@ export const my: Record<TranslationKey, string> = {
     "အီးမေးလ် သို့မဟုတ် ဖုန်းနံပါတ် အနည်းဆုံး တစ်ခု ထည့်ပါ။",
   "signup.err.password":
     "စကားဝှက်သည် အက္ခရာ ၈ လုံးမှ ၇၂ လုံးအတွင်း ဖြစ်ရပါမည်။",
+  "signup.err.passwordBytes":
+    "စကားဝှက် အရမ်းရှည်နေပါသည်။ မြန်မာအက္ခရာတစ်လုံးလျှင် ၃ ဘိုက်ယူသဖြင့် ၇၂ ဘိုက်အတွင်း (မြန်မာအက္ခရာ ၂၄ လုံးခန့်) သာ ထည့်ပါ။",
+  "signup.err.throttled":
+    "ကြိုးစားမှု များလွန်းနေပါသည်။ နောက်မှ ထပ်ကြိုးစားပါ။",
   "signup.err.houseNumber": "မှန်ကန်သော အိမ်နံပါတ်ကို ရွေးပါ။",
   "signup.err.dob": "မွေးသက္ကရာဇ် မမှန်ကန်ပါ။ အနာဂတ်ရက် မဖြစ်ရပါ။",
   "signup.err.houseUnavailable": "ရွေးထားသော အိမ်ကို အသုံးပြု၍ မရပါ။",

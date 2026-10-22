@@ -1,10 +1,9 @@
 import "server-only";
 
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { UserRole } from "@prisma/client";
 
-import { getCurrentUser } from "../auth/session";
-import { LOGIN_ROUTE } from "../auth/auth.constants";
+import { requireAuthenticatedUser } from "../auth/guards";
 import type { SessionUser } from "../auth/auth.types";
 
 export async function requireVillageResource(
@@ -15,12 +14,8 @@ export async function requireVillageResource(
     | null
     | undefined,
 ): Promise<void> {
-  const user = await getCurrentUser();
-
-  if (!user) {
-    redirect(LOGIN_ROUTE);
-    return;
-  }
+  // Signed in AND past the forced password change; redirects otherwise.
+  const user = await requireAuthenticatedUser();
 
   if (user.role === UserRole.SYSTEM_ADMIN || !user.villageId) {
     notFound();
@@ -36,12 +31,7 @@ export async function requireVillageResource(
 export async function requireResourceOwner(
   resourceUserId: string | null | undefined,
 ): Promise<SessionUser> {
-  const user = await getCurrentUser();
-
-  if (!user) {
-    redirect(LOGIN_ROUTE);
-    return undefined as never;
-  }
+  const user = await requireAuthenticatedUser();
 
   if (!resourceUserId || resourceUserId !== user.id) {
     notFound();

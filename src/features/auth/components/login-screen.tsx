@@ -74,9 +74,11 @@ function BrandPanel() {
 function LoginContent({
   redirectTo,
   registered,
+  defaultVillageCode,
 }: {
   redirectTo: string;
   registered: boolean;
+  defaultVillageCode: string;
 }) {
   const { t, language } = useTranslation();
 
@@ -122,7 +124,10 @@ function LoginContent({
           ) : null}
 
           <div className="mt-6 sm:rounded-2xl sm:border sm:bg-card sm:p-6 sm:shadow-sm">
-            <LoginForm redirectTo={redirectTo} />
+            <LoginForm
+              defaultVillageCode={defaultVillageCode}
+              redirectTo={redirectTo}
+            />
           </div>
 
           <div className="mt-8 space-y-3 border-t pt-6 text-center">
@@ -157,15 +162,21 @@ function LoginContent({
 export function LoginScreen({
   redirectTo,
   registered,
+  defaultVillageCode = "",
 }: {
   redirectTo: string;
   registered: boolean;
+  defaultVillageCode?: string;
 }) {
   const language = useLoginLanguage();
 
   return (
     <TranslationProvider language={language}>
-      <LoginContent redirectTo={redirectTo} registered={registered} />
+      <LoginContent
+        defaultVillageCode={defaultVillageCode}
+        redirectTo={redirectTo}
+        registered={registered}
+      />
     </TranslationProvider>
   );
 }

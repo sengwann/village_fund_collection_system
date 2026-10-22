@@ -31,6 +31,11 @@ export async function searchPaymentStatusAction(
   if (!user) {
     return { ok: false, error: "You must be signed in." };
   }
+  // This action reads the session directly, so it applies the forced
+  // password change gate itself.
+  if (user.mustChangePassword) {
+    return { ok: false, error: "You must change your password first." };
+  }
   if (user.role === UserRole.SYSTEM_ADMIN || !user.villageId) {
     return { ok: false, error: "Village not found." };
   }

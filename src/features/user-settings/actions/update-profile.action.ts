@@ -6,6 +6,10 @@ import { prisma } from "@/lib/prisma";
 import { requireAuthenticatedUser } from "@/lib/auth/guards";
 import { AuditEntityType, createAuditLog } from "@/lib/audit";
 import {
+  getUserIdentifierViolation,
+  isUniqueViolation,
+} from "@/lib/db/unique-violation";
+import {
   validateProfileInput,
   type ProfileField,
 } from "../lib/settings-validators";
@@ -50,14 +54,21 @@ export async function updateProfileAction(
       });
     });
   } catch (error) {
-    const prismaError = error as { code?: string; meta?: { target?: unknown } };
-    if (prismaError.code === "P2002") {
-      const targetInfo = JSON.stringify(prismaError.meta?.target ?? "");
-      if (targetInfo.includes("email")) {
-        return { success: false, fieldErrors: { email: "This email is already in use." } };
+    // Email and phone are unique per village, so "in use" means in use inside
+    // this account's own village (or among administrators for an admin).
+    if (isUniqueViolation(error)) {
+      const field = getUserIdentifierViolation(error);
+      if (field === "email") {
+        return {
+          success: false,
+          fieldErrors: { email: "This email is already in use." },
+        };
       }
-      if (targetInfo.includes("phone")) {
-        return { success: false, fieldErrors: { phone: "This phone number is already in use." } };
+      if (field === "phone") {
+        return {
+          success: false,
+          fieldErrors: { phone: "This phone number is already in use." },
+        };
       }
     }
     return {

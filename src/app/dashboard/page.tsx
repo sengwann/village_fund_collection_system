@@ -1,7 +1,10 @@
 import { redirect } from "next/navigation";
 import { MembershipStatus, UserRole } from "@prisma/client";
 import { getCurrentUser } from "../../lib/auth/session";
-import { LOGIN_ROUTE } from "../../lib/auth/auth.constants";
+import {
+  CHANGE_PASSWORD_ROUTE,
+  LOGIN_ROUTE,
+} from "../../lib/auth/auth.constants";
 
 export const metadata = {
   title: "Dashboard | Village Fund Collection System",
@@ -12,6 +15,10 @@ export default async function DashboardRedirectPage() {
 
   if (!user) {
     redirect(LOGIN_ROUTE);
+  }
+
+  if (user.mustChangePassword) {
+    redirect(CHANGE_PASSWORD_ROUTE);
   }
 
   if (user.role === UserRole.SYSTEM_ADMIN) {

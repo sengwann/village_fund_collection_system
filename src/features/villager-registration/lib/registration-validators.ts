@@ -1,21 +1,13 @@
 import "server-only";
 
+import { normalizeEmail, normalizePhone } from "@/lib/auth/identifiers";
+import { checkPasswordRules } from "@/lib/auth/password-rules";
+
 const VILLAGE_CODE_REGEX = /^[A-Z0-9]{3,20}$/;
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const PHONE_ALLOWED_CHARACTERS_REGEX = /^[0-9+\-\s()]+$/;
-const PHONE_NORMALIZED_REGEX = /^\+?\d{5,15}$/;
 const DATE_REGEX = /^(\d{4})-(\d{2})-(\d{2})$/;
 
-// Login rejects identifiers longer than 191 characters, so registration must
-// not accept anything the account could never sign in with.
-const IDENTIFIER_MAX_LENGTH = 191;
-const PHONE_RAW_MAX_LENGTH = 30;
-
-// bcrypt only uses the first 72 BYTES of the password. Myanmar script is
-// 3 bytes per character in UTF-8, so a character count alone is not enough.
-const PASSWORD_MIN_LENGTH = 8;
-const PASSWORD_MAX_LENGTH = 72;
-const PASSWORD_MAX_BYTES = 72;
+export const PASSWORD_BYTES_MESSAGE =
+  "Password is too long. Myanmar characters count as 3 each; use at most 72 bytes (about 24 Myanmar characters).";
 
 export type VillageCodeField = "villageCode";
 export type RegisterField =
@@ -83,16 +75,6 @@ export function validateVillageCodeInput(
   return { ok: true, data: { villageCode } };
 }
 
-function isPasswordLengthValid(password: string): boolean {
-  if (
-    password.length < PASSWORD_MIN_LENGTH ||
-    password.length > PASSWORD_MAX_LENGTH
-  ) {
-    return false;
-  }
-  return new TextEncoder().encode(password).length <= PASSWORD_MAX_BYTES;
-}
-
 /**
  * Parses a date string (YYYY-MM-DD) into a Date object.
  * Returns null if empty, malformed, not a real calendar date, in the future,
@@ -151,37 +133,26 @@ export function validateRegisterInput(
   let email: string | null = null;
   let phone: string | null = null;
   if (rawEmail) {
-    const normalizedEmail = rawEmail.toLowerCase();
-    if (
-      normalizedEmail.length > IDENTIFIER_MAX_LENGTH ||
-      !EMAIL_REGEX.test(normalizedEmail)
-    ) {
+    email = normalizeEmail(rawEmail);
+    if (!email) {
       fieldErrors.email = "Email is invalid.";
-    } else {
-      email = normalizedEmail;
     }
   }
   if (rawPhone) {
-    if (
-      rawPhone.length > PHONE_RAW_MAX_LENGTH ||
-      !PHONE_ALLOWED_CHARACTERS_REGEX.test(rawPhone)
-    ) {
+    phone = normalizePhone(rawPhone);
+    if (!phone) {
       fieldErrors.phone = "Phone number is invalid.";
-    } else {
-      const normalizedPhone = rawPhone.replace(/[\s\-().]/g, "");
-      if (!PHONE_NORMALIZED_REGEX.test(normalizedPhone)) {
-        fieldErrors.phone = "Phone number is invalid.";
-      } else {
-        phone = normalizedPhone;
-      }
     }
   }
   if (!rawEmail && !rawPhone) {
     fieldErrors.identifier =
       "Provide at least one login identifier: email or phone.";
   }
-  if (!isPasswordLengthValid(rawPassword)) {
+  const passwordViolation = checkPasswordRules(rawPassword);
+  if (passwordViolation === "LENGTH") {
     fieldErrors.password = "Password must be between 8 and 72 characters.";
+  } else if (passwordViolation === "TOO_MANY_BYTES") {
+    fieldErrors.password = PASSWORD_BYTES_MESSAGE;
   }
   if (houseNumber.length < 2 || houseNumber.length > 30) {
     fieldErrors.houseNumber = "Select a valid house number.";

@@ -165,7 +165,7 @@ describe("loginAction", () => {
     await loginAction(form("Nobody@B.co"));
 
     expect(mocks.reserveLoginAttempt).toHaveBeenCalledWith(expect.anything(), {
-      identityKey: "identifier:email:nobody@b.co",
+      identityKey: "identifier:admin:email:nobody@b.co",
       clientIp: "203.0.113.7",
     });
   });

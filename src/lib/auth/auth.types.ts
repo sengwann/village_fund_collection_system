@@ -10,6 +10,12 @@ export interface SessionUser {
   email: string | null;
   phone: string | null;
   dateOfBirth: Date | null;
+  /**
+   * True until a newly created Chief has replaced the initial password.
+   * Server guards refuse everything except changing the password and signing
+   * out while this is set (see guards.ts).
+   */
+  mustChangePassword: boolean;
 }
 
 export type LoginFailureCode = "INVALID_CREDENTIALS" | "THROTTLED";

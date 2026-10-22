@@ -42,29 +42,37 @@ async function main() {
   const seedConfig = getSeedConfig();
   const adminPasswordHash = await hashPassword(seedConfig.adminPassword);
 
-  await prisma.user.upsert({
-    where: { email: seedConfig.adminEmail },
-    update: {
-      name: "System Admin",
-      passwordHash: adminPasswordHash,
-      role: UserRole.SYSTEM_ADMIN,
-      villageId: null,
-      houseId: null,
-      membershipStatus: null,
-    },
-    create: {
-      name: "System Admin",
-      email: seedConfig.adminEmail,
-      passwordHash: adminPasswordHash,
-      role: UserRole.SYSTEM_ADMIN,
-      villageId: null,
-      houseId: null,
-      membershipStatus: null,
-    },
+  // Email is unique per village and a System Admin has no village, so there
+  // is no single-column unique key to upsert on any more. Find the admin by
+  // email among accounts without a village, then update or create it.
+  const adminEmail = seedConfig.adminEmail.trim().toLowerCase();
+  const adminData = {
+    name: "System Admin",
+    passwordHash: adminPasswordHash,
+    role: UserRole.SYSTEM_ADMIN,
+    villageId: null,
+    houseId: null,
+    membershipStatus: null,
+  };
+
+  const existingAdmin = await prisma.user.findFirst({
+    where: { email: adminEmail, villageId: null },
+    select: { id: true },
   });
 
+  if (existingAdmin) {
+    await prisma.user.update({
+      where: { id: existingAdmin.id },
+      data: adminData,
+    });
+  } else {
+    await prisma.user.create({
+      data: { ...adminData, email: adminEmail },
+    });
+  }
+
   console.log("Development seed completed.");
-  console.log("System Admin:", seedConfig.adminEmail);
+  console.log("System Admin:", adminEmail);
 }
 
 main()

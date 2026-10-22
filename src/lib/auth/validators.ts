@@ -4,13 +4,14 @@ import {
   AUTH_INVALID_CREDENTIALS_MESSAGE,
   DEFAULT_POST_LOGIN_ROUTE,
 } from "./auth.constants";
+import {
+  IDENTIFIER_MAX_LENGTH,
+  normalizeEmail,
+  normalizePhone,
+} from "./identifiers";
 import { sanitizeRedirectPath } from "./safe-redirect";
 
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-const PHONE_ALLOWED_CHARACTERS_REGEX = /^[0-9+\-\s()]+$/;
-
-const PHONE_NORMALIZED_REGEX = /^\+?\d{5,15}$/;
+const VILLAGE_CODE_REGEX = /^[A-Z0-9]{3,20}$/;
 
 export type NormalizedIdentifier =
   | {
@@ -27,37 +28,24 @@ export function normalizeIdentifier(
 ): NormalizedIdentifier | null {
   const identifier = rawIdentifier.trim();
 
-  if (!identifier || identifier.length > 191) {
+  if (!identifier || identifier.length > IDENTIFIER_MAX_LENGTH) {
     return null;
   }
 
   if (identifier.includes("@")) {
-    const email = identifier.toLowerCase();
+    const email = normalizeEmail(identifier);
 
-    if (!EMAIL_REGEX.test(email)) {
-      return null;
-    }
-
-    return {
-      type: "email",
-      value: email,
-    };
+    return email ? { type: "email", value: email } : null;
   }
 
-  if (!PHONE_ALLOWED_CHARACTERS_REGEX.test(identifier)) {
-    return null;
-  }
+  const phone = normalizePhone(identifier);
 
-  const phone = identifier.replace(/[\s\-().]/g, "");
+  return phone ? { type: "phone", value: phone } : null;
+}
 
-  if (!PHONE_NORMALIZED_REGEX.test(phone)) {
-    return null;
-  }
-
-  return {
-    type: "phone",
-    value: phone,
-  };
+/** Same normalization as registration and village creation use. */
+export function normalizeLoginVillageCode(raw: string): string {
+  return raw.trim().toUpperCase().replace(/\s+/g, "");
 }
 
 export type LoginValidationResult =
@@ -66,6 +54,12 @@ export type LoginValidationResult =
       data: {
         identifier: NormalizedIdentifier;
         password: string;
+        /**
+         * Village the account belongs to. null means a platform administrator
+         * sign-in: only accounts with the SYSTEM_ADMIN role and no village are
+         * considered.
+         */
+        villageCode: string | null;
         redirectTo?: string;
       };
     }
@@ -77,12 +71,16 @@ export type LoginValidationResult =
 export function validateLoginInput(input: {
   identifier?: unknown;
   password?: unknown;
+  villageCode?: unknown;
   redirectTo?: unknown;
 }): LoginValidationResult {
   const identifier =
     typeof input.identifier === "string" ? input.identifier : "";
 
   const password = typeof input.password === "string" ? input.password : "";
+
+  const rawVillageCode =
+    typeof input.villageCode === "string" ? input.villageCode : "";
 
   const redirectTo =
     typeof input.redirectTo === "string" && input.redirectTo.length > 0
@@ -108,11 +106,23 @@ export function validateLoginInput(input: {
     return invalidResult;
   }
 
+  // A blank code is the platform administrator sign-in. A code that is not
+  // blank must look like a village code; anything else cannot match a village.
+  let villageCode: string | null = null;
+  if (rawVillageCode.trim()) {
+    villageCode = normalizeLoginVillageCode(rawVillageCode);
+
+    if (!VILLAGE_CODE_REGEX.test(villageCode)) {
+      return invalidResult;
+    }
+  }
+
   return {
     ok: true,
     data: {
       identifier: normalizedIdentifier,
       password,
+      villageCode,
       redirectTo,
     },
   };

@@ -94,9 +94,14 @@ model User {
   membershipStatus MembershipStatus?
   sessionVersion Int @default(0)
   name String
-  email String? @unique
-  phone String? @unique
+  /// Unique per village (see @@unique below). SYSTEM_ADMIN rows have no
+  /// village; their uniqueness is enforced by partial unique indexes that
+  /// Prisma cannot model (see the per_village_identifiers migration).
+  email String?
+  phone String?
   passwordHash String
+  /// True for a newly created Chief until the initial password is changed.
+  mustChangePassword Boolean @default(false)
   dateOfBirth DateTime? @db.Date
   kpayAccountName String?
   kpayAccountNumber String?
@@ -114,6 +119,8 @@ model User {
   @@index([villageId, membershipStatus])
   @@index([villageId, houseId])
   @@index([villageId, dateOfBirth])
+  @@unique([villageId, email])
+  @@unique([villageId, phone])
 }
 
 model House {

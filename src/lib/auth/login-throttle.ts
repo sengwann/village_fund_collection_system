@@ -11,6 +11,7 @@ import {
   LOGIN_THROTTLE_IP_MAX_ATTEMPTS,
   LOGIN_THROTTLE_RETENTION_SECONDS,
   LOGIN_THROTTLE_WINDOW_SECONDS,
+  SIGNUP_THROTTLE_IP_MAX_ATTEMPTS,
 } from "./auth.constants";
 
 /*
@@ -29,7 +30,7 @@ import {
  *  - Otherwise attempts + 1; exceeding maxAttempts starts the cooldown.
  */
 
-export type LoginThrottleScope = "IDENTIFIER_IP" | "IP";
+export type LoginThrottleScope = "IDENTIFIER_IP" | "IP" | "SIGNUP_IP";
 
 export interface ThrottlePolicy {
   maxAttempts: number;
@@ -69,6 +70,12 @@ export const IDENTIFIER_IP_POLICY: ThrottlePolicy = {
 
 export const IP_POLICY: ThrottlePolicy = {
   maxAttempts: LOGIN_THROTTLE_IP_MAX_ATTEMPTS,
+  windowSeconds: LOGIN_THROTTLE_WINDOW_SECONDS,
+  cooldownSeconds: LOGIN_THROTTLE_COOLDOWN_SECONDS,
+};
+
+export const SIGNUP_IP_POLICY: ThrottlePolicy = {
+  maxAttempts: SIGNUP_THROTTLE_IP_MAX_ATTEMPTS,
   windowSeconds: LOGIN_THROTTLE_WINDOW_SECONDS,
   cooldownSeconds: LOGIN_THROTTLE_COOLDOWN_SECONDS,
 };
@@ -257,6 +264,41 @@ export async function reserveLoginAttempt(
   });
 
   return { blocked, retryAfterSeconds, identifierKeyHash, newLockouts };
+}
+
+export interface SignupAttemptReservation {
+  blocked: boolean;
+  retryAfterSeconds: number;
+}
+
+/**
+ * Counts one signup-flow request (village-code check or registration) against
+ * the client IP. Village codes are short, so without this anyone could try
+ * them one after another, and every registration costs a bcrypt hash.
+ *
+ * Without a known client IP nothing is counted, for the same reason as the
+ * login throttle: one shared "unknown IP" bucket would lock everybody out.
+ */
+export async function reserveSignupAttempt(
+  client: PrismaClient,
+  input: { clientIp: string | null },
+): Promise<SignupAttemptReservation> {
+  if (!input.clientIp) {
+    return { blocked: false, retryAfterSeconds: 0 };
+  }
+
+  const secret = getThrottleSecret();
+  const result = await consumeThrottleAttempt(
+    client,
+    "SIGNUP_IP",
+    hashThrottleKey(secret, "SIGNUP_IP", input.clientIp),
+    SIGNUP_IP_POLICY,
+  );
+
+  return {
+    blocked: result.blocked,
+    retryAfterSeconds: result.retryAfterSeconds,
+  };
 }
 
 /**

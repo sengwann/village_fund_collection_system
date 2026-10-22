@@ -14,6 +14,9 @@ const SERVER_MESSAGES: Record<string, TranslationKey> = {
   "Provide at least one login identifier: email or phone.":
     "signup.err.identifier",
   "Password must be between 8 and 72 characters.": "signup.err.password",
+  "Password is too long. Myanmar characters count as 3 each; use at most 72 bytes (about 24 Myanmar characters).":
+    "signup.err.passwordBytes",
+  "Too many attempts. Please try again later.": "signup.err.throttled",
   "Select a valid house number.": "signup.err.houseNumber",
   "Date of birth is invalid. It cannot be in the future.": "signup.err.dob",
   "Selected house is not available.": "signup.err.houseUnavailable",

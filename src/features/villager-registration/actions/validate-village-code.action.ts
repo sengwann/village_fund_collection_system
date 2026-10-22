@@ -2,6 +2,8 @@
 
 import { VillageStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import { getClientIp } from "@/lib/auth/client-ip";
+import { reserveSignupAttempt } from "@/lib/auth/login-throttle";
 import {
   validateVillageCodeInput,
   type VillageCodeField,
@@ -21,6 +23,17 @@ export type ValidateVillageCodeActionResult =
 export async function validateVillageCodeAction(
   formData: FormData,
 ): Promise<ValidateVillageCodeActionResult> {
+  // Village codes are short, so guessing them is throttled per IP.
+  const throttle = await reserveSignupAttempt(prisma, {
+    clientIp: await getClientIp(),
+  });
+  if (throttle.blocked) {
+    return {
+      success: false,
+      formError: "Too many attempts. Please try again later.",
+    };
+  }
+
   const validation = validateVillageCodeInput(formData);
 
   if (!validation.ok) {

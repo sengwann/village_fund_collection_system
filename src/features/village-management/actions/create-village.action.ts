@@ -43,17 +43,17 @@ type CreateVillageTransactionResult =
     };
 
 /*
- * Reads inside the same transaction, so duplicates are reported per field
+ * Reads inside the same transaction, so a duplicate village code is reported
  * without depending on the shape of the database driver's unique-violation
  * error. The P2002 handling below remains as the fallback for a race.
+ *
+ * Email and phone are unique PER VILLAGE and this village does not exist yet,
+ * so the Chief's identifiers cannot conflict with anyone. They are not checked
+ * here; the database constraints still enforce it.
  */
 async function findConflicts(
   tx: Prisma.TransactionClient,
-  input: {
-    villageCode: string;
-    chiefEmail: string | null;
-    chiefPhone: string | null;
-  },
+  input: { villageCode: string },
 ): Promise<CreateVillageFieldErrors> {
   const fieldErrors: CreateVillageFieldErrors = {};
 
@@ -64,28 +64,6 @@ async function findConflicts(
 
   if (village) {
     fieldErrors.villageCode = "CODE_EXISTS";
-  }
-
-  if (input.chiefEmail) {
-    const user = await tx.user.findUnique({
-      where: { email: input.chiefEmail },
-      select: { id: true },
-    });
-
-    if (user) {
-      fieldErrors.chiefEmail = "EMAIL_EXISTS";
-    }
-  }
-
-  if (input.chiefPhone) {
-    const user = await tx.user.findUnique({
-      where: { phone: input.chiefPhone },
-      select: { id: true },
-    });
-
-    if (user) {
-      fieldErrors.chiefPhone = "PHONE_EXISTS";
-    }
   }
 
   return fieldErrors;
@@ -198,11 +176,7 @@ export async function createVillageAction(
     const result = await withSerializableRetry(() =>
       prisma.$transaction(
         async (tx): Promise<CreateVillageTransactionResult> => {
-          const conflicts = await findConflicts(tx, {
-            villageCode,
-            chiefEmail,
-            chiefPhone,
-          });
+          const conflicts = await findConflicts(tx, { villageCode });
 
           if (Object.keys(conflicts).length > 0) {
             return { ok: false, fieldErrors: conflicts };
@@ -226,6 +200,9 @@ export async function createVillageAction(
               villageId: newVillage.id,
               houseId: null,
               membershipStatus: MembershipStatus.ACTIVE,
+              // The password was typed by the System Admin, so the Chief must
+              // replace it before using anything (enforced server-side).
+              mustChangePassword: true,
             },
             select: {
               id: true,

@@ -1,7 +1,8 @@
 import "server-only";
 import { LanguagePreference } from "@prisma/client";
+import { normalizeEmail, normalizePhone } from "@/lib/auth/identifiers";
+import { checkPasswordRules } from "@/lib/auth/password-rules";
 
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_ALLOWED_CHARACTERS_REGEX = /^[0-9+\-\s()]+$/;
 const PHONE_NORMALIZED_REGEX = /^\+?\d{5,15}$/;
 const DATE_REGEX = /^(\d{4})-(\d{2})-(\d{2})$/;
@@ -121,24 +122,16 @@ export function validateProfileInput(
   let phone: string | null = null;
 
   if (rawEmail) {
-    const normalizedEmail = rawEmail.toLowerCase();
-    if (!EMAIL_REGEX.test(normalizedEmail)) {
+    email = normalizeEmail(rawEmail);
+    if (!email) {
       fieldErrors.email = "Email is invalid.";
-    } else {
-      email = normalizedEmail;
     }
   }
 
   if (rawPhone) {
-    if (!PHONE_ALLOWED_CHARACTERS_REGEX.test(rawPhone)) {
+    phone = normalizePhone(rawPhone);
+    if (!phone) {
       fieldErrors.phone = "Phone number is invalid.";
-    } else {
-      const normalizedPhone = rawPhone.replace(/[\s\-().]/g, "");
-      if (!PHONE_NORMALIZED_REGEX.test(normalizedPhone)) {
-        fieldErrors.phone = "Phone number is invalid.";
-      } else {
-        phone = normalizedPhone;
-      }
     }
   }
 
@@ -195,9 +188,13 @@ export function validatePasswordInput(
     fieldErrors.currentPassword = "Current password is required.";
   }
 
-  if (newPassword.length < 8 || newPassword.length > 72) {
+  const passwordViolation = checkPasswordRules(newPassword);
+  if (passwordViolation === "LENGTH") {
     fieldErrors.newPassword =
       "New password must be between 8 and 72 characters.";
+  } else if (passwordViolation === "TOO_MANY_BYTES") {
+    fieldErrors.newPassword =
+      "New password is too long. Myanmar characters count as 3 each; use at most 72 bytes (about 24 Myanmar characters).";
   }
 
   if (newPassword !== confirmPassword) {

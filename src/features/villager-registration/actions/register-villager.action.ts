@@ -10,6 +10,12 @@ import {
 import { prisma } from "@/lib/prisma";
 import { withSerializableRetry } from "@/lib/db/transaction";
 import { hashPassword } from "@/lib/auth/password";
+import { getClientIp } from "@/lib/auth/client-ip";
+import { reserveSignupAttempt } from "@/lib/auth/login-throttle";
+import {
+  getUserIdentifierViolation,
+  isUniqueViolation,
+} from "@/lib/db/unique-violation";
 import { revalidateVillageShell } from "../../shell/lib/shell-revalidation";
 import {
   validateRegisterInput,
@@ -35,31 +41,21 @@ class RegistrationInputError extends Error {
   }
 }
 
-type PrismaLikeError = {
-  code?: string;
-  message?: string;
-  meta?: unknown;
-};
-
-/**
- * Collects every place a unique-constraint error may name the violated field.
- * With the classic engine this is `meta.target`; with driver adapters (the pg
- * adapter used here) the details can sit under `meta.driverAdapterError`, or
- * only appear in the message. Search them all.
- */
-function getUniqueViolationInfo(error: PrismaLikeError): string {
-  let metaText = "";
-  try {
-    metaText = JSON.stringify(error.meta ?? "");
-  } catch {
-    metaText = "";
-  }
-  return `${metaText} ${error.message ?? ""}`.toLowerCase();
-}
-
 export async function registerVillagerAction(
   formData: FormData,
 ): Promise<RegisterVillagerActionResult> {
+  // Throttled before validation and before the bcrypt hash, so repeated
+  // requests from one address stay cheap for the server.
+  const throttle = await reserveSignupAttempt(prisma, {
+    clientIp: await getClientIp(),
+  });
+  if (throttle.blocked) {
+    return {
+      success: false,
+      formError: "Too many attempts. Please try again later.",
+    };
+  }
+
   const validation = validateRegisterInput(formData);
   if (!validation.ok) {
     return {
@@ -163,7 +159,7 @@ export async function registerVillagerAction(
     revalidateVillageShell();
     return {
       success: true,
-      redirectTo: "/login?registered=1",
+      redirectTo: `/login?registered=1&village=${encodeURIComponent(villageCode)}`,
     };
   } catch (error) {
     if (error instanceof RegistrationInputError) {
@@ -173,14 +169,12 @@ export async function registerVillagerAction(
       };
     }
 
-    const prismaError = error as PrismaLikeError;
+    if (isUniqueViolation(error)) {
+      // Email and phone are unique per village, so this only means the
+      // address or number is already used inside THIS village.
+      const field = getUserIdentifierViolation(error);
 
-    if (prismaError.code === "P2002") {
-      const info = getUniqueViolationInfo(prismaError);
-      const emailViolation = info.includes("email");
-      const phoneViolation = info.includes("phone");
-
-      if (emailViolation && !phoneViolation) {
+      if (field === "email") {
         return {
           success: false,
           fieldErrors: {
@@ -188,7 +182,7 @@ export async function registerVillagerAction(
           },
         };
       }
-      if (phoneViolation && !emailViolation) {
+      if (field === "phone") {
         return {
           success: false,
           fieldErrors: {
