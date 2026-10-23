@@ -4,7 +4,7 @@ import { MembershipStatus } from "@prisma/client";
 
 export interface MembershipActionTarget {
   id: string;
-  membershipStatus: MembershipStatus;
+  membershipStatus: MembershipStatus | null;
 }
 
 export interface MembershipActionHouse {

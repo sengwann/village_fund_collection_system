@@ -1,11 +1,21 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { AuditActionType, MembershipStatus } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import { prisma } from "../../../lib/prisma";
+import { getCurrentPeriod } from "../../../lib/authz";
+import { withSerializableRetry } from "../../../lib/db/transaction";
+import { revalidateVillageShell } from "../../shell/lib/shell-revalidation";
 import { requireHouseholdManagementAccess } from "../lib/household-access";
 import { canRemoveActiveMember } from "../lib/membership-rules";
-import { AuditEntityType, createAuditLog } from "../../../lib/audit";
+import {
+  REMOVE_MEMBER_ERROR,
+  removeMemberAndDeactivateAssignments,
+} from "../lib/remove-member-transaction";
+
+const KNOWN_REMOVE_MEMBER_ERRORS = new Set<string>(
+  Object.values(REMOVE_MEMBER_ERROR),
+);
 
 function getFormDataString(formData: FormData, key: string): string {
   const value = formData.get(key);
@@ -39,34 +49,43 @@ export async function removeMemberAction(formData: FormData): Promise<void> {
     redirect("/village/household");
   }
 
-  const updated = await prisma.user.updateMany({
-    where: {
-      id: target.id,
-      houseId: house.id,
-      villageId: house.villageId,
-      membershipStatus: MembershipStatus.ACTIVE,
-    },
-    data: {
-      membershipStatus: MembershipStatus.REMOVED,
-    },
-  });
+  const currentPeriod = getCurrentPeriod();
+  let removed = false;
 
-  if (updated.count !== 1) {
-    redirect("/village/household");
+  // redirect() works by throwing, so it must stay outside this try/catch.
+  try {
+    await withSerializableRetry(() =>
+      prisma.$transaction(
+        async (tx) => {
+          await removeMemberAndDeactivateAssignments(tx, {
+            actorUserId: user.id,
+            houseId: house.id,
+            villageId: house.villageId,
+            targetUserId: target.id,
+            currentPeriod,
+          });
+        },
+        {
+          isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
+        },
+      ),
+    );
+    removed = true;
+  } catch (error) {
+    // Expected race outcomes (head changed, member already removed) are
+    // handled silently, like the other household actions. Anything else is
+    // logged so a real failure is not hidden.
+    const isKnown =
+      error instanceof Error && KNOWN_REMOVE_MEMBER_ERRORS.has(error.message);
+
+    if (!isKnown) {
+      console.error("removeMemberAction failed", error);
+    }
   }
 
-  await createAuditLog(prisma, {
-    actionType: AuditActionType.REMOVE,
-    entityType: AuditEntityType.USER,
-    entityId: target.id,
-    villageId: house.villageId,
-    actorUserId: user.id,
-    metadata: {
-      previousMembershipStatus: MembershipStatus.ACTIVE,
-      newMembershipStatus: MembershipStatus.REMOVED,
-      houseId: house.id,
-    },
-  });
+  if (removed) {
+    revalidateVillageShell();
+  }
 
   redirect("/village/household");
 }

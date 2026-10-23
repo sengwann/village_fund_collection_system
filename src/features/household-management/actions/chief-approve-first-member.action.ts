@@ -10,6 +10,7 @@ import {
 } from "@prisma/client";
 import { prisma } from "../../../lib/prisma";
 import { withSerializableRetry } from "../../../lib/db/transaction";
+import { lockActiveVillage } from "../../../lib/authz/village";
 import { requireChief } from "../../../lib/authz/roles";
 import { revalidateVillageShell } from "../../shell/lib/shell-revalidation";
 import { AuditEntityType, createAuditLog } from "../../../lib/audit";
@@ -17,18 +18,12 @@ import { canChiefApproveFirstMember } from "../lib/chief-membership-rules";
 
 function getFormDataString(formData: FormData, key: string): string {
   const value = formData.get(key);
-
-  if (typeof value === "string") {
-    return value;
-  }
-
-  return "";
+  return typeof value === "string" ? value : "";
 }
 
 /**
- * Chief approves one pending member of a house that has no head.
- * The member becomes ACTIVE and Head of House in a single transaction.
- * Remaining pending members stay PENDING and move to the new head's queue.
+ * Chief approves one pending member of an active, headless house.
+ * The member becomes ACTIVE and Head of House in one transaction.
  */
 export async function chiefApproveFirstMemberAction(
   formData: FormData,
@@ -48,7 +43,6 @@ export async function chiefApproveFirstMemberAction(
     redirect(detailPath);
   }
 
-  // Village scoping: the house must belong to the Chief's own village.
   const house = await prisma.house.findFirst({
     where: {
       id: houseId,
@@ -86,8 +80,10 @@ export async function chiefApproveFirstMemberAction(
     await withSerializableRetry(() =>
       prisma.$transaction(
         async (tx) => {
-          // Claim the head slot only if the house still has no head. A plain
-          // update could silently overwrite a head assigned a moment ago.
+          if (!(await lockActiveVillage(tx, villageId))) {
+            throw new Error("VILLAGE_INACTIVE");
+          }
+
           const claimed = await tx.house.updateMany({
             where: {
               id: house.id,
@@ -141,8 +137,6 @@ export async function chiefApproveFirstMemberAction(
       ),
     );
   } catch {
-    // Lost a race (another head was set) or the member's state changed.
-    // The transaction rolled back, so nothing was written.
     redirect(detailPath);
   }
 

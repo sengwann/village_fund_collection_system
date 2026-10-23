@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { AuditActionType, MembershipStatus, Prisma } from "@prisma/client";
 import { prisma } from "../../../lib/prisma";
 import { withSerializableRetry } from "../../../lib/db/transaction";
+import { lockActiveVillage } from "../../../lib/authz/village";
 import { requireHouseholdManagementAccess } from "../lib/household-access";
 import { revalidateVillageShell } from "../../shell/lib/shell-revalidation";
 import { canApprovePendingMember } from "../lib/membership-rules";
@@ -11,19 +12,13 @@ import { AuditEntityType, createAuditLog } from "../../../lib/audit";
 
 function getFormDataString(formData: FormData, key: string): string {
   const value = formData.get(key);
-
-  if (typeof value === "string") {
-    return value;
-  }
-
-  return "";
+  return typeof value === "string" ? value : "";
 }
 
 export async function approveMemberAction(formData: FormData): Promise<void> {
   const { user, house } = await requireHouseholdManagementAccess();
 
   const memberId = getFormDataString(formData, "memberId");
-
   if (!memberId) {
     redirect("/village/household");
   }
@@ -48,12 +43,31 @@ export async function approveMemberAction(formData: FormData): Promise<void> {
     await withSerializableRetry(() =>
       prisma.$transaction(
         async (tx) => {
+          if (!(await lockActiveVillage(tx, house.villageId))) {
+            throw new Error("VILLAGE_INACTIVE");
+          }
+
+          const currentHouse = await tx.house.findFirst({
+            where: {
+              id: house.id,
+              villageId: house.villageId,
+              isActive: true,
+              headOfHouseId: user.id,
+            },
+            select: { id: true },
+          });
+
+          if (!currentHouse) {
+            throw new Error("HOUSEHOLD_ACCESS_CHANGED");
+          }
+
           const updated = await tx.user.updateMany({
             where: {
               id: target.id,
-              houseId: house.id,
+              houseId: currentHouse.id,
               villageId: house.villageId,
               membershipStatus: MembershipStatus.PENDING,
+              NOT: { id: user.id },
             },
             data: {
               membershipStatus: MembershipStatus.ACTIVE,
@@ -82,18 +96,10 @@ export async function approveMemberAction(formData: FormData): Promise<void> {
         },
       ),
     );
-  } catch (error) {
-    if (
-      error instanceof Error &&
-      error.message === "INVALID_MEMBERSHIP_STATE"
-    ) {
-      redirect("/village/household");
-    }
-
+  } catch {
     redirect("/village/household");
   }
 
   revalidateVillageShell();
-
   redirect("/village/household");
 }

@@ -1,18 +1,17 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { AuditActionType, MembershipStatus } from "@prisma/client";
+import { AuditActionType, MembershipStatus, Prisma } from "@prisma/client";
 import { prisma } from "../../../lib/prisma";
+import { withSerializableRetry } from "../../../lib/db/transaction";
+import { lockActiveVillage } from "../../../lib/authz/village";
 import { requireHouseholdManagementAccess } from "../lib/household-access";
 import { canChangeHeadOfHouse } from "../lib/membership-rules";
 import { AuditEntityType, createAuditLog } from "../../../lib/audit";
 
 function getFormDataString(formData: FormData, key: string): string {
   const value = formData.get(key);
-  if (typeof value === "string") {
-    return value;
-  }
-  return "";
+  return typeof value === "string" ? value : "";
 }
 
 export async function changeHeadAction(formData: FormData): Promise<void> {
@@ -40,50 +39,76 @@ export async function changeHeadAction(formData: FormData): Promise<void> {
   }
 
   try {
-    await prisma.$transaction(async (tx) => {
-      const activeTarget = await tx.user.findFirst({
-        where: {
-          id: target.id,
-          houseId: house.id,
-          villageId: house.villageId,
-          membershipStatus: MembershipStatus.ACTIVE,
-        },
-        select: {
-          id: true,
-        },
-      });
+    await withSerializableRetry(() =>
+      prisma.$transaction(
+        async (tx) => {
+          if (!(await lockActiveVillage(tx, house.villageId))) {
+            throw new Error("VILLAGE_INACTIVE");
+          }
 
-      if (!activeTarget) {
-        throw new Error("INVALID_HEAD_TARGET");
-      }
+          const currentHouse = await tx.house.findFirst({
+            where: {
+              id: house.id,
+              villageId: house.villageId,
+              isActive: true,
+              headOfHouseId: user.id,
+            },
+            select: { id: true },
+          });
 
-      const updated = await tx.house.updateMany({
-        where: {
-          id: house.id,
-          headOfHouseId: user.id,
-        },
-        data: {
-          headOfHouseId: activeTarget.id,
-        },
-      });
+          if (!currentHouse) {
+            throw new Error("HOUSEHOLD_ACCESS_CHANGED");
+          }
 
-      if (updated.count !== 1) {
-        throw new Error("INVALID_HEAD_CHANGE");
-      }
+          const activeTarget = await tx.user.findFirst({
+            where: {
+              id: target.id,
+              houseId: currentHouse.id,
+              villageId: house.villageId,
+              membershipStatus: MembershipStatus.ACTIVE,
+              NOT: { id: user.id },
+            },
+            select: { id: true },
+          });
 
-      await createAuditLog(tx, {
-        actionType: AuditActionType.STATUS_CHANGE,
-        entityType: AuditEntityType.HOUSE,
-        entityId: house.id,
-        villageId: house.villageId,
-        actorUserId: user.id,
-        metadata: {
-          previousHeadOfHouseId: user.id,
-          newHeadOfHouseId: activeTarget.id,
-          houseId: house.id,
+          if (!activeTarget) {
+            throw new Error("INVALID_HEAD_TARGET");
+          }
+
+          const updated = await tx.house.updateMany({
+            where: {
+              id: currentHouse.id,
+              villageId: house.villageId,
+              isActive: true,
+              headOfHouseId: user.id,
+            },
+            data: {
+              headOfHouseId: activeTarget.id,
+            },
+          });
+
+          if (updated.count !== 1) {
+            throw new Error("INVALID_HEAD_CHANGE");
+          }
+
+          await createAuditLog(tx, {
+            actionType: AuditActionType.STATUS_CHANGE,
+            entityType: AuditEntityType.HOUSE,
+            entityId: currentHouse.id,
+            villageId: house.villageId,
+            actorUserId: user.id,
+            metadata: {
+              previousHeadOfHouseId: user.id,
+              newHeadOfHouseId: activeTarget.id,
+              houseId: currentHouse.id,
+            },
+          });
         },
-      });
-    });
+        {
+          isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
+        },
+      ),
+    );
   } catch {
     redirect("/village/household");
   }

@@ -10,6 +10,7 @@ import {
 } from "@prisma/client";
 import { prisma } from "../../../lib/prisma";
 import { withSerializableRetry } from "../../../lib/db/transaction";
+import { lockActiveVillage } from "../../../lib/authz/village";
 import { requireChief } from "../../../lib/authz/roles";
 import { revalidateVillageShell } from "../../shell/lib/shell-revalidation";
 import { AuditEntityType, createAuditLog } from "../../../lib/audit";
@@ -17,17 +18,13 @@ import { canChiefRejectPendingMember } from "../lib/chief-membership-rules";
 
 function getFormDataString(formData: FormData, key: string): string {
   const value = formData.get(key);
-
-  if (typeof value === "string") {
-    return value;
-  }
-
-  return "";
+  return typeof value === "string" ? value : "";
 }
 
 /**
- * Chief rejects a pending member of a house that has no head.
- * Once the house has a head, only that head can reject pending members.
+ * Chief rejects a pending member of a headless house.
+ * The existing rule allowing rejection on an inactive house is preserved,
+ * provided the village itself is active.
  */
 export async function chiefRejectPendingMemberAction(
   formData: FormData,
@@ -47,7 +44,6 @@ export async function chiefRejectPendingMemberAction(
     redirect(detailPath);
   }
 
-  // Village scoping: the house must belong to the Chief's own village.
   const house = await prisma.house.findFirst({
     where: {
       id: houseId,
@@ -85,8 +81,12 @@ export async function chiefRejectPendingMemberAction(
     await withSerializableRetry(() =>
       prisma.$transaction(
         async (tx) => {
-          // Re-check inside the transaction that the house is still headless,
-          // so the Chief cannot override a head who was approved meanwhile.
+          if (!(await lockActiveVillage(tx, villageId))) {
+            throw new Error("VILLAGE_INACTIVE");
+          }
+
+          // Preserve the existing rule: this action requires a headless house,
+          // but does not require the house itself to be active.
           const stillHeadless = await tx.house.count({
             where: {
               id: house.id,
